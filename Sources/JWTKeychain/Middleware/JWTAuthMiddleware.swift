@@ -8,6 +8,13 @@ import VaporJWT
 /// Authorization Bearer Token + JWT
 class JWTAuthMiddleware: Middleware {
     
+    /// Reads the configuration of the package
+    ///
+    /// - Parameter drop: droplet instance
+    /// - Throws: if unable to load required configs
+    public init(drop: Droplet) throws {
+        try Configuration.boot(drop:drop)
+    }
     
     /// Initiates the middleware logic
     ///

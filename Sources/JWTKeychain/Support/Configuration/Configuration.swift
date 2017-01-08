@@ -11,7 +11,7 @@ public protocol ConfigurationType {
     
     static var signatureKey: String? { get }
     
-    init(drop: Droplet) throws
+    static func boot(drop: Droplet) throws
 }
 
 public struct Configuration: ConfigurationType {
@@ -37,7 +37,8 @@ public struct Configuration: ConfigurationType {
     /// Key used to sign the JWT
     public static var signatureKey: String? = nil
     
-    public init(drop: Droplet) throws {
+    // Register configs
+    public static func boot(drop: Droplet) throws {
         Configuration.secondsToExpire = try Configuration.extract(field: .secondsToExpire , drop: drop)
         Configuration.signatureKey    = try Configuration.extract(field: .signatureKey, drop: drop)
     }

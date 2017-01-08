@@ -7,7 +7,7 @@ open class UserRoutes {
     /// Registers the routes on the given droplet
     ///
     /// - Parameter drop: droplet instance
-    func register(drop: Droplet) {
+    func register(drop: Droplet) throws{
         
         // Define the controller
         let controller = UsersController()
@@ -20,12 +20,14 @@ open class UserRoutes {
             error: Abort.custom(status: .unauthorized, message: "Unauthorized")
         )
         
+        let jwtMiddleware = try JWTAuthMiddleware(drop: drop)
+        
         // Public routes
         path.post(handler: controller.register)
         path.post("login", handler: controller.login)
         
         // Protected routes
-        path.group(JWTAuthMiddleware(), protect) { secured in
+        path.group(jwtMiddleware, protect) { secured in
             secured.get("logout", handler: controller.logout)
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)
