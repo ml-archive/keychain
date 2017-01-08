@@ -114,7 +114,7 @@ extension User {
             
             let token = try JWT(token: credentials.string)
             
-            if let userId = token.payload["sub"]?.object?["id"]?.int {
+            if let userId = token.payload["sub"]?.string {
                 user = try User.query().filter("id", userId).first()
             }
             

@@ -20,14 +20,12 @@ open class UserRoutes {
             error: Abort.custom(status: .unauthorized, message: "Unauthorized")
         )
         
-        let jwtMiddleware = try JWTAuthMiddleware(drop: drop)
-        
         // Public routes
         path.post(handler: controller.register)
         path.post("login", handler: controller.login)
         
         // Protected routes
-        path.group(jwtMiddleware, protect) { secured in
+        path.group(JWTAuthMiddleware(), protect) { secured in
             secured.get("logout", handler: controller.logout)
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)

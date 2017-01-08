@@ -11,25 +11,10 @@ public protocol ConfigurationType {
     
     static var signatureKey: String? { get }
     
-    static func boot(drop: Droplet) throws
+    static func boot(secondsToExpire: Double, signatureKey: String) throws
 }
 
 public struct Configuration: ConfigurationType {
-    
-    /// Enumeration of fields that should be present on the config
-    public enum Field: String {
-        case secondsToExpire    = "jwt.secondsToExpire"
-        case signatureKey       = "jwt.signatureKey"
-        
-        var path: [String] {
-            return rawValue.components(separatedBy: ".")
-        }
-        
-        var error: Abort {
-            return .custom(status: .internalServerError,
-                           message: "JWT error - \(rawValue) config is missing.")
-        }
-    }
     
     /// Seconds the JWT has to expire (in the future)
     public static var secondsToExpire: Double? = nil
@@ -38,43 +23,11 @@ public struct Configuration: ConfigurationType {
     public static var signatureKey: String? = nil
     
     // Register configs
-    public static func boot(drop: Droplet) throws {
-        Configuration.secondsToExpire = try Configuration.extract(field: .secondsToExpire , drop: drop)
-        Configuration.signatureKey    = try Configuration.extract(field: .signatureKey, drop: drop)
+    public static func boot(secondsToExpire: Double, signatureKey: String) throws {
+        Configuration.secondsToExpire = secondsToExpire
+        Configuration.signatureKey    = signatureKey
     }
     
-    /// Extracts the given field from the JSON config
-    /// as a String
-    ///
-    /// - Parameters:
-    ///   - field: field to be extracted
-    ///   - drop: droplet instance
-    /// - Returns: string with the value
-    /// - Throws: if field not found
-    private static func extract(field: Field , drop: Droplet) throws -> String {
-        guard let string = drop.config[field.path]?.string else {
-            throw field.error
-        }
-        
-        return string
-    }
-    
-    
-    /// Extracts the given field from the JSON config
-    /// as an Double
-    ///
-    /// - Parameters:
-    ///   - field: field to be extracted
-    ///   - drop: droplet instance
-    /// - Returns: double with the value
-    /// - Throws: if field not found
-    private static func extract(field: Field , drop: Droplet) throws -> Double {
-        guard let double = drop.config[field.path]?.double else {
-            throw field.error
-        }
-        
-        return double
-    }
     
     /// Gets token signature key
     ///

@@ -25,9 +25,7 @@ extension User {
             throw Abort.custom(status: .internalServerError, message: "Cannot generate tokens for unexisting users")
         }
         
-        guard let subClaim = SubjectClaim(Node(["user_id": userId])) else {
-            throw Abort.custom(status: .internalServerError, message: "Could not generate subject claim")
-        }
+        let subClaim = SubjectClaim(String(describing: userId))
         
         contents.append(subClaim)
         
