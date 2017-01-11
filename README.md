@@ -39,7 +39,7 @@ Add the AuthMiddleware with the User model
 Add JWTAuthMiddleware & AuthMiddleware  to your API groups
 
 ```swift
-drop.group(AuthMiddleware<User>(), JWTAuthMiddleware(drop: drop)) { jwtRoutes in
+drop.group(AuthMiddleware<User>(), JWTAuthMiddleware()) { jwtRoutes in
      //Routes
 }
 ```
