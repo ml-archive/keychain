@@ -1,6 +1,6 @@
 import Vapor
 
-public final class JWTProvider: Vapor.Provider {
+public final class Provider: Vapor.Provider {
     
     /// Seconds the JWT has to expire (in the future)
     public var secondsToExpire: Double? = nil
@@ -11,6 +11,10 @@ public final class JWTProvider: Vapor.Provider {
     public enum Error: Swift.Error {
         case noJWTConfig
         case missingConfig(String)
+    }
+    
+    convenience public init(drop: Droplet) throws {
+        try self.init(config: drop.config)
     }
     
     public init(config: Config) throws {
@@ -39,10 +43,12 @@ public final class JWTProvider: Vapor.Provider {
         self.signatureKey = signatureKey
     }
     
-    public func boot(_ drop: Droplet) throws {
-        
-        try Configuration.boot(secondsToExpire: self.secondsToExpire!, signatureKey: self.signatureKey!)
-        
+    public func boot(_ drop: Droplet) {
+        do {
+            try Configuration.boot(secondsToExpire: self.secondsToExpire!, signatureKey: self.signatureKey!)
+        } catch {
+            print("JWTKeyChain boot - Failed to load config \(error)")
+        }
     }
     
     /**
