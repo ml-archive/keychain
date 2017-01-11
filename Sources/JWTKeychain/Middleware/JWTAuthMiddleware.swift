@@ -6,7 +6,9 @@ import VaporJWT
 
 /// Middleware to extract and authorize a user via 
 /// Authorization Bearer Token + JWT
-class JWTAuthMiddleware: Middleware {
+public class JWTAuthMiddleware: Middleware {
+    
+    public init() {}
     
     /// Initiates the middleware logic
     ///
@@ -15,7 +17,7 @@ class JWTAuthMiddleware: Middleware {
     ///   - next: next middleware to execute in the chain
     /// - Returns: response from the next middleware in the chain
     /// - Throws: Unauthorized if auth fails or bad request if authorization is not set
-    func respond(to request: Request, chainingTo next: Responder) throws -> Response {
+    public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
         
         // Authorization: Bearer Token
         do{
