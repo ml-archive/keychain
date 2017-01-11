@@ -201,22 +201,29 @@ extension User: JSONRepresentable {
     
     func makeJSON(withToken: Bool = false) throws -> JSON {
         
-        var data: [String: NodeRepresentable] = [
-            "id": id ?? nil,
-            "name": self.name,
-            "email": self.email,
-            "created_at": self.createdAt?.to(Date.Format.ISO8601),
-            "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
-            "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
-        ]
-        
         if withToken {
-            data["token"] = try self.generateToken()   
+            
+            return try JSON(node: [
+                "id": self.id,
+                "name": self.name,
+                "email": self.email,
+                "token": self.generateToken(),
+                "created_at": self.createdAt?.to(Date.Format.ISO8601),
+                "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
+                "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
+                ])
+            
+        } else {
+            
+            return try JSON(node: [
+                "id": self.id,
+                "name": self.name,
+                "email": self.email,
+                "created_at": self.createdAt?.to(Date.Format.ISO8601),
+                "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
+                "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
+                ])
         }
-        
-        return try JSON(node: data)
     }
-    
 }
-
 
