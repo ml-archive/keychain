@@ -202,7 +202,7 @@ extension User: JSONRepresentable {
     func makeJSON(withToken: Bool = false) throws -> JSON {
         
         var data: [String: NodeRepresentable] = [
-            "id": self.id,
+            "id": id ?? nil,
             "name": self.name,
             "email": self.email,
             "created_at": self.createdAt?.to(Date.Format.ISO8601),
