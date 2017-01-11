@@ -21,7 +21,7 @@ extension Request {
     ///
     /// - Returns: Authenticated user
     /// - Throws: UnsupportedCredentialsError
-    func user() throws -> User {
+    public func user() throws -> User {
         
         // Try to retrieve authenticated user
         guard let user = try auth.user() as? User else {
