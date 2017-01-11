@@ -15,7 +15,7 @@ using a JWT Keychain.
 #### Config
 Update your `Package.swift` file.
 ```swift
-.Package(url: "https://github.com/nodes-vapor/jwt-keychain", majorVersion: 0)
+.Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
 Create config jwt.json
