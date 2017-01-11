@@ -34,9 +34,12 @@ import Auth
 import JWTKeychain
 ```
 
-Add the AuthMiddleware with the User model
+Setup provider
+```swift
+try drop.addProvider(JWTKeychain.Provider.self)
+```
 
-Add JWTAuthMiddleware & AuthMiddleware  to your API groups
+Add JWTAuthMiddleware & AuthMiddleware with Model to your API groups
 
 ```swift
 drop.group(AuthMiddleware<User>(), JWTAuthMiddleware()) { jwtRoutes in
