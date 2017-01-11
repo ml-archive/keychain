@@ -36,7 +36,7 @@ extension Request {
     ///
     /// - Returns: AccessToken
     /// - Throws: No authorization header or invalid bearer authorization
-    func getAuthorizationBearerToken() throws -> AccessToken {
+    public func getAuthorizationBearerToken() throws -> AccessToken {
         
         // Try to get the authorization header
         guard let authHeader = self.auth.header else {
