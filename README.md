@@ -10,16 +10,14 @@ using a JWT Keychain.
 
 **ATTENTION:** This is a very raw experiment that needs to be tested and validated.
 
-#Installation
+## Installation
 
-#### Config
 Update your `Package.swift` file.
 ```swift
 .Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
-Create config jwt.json
-
+Create config `jwt.json`
 ```
 {
     "secondsToExpire": 3600,
@@ -27,32 +25,38 @@ Create config jwt.json
 }
 ```
 
-### main.swift
+Import the module whenever needed:
 
-```
-import Auth
+```swift
 import JWTKeychain
 ```
 
+## Getting started 🚀
 Setup provider
 ```swift
 try drop.addProvider(JWTKeychain.Provider.self)
 ```
 
-Add JWTAuthMiddleware & AuthMiddleware with Model to your API groups
+Register user routes
+
+```swift
+drop.collection(UserRoutes(drop: drop))
+```
+
+That's it, now you got the following routes out-of-the-box:
+
+- Login: `POST api/v1/users/login`
+- Register: `POST api/v1/users`
+- Logout: `GET api/v1/users/logout`
+- Token regenerate: `GET api/v1/users/token/regenerate`
+- Me: `GET api/v1/users/me`
+
+If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
 
 ```swift
 drop.group(AuthMiddleware<User>(), JWTAuthMiddleware()) { jwtRoutes in
-     //Routes
+     // Routes ...
 }
-```
-
-This package also provides a User model and some user endpoints that can be used out of the box.
-
-To register the existing user routes, add this to the main.swift
-```swift
-// Setup routes
-UserRoutes().register(drop: drop)
 ```
 
 The aim is to encode the user identifier on the SubjectClaim of the JWT. This way we don't
@@ -61,10 +65,8 @@ the key setup on the config file.
 
 We just need to verify the token signature and its claims.
 
-Currently provided endpoints are:
+## 🏆 Credits
+This package is developed and maintained by the Vapor team at [Nodes](https://www.nodes.dk).
 
-- Login: `POST api/v1/users/login`
-- Register: `POST api/v1/users`
-- Logout: `GET api/v1/users/logout`
-- Token regenerate: `GET api/v1/users/token/regenerate`
-- Me: `GET api/v1/users/me`
+## 📄 License
+This package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
