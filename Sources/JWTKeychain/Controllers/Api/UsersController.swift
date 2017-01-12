@@ -62,11 +62,11 @@ open class UsersController {
             
             try request.auth.login(credentials)
             
-            return try request.user().makeJSON()
+            return try request.user().makeJSON(withToken: true)
             
         } catch _ {
             
-            throw Abort.custom(status: Status.preconditionFailed, message: "Invalid email or password")
+            throw Abort.custom(status: Status.badRequest, message: "Invalid email or password")
             
         }
     }
@@ -104,7 +104,7 @@ open class UsersController {
     /// - Returns: JSON response with User data
     /// - Throws: on no user found
     func me(request: Request) throws -> ResponseRepresentable {
-        return try request.user().makeJSON()
+        return try request.user().makeJSON(withToken: true)
     }
     
 }

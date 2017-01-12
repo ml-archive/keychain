@@ -10,49 +10,66 @@ using a JWT Keychain.
 
 **ATTENTION:** This is a very raw experiment that needs to be tested and validated.
 
-#Installation
+## Installation
 
-#### Config
 Update your `Package.swift` file.
 ```swift
 .Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
-Create config jwt.json
+Create config jwt.json with:
+
+signer[HS256, HS384, HS512] + secondsToExpire + signatureKey
+
+or
+
+signer[ES256, ES384, ES512, RS256, RS384, RS512] + secondsToExpire + signatureKey + publicKey
 
 ```
+
+Create config `jwt.json`
+```json
+
 {
+    "signer": "HS256",
     "secondsToExpire": 3600,
     "signatureKey": "our-little-secret"
 }
 ```
+See https://github.com/siemensikkema/vapor-jwt to know more about signing
 
-### main.swift
+Import the module whenever needed:
 
-```
-import Auth
+```swift
 import JWTKeychain
 ```
 
+## Getting started 🚀
 Setup provider
 ```swift
 try drop.addProvider(JWTKeychain.Provider.self)
 ```
 
-Add JWTAuthMiddleware & AuthMiddleware with Model to your API groups
+Register user routes
 
 ```swift
-drop.group(AuthMiddleware<User>(), JWTAuthMiddleware()) { jwtRoutes in
-     //Routes
-}
+drop.collection(UserRoutes(drop: drop))
 ```
 
-This package also provides a User model and some user endpoints that can be used out of the box.
+That's it, now you'll have the following routes out-of-the-box:
 
-To register the existing user routes, add this to the main.swift
+- Login: `POST /users/login`
+- Register: `POST /users`
+- Logout: `GET /users/logout`
+- Token regenerate: `PATCH /users/token/regenerate`
+- Me: `GET /users/me`
+
+If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
+
 ```swift
 // Setup routes
 try UserRoutes().register(drop: drop)
+
 ```
 
 The aim is to encode the user identifier on the SubjectClaim of the JWT. This way we don't
@@ -61,10 +78,8 @@ the key setup on the config file.
 
 We just need to verify the token signature and its claims.
 
-Currently provided endpoints are:
+## 🏆 Credits
+This package is developed and maintained by the Vapor team at [Nodes](https://www.nodes.dk).
 
-- Login: `POST api/v1/users/login`
-- Register: `POST api/v1/users`
-- Logout: `GET api/v1/users/logout`
-- Token regenerate: `GET api/v1/users/token/regenerate`
-- Me: `GET api/v1/users/me`
+## 📄 License
+This package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
