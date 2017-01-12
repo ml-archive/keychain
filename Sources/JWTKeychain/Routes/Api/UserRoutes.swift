@@ -2,12 +2,13 @@ import Vapor
 import Auth
 
 open class UserRoutes {
-    
+    /// Empty initializer.
+    public init() {}
     
     /// Registers the routes on the given droplet
     ///
     /// - Parameter drop: droplet instance
-    func register(drop: Droplet) throws{
+    public func register(drop: Droplet) throws {
         
         // Define the controller
         let controller = UsersController()

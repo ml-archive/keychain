@@ -52,7 +52,7 @@ This package also provides a User model and some user endpoints that can be used
 To register the existing user routes, add this to the main.swift
 ```swift
 // Setup routes
-UserRoutes().register(drop: drop)
+try UserRoutes().register(drop: drop)
 ```
 
 The aim is to encode the user identifier on the SubjectClaim of the JWT. This way we don't
