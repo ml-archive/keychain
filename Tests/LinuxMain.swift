@@ -1,6 +1,7 @@
 import XCTest
-@testable import jwt_keychainTests
+@testable import JWTKeychainTests
 
 XCTMain([
-     testCase(jwt_keychainTests.allTests),
+     testCase(JWTKeychainTests.allTests),
+     testCase(JWTAuthMiddlewareTests.allTests),
 ])

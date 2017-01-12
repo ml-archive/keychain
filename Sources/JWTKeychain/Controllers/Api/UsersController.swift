@@ -62,7 +62,7 @@ open class UsersController {
             
             try request.auth.login(credentials)
             
-            return try request.user().makeJSON()
+            return try request.user().makeJSON(withToken: true)
             
         } catch _ {
             

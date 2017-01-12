@@ -19,7 +19,7 @@ class JWTAuthMiddlewareTests: XCTestCase {
         let drop = Droplet()
         
         do{
-            try JWTProvider(signatureKey: "key", secondsToExpire: 0).boot(drop)
+            try Provider(signatureKey: "key", secondsToExpire: 0).boot(drop)
             
         }catch let exception {
         
