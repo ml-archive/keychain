@@ -29,7 +29,7 @@ public final class Provider: Vapor.Provider {
             throw Error.noJWTConfig
         }
 
-        guard let signer: String = config["signer"]?.string else {
+        guard let signer: String = jwtConfig["signer"]?.string else {
             throw Error.missingConfig("signer")
         }
 
