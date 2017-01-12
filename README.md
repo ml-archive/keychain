@@ -18,7 +18,7 @@ Update your `Package.swift` file.
 ```
 
 Create config `jwt.json`
-```
+```json
 {
     "secondsToExpire": 3600,
     "signatureKey": "our-little-secret"
@@ -43,7 +43,7 @@ Register user routes
 drop.collection(UserRoutes(drop: drop))
 ```
 
-That's it, now you got the following routes out-of-the-box:
+That's it, now you'll have the following routes out-of-the-box:
 
 - Login: `POST /users/login`
 - Register: `POST /users`
