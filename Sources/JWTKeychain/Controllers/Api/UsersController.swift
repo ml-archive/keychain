@@ -66,7 +66,7 @@ open class UsersController {
             
         } catch _ {
             
-            throw Abort.custom(status: Status.preconditionFailed, message: "Invalid email or password")
+            throw Abort.custom(status: Status.badRequest, message: "Invalid email or password")
             
         }
     }
