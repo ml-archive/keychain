@@ -30,7 +30,7 @@ extension User {
         contents.append(subClaim)
         
         // Prepare expiration claim if needed
-        if Configuration.secondsToExpire! > 0 {
+        if Configuration.instance!.secondsToExpire! > 0 {
             
             contents.append(ExpirationTimeClaim(try Configuration.generateExpirationDate()))
     
@@ -41,7 +41,7 @@ extension User {
         // Generate our Token
         let jwt = try JWT(
             payload: payload,
-            signer: HS256(key: Configuration.getTokenSignatureKey())
+            signer: Configuration.getSigner(key: Configuration.getTokenSignatureKey())
         )
         
         // Return the token string
