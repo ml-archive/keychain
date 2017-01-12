@@ -48,7 +48,7 @@ That's it, now you'll have the following routes out-of-the-box:
 - Login: `POST /users/login`
 - Register: `POST /users`
 - Logout: `GET /users/logout`
-- Token regenerate: `GET /users/token/regenerate`
+- Token regenerate: `PATCH /users/token/regenerate`
 - Me: `GET /users/me`
 
 If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
