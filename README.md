@@ -25,8 +25,6 @@ or
 
 signer[ES256, ES384, ES512, RS256, RS384, RS512] + secondsToExpire + signatureKey + publicKey
 
-```
-
 Create config `jwt.json`
 ```json
 
