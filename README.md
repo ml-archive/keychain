@@ -10,6 +10,9 @@ using a JWT Keychain.
 
 **ATTENTION:** This is a very raw experiment that needs to be tested and validated.
 
+## Demo project
+https://github.com/nodes-vapor/jwt-keychain-demo
+
 ## Installation
 
 Update your `Package.swift` file.
