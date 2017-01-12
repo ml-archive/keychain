@@ -104,7 +104,7 @@ open class UsersController {
     /// - Returns: JSON response with User data
     /// - Throws: on no user found
     func me(request: Request) throws -> ResponseRepresentable {
-        return try request.user().makeJSON()
+        return try request.user().makeJSON(withToken: true)
     }
     
 }
