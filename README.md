@@ -67,9 +67,9 @@ That's it, now you'll have the following routes out-of-the-box:
 If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
 
 ```swift
-drop.group(AuthMiddleware<User>(), JWTAuthMiddleware()) { jwtRoutes in
-     // Routes ...
-}
+// Setup routes
+try UserRoutes().register(drop: drop)
+
 ```
 
 The aim is to encode the user identifier on the SubjectClaim of the JWT. This way we don't
