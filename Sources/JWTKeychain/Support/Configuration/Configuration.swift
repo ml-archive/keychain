@@ -7,35 +7,59 @@ import Auth
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
     
-    static var secondsToExpire: Double? { get }
-    
-    static var signatureKey: String? { get }
-    
-    static func boot(secondsToExpire: Double, signatureKey: String) throws
+     var secondsToExpire: Double? { get }
+
+     var signatureKey: String { get }
+
+     var publicKey: String? { get }
+
+     var signer: String { get }
+
+    static func boot(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double) throws
 }
 
 public struct Configuration: ConfigurationType {
     
+    public static var instance: Configuration?;
+    
     /// Seconds the JWT has to expire (in the future)
-    public static var secondsToExpire: Double? = nil
+    public var secondsToExpire: Double? = nil
     
     /// Key used to sign the JWT
-    public static var signatureKey: String? = nil
+    public var signatureKey: String
     
+    /// Key used to check the signing the JWT
+    public var publicKey: String? = nil
+    
+    /// Which signer will be used while signing the JWT
+    public var signer: String
+
+    private init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double){
+        self.signer = signer
+        self.signatureKey = signatureKey
+        self.publicKey = publicKey
+        self.secondsToExpire = secondsToExpire}
     // Register configs
-    public static func boot(secondsToExpire: Double, signatureKey: String) throws {
-        Configuration.secondsToExpire = secondsToExpire
-        Configuration.signatureKey    = signatureKey
+    public static func boot(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double) throws {
+        Configuration.instance = Configuration(signer: signer, signatureKey: signatureKey, publicKey: publicKey, secondsToExpire: secondsToExpire)
     }
     
     
     /// Gets token signature key
     ///
     /// - Returns: signature key
-    /// - Throws: if cannot retrieve signature key
-    public static func getTokenSignatureKey() throws -> Bytes {
+    public static func getTokenSignatureKey() -> Bytes {
         
-        return Array(Configuration.signatureKey!.utf8)
+        return Array(Configuration.instance!.signatureKey.utf8)
+        
+    }
+    
+    /// Gets token public key
+    ///
+    /// - Returns: public key
+    /// - Throws: if cannot retrieve signature key
+    public static func getTokenPublicKey() throws -> Bytes {
+        return Array(Configuration.instance!.publicKey!.utf8)
         
     }
     
@@ -46,7 +70,32 @@ public struct Configuration: ConfigurationType {
     /// - Throws: on unable to create the date
     public static func generateExpirationDate() throws -> Date {
         
-        return Date() + Configuration.secondsToExpire!
+        return Date() + Configuration.instance!.secondsToExpire!
+        
+    }
+    
+    public static func getSigner(key: Bytes) -> Signer {
+        switch Configuration.instance!.signer {
+        case "HS384":
+            return HS384(key: key)
+        case "HS512":
+            return HS512(key: key)
+        case "ES256":
+            return ES256(key: key)
+        case "ES384":
+            return ES384(key: key)
+        case "ES512":
+            return ES512(key: key)
+        case "RS256":
+            return ES256(key: key)
+        case "RS384":
+            return ES384(key: key)
+        case "RS512":
+            return ES512(key: key)
+        default:
+            return HS256(key: key)
+            
+        }
         
     }
     
@@ -63,12 +112,20 @@ public struct Configuration: ConfigurationType {
             // Validate our current access token
             let receivedJWT = try JWT(token: token)
             
+            var key: Bytes = Configuration.getTokenSignatureKey()
+            
+            if(Configuration.instance!.publicKey != nil){
+                
+                key = try Configuration.getTokenPublicKey()
+            }
+            
             // Verify signature
-            if try receivedJWT.verifySignatureWith(HS256(key: Configuration.getTokenSignatureKey())) {
+            let signer: Signer = Configuration.getSigner(key: key)
+            if try receivedJWT.verifySignatureWith(signer) {
                 
                 
                 // If we have expiration set on config, verify it
-                if Configuration.secondsToExpire! > 0 {
+                if Configuration.instance!.secondsToExpire! > 0 {
                     
                     return receivedJWT.verifyClaims([ExpirationTimeClaim()])
                     

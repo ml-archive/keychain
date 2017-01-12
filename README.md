@@ -17,13 +17,26 @@ Update your `Package.swift` file.
 .Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
+Create config jwt.json with:
+
+signer[HS256, HS384, HS512] + secondsToExpire + signatureKey
+
+or
+
+signer[ES256, ES384, ES512, RS256, RS384, RS512] + secondsToExpire + signatureKey + publicKey
+
+```
+
 Create config `jwt.json`
 ```json
+
 {
+    "signer": "HS256",
     "secondsToExpire": 3600,
     "signatureKey": "our-little-secret"
 }
 ```
+See https://github.com/siemensikkema/vapor-jwt to know more about signing
 
 Import the module whenever needed:
 
