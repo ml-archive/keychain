@@ -45,11 +45,11 @@ drop.collection(UserRoutes(drop: drop))
 
 That's it, now you got the following routes out-of-the-box:
 
-- Login: `POST api/v1/users/login`
-- Register: `POST api/v1/users`
-- Logout: `GET api/v1/users/logout`
-- Token regenerate: `GET api/v1/users/token/regenerate`
-- Me: `GET api/v1/users/me`
+- Login: `POST /users/login`
+- Register: `POST /users`
+- Logout: `GET /users/logout`
+- Token regenerate: `GET /users/token/regenerate`
+- Me: `GET /users/me`
 
 If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
 
