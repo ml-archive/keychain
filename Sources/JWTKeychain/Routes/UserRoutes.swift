@@ -41,7 +41,7 @@ public struct UserRoutes: RouteCollection {
         // Public routes
         path.post(handler: controller.register)
 
-        // Auth routes.
+        // Auth routes
         path.group(authMiddleware) { jwtRoutes in
             jwtRoutes.post("login", handler: controller.login)
         }
@@ -52,7 +52,5 @@ public struct UserRoutes: RouteCollection {
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)
         }
-        
     }
-    
 }
