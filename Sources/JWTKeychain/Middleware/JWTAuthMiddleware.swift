@@ -8,6 +8,11 @@ import VaporJWT
 /// Authorization Bearer Token + JWT
 public class JWTAuthMiddleware: Middleware {
     private let configuration: ConfigurationType
+
+    /// Initializes JWTAuthMiddleware with a JWT configuration
+    ///
+    /// - Parameters:
+    /// configuration : the JWT configuration to be used to validate user tokens
     public init(configuration: ConfigurationType) {
       self.configuration = configuration
     }

@@ -14,6 +14,8 @@ public struct UserRoutes: RouteCollection {
 
     public init(
         drop: Droplet,
+        configuration: ConfigurationType,
+        jwtAuthMiddleware: JWTAuthMiddleware,
         authMiddleware: Middleware = AuthMiddleware<User>(),
         protectMiddleware: ProtectMiddleware = ProtectMiddleware(
             error: Abort.custom(
@@ -23,10 +25,10 @@ public struct UserRoutes: RouteCollection {
         )
     ) throws {
         self.drop = drop
+        self.configuration = configuration
+        self.jwtAuthMiddleware = jwtAuthMiddleware
         self.authMiddleware = authMiddleware
         self.protectMiddleware = protectMiddleware
-        self.configuration = try Configuration(drop: drop)
-        self.jwtAuthMiddleware = JWTAuthMiddleware(configuration: self.configuration)
     }
 
     public func build<Builder: RouteBuilder>(

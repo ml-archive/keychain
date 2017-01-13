@@ -64,8 +64,10 @@ That's it, now you'll have the following routes out-of-the-box:
 If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
 
 ```swift
+let configuration = try Configuration(drop: drop)
+let jwtAuthMiddleware = JWTAuthMiddleware(configuration: configuration)
 // Setup routes
-try UserRoutes().register(drop: drop)
+try UserRoutes(drop: drop, configuration: configuration, jwtAuthMiddleware: jwtAuthMiddleware)
 
 ```
 

@@ -13,6 +13,10 @@ import VaporForms
 open class UsersController {
   private let configuration: ConfigurationType
 
+  /// Initializes the UsersController with a JWT configuration
+  ///
+  /// - Parameters:
+  /// configuration : the JWT configuration to be used to generate user tokens
   public init(configuration: ConfigurationType){
     self.configuration = configuration
   }
@@ -111,7 +115,7 @@ open class UsersController {
     func me(request: Request) throws -> ResponseRepresentable {
         let user = try request.user()
         let token = try self.configuration.generateToken(userId: user.id!)
-      return try user.makeJSON(token: token)
+        return try user.makeJSON(token: token)
     }
 
 }
