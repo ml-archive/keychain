@@ -30,4 +30,4 @@ script:
       swift build --configuration release -Xswiftc -DNOJSON;
       swift test -Xswiftc -DNOJSON;
     fi
-    - eval "$(curl -sL https://swift.vapor.sh/codecov)"
+  - eval "$(curl -sL https://swift.vapor.sh/codecov)"
