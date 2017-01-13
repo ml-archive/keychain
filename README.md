@@ -46,10 +46,6 @@ import JWTKeychain
 ```
 
 ## Getting started 🚀
-Setup provider
-```swift
-try drop.addProvider(JWTKeychain.Provider.self)
-```
 
 Register user routes
 

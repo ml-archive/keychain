@@ -6,7 +6,7 @@ import Auth
 
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
-    
+
      var secondsToExpire: Double? { get }
 
      var signatureKey: String { get }
@@ -15,67 +15,103 @@ public protocol ConfigurationType {
 
      var signer: String { get }
 
-    static func boot(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double) throws
+     func getTokenSignatureKey() -> Bytes
+     func generateExpirationDate() throws -> Date
+     func getSigner(key: Bytes) -> Signer
+     func validateToken(token: String) throws -> Bool
+     func generateToken(userId: Node) throws -> String
 }
 
 public struct Configuration: ConfigurationType {
-    
-    public static var instance: Configuration?;
-    
+
     /// Seconds the JWT has to expire (in the future)
     public var secondsToExpire: Double? = nil
-    
+
     /// Key used to sign the JWT
     public var signatureKey: String
-    
+
     /// Key used to check the signing the JWT
     public var publicKey: String? = nil
-    
+
     /// Which signer will be used while signing the JWT
     public var signer: String
 
-    private init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double){
+    public enum Error: Swift.Error {
+        case noJWTConfig
+        case missingConfig(String)
+    }
+
+    public init(drop: Droplet) throws {
+        try self.init(config: drop.config)
+    }
+
+    public init(config: Config) throws {
+
+        guard let jwtConfig = config["jwt"]?.object else {
+            throw Error.noJWTConfig
+        }
+
+        guard let signer: String = jwtConfig["signer"]?.string else {
+            throw Error.missingConfig("signer")
+        }
+
+        guard let secondsToExpire = jwtConfig["secondsToExpire"]?.double else {
+            throw Error.missingConfig("secondsToExpire")
+        }
+
+        guard let signatureKey = jwtConfig["signatureKey"]?.string else {
+            throw Error.missingConfig("signatureKey")
+        }
+
+        let publicKey: String? = jwtConfig["publicKey"]?.string
+
+        if publicKey == nil {
+            //The ECDSA and RSA (ES*/RS*) signers take a private key for signing and needs a matching public key for verifying.
+            if signer.hasPrefix("ES") || signer.hasPrefix("RS"){
+                throw Error.missingConfig("publicKey")
+            }
+        }
+
+        self.init(signer: signer, signatureKey: signatureKey, publicKey: publicKey, secondsToExpire: secondsToExpire)
+
+    }
+
+    public init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double){
         self.signer = signer
         self.signatureKey = signatureKey
         self.publicKey = publicKey
-        self.secondsToExpire = secondsToExpire}
-    // Register configs
-    public static func boot(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double) throws {
-        Configuration.instance = Configuration(signer: signer, signatureKey: signatureKey, publicKey: publicKey, secondsToExpire: secondsToExpire)
-    }
-    
-    
+        self.secondsToExpire = secondsToExpire
+      }
+
     /// Gets token signature key
     ///
     /// - Returns: signature key
-    public static func getTokenSignatureKey() -> Bytes {
-        
-        return Array(Configuration.instance!.signatureKey.utf8)
-        
+    public func getTokenSignatureKey() -> Bytes {
+        return Array(self.signatureKey.utf8)
+
     }
-    
+
     /// Gets token public key
     ///
     /// - Returns: public key
     /// - Throws: if cannot retrieve signature key
-    public static func getTokenPublicKey() throws -> Bytes {
-        return Array(Configuration.instance!.publicKey!.utf8)
-        
+    public func getTokenPublicKey() throws -> Bytes {
+        return Array(self.publicKey!.utf8)
+
     }
-    
+
     /// Generates the expiration date based on the
     /// configured seconds to expire
     ///
     /// - Returns: token expiration date
     /// - Throws: on unable to create the date
-    public static func generateExpirationDate() throws -> Date {
-        
-        return Date() + Configuration.instance!.secondsToExpire!
-        
+    public func generateExpirationDate() throws -> Date {
+        return Date() + self.secondsToExpire!
+
     }
-    
-    public static func getSigner(key: Bytes) -> Signer {
-        switch Configuration.instance!.signer {
+
+    public func getSigner(key: Bytes) -> Signer {
+        switch self.signer {
         case "HS384":
             return HS384(key: key)
         case "HS512":
@@ -94,55 +130,90 @@ public struct Configuration: ConfigurationType {
             return ES512(key: key)
         default:
             return HS256(key: key)
-            
+
         }
-        
+
     }
-    
-    
+
+
     /// Validates a given token
     ///
     /// - Parameter token: string with the token
     /// - Returns: true if token is valid, else false
     /// - Throws: if unable to create JWT instance
-    public static func validateToken(token: String) throws -> Bool {
-        
+    public func validateToken(token: String) throws -> Bool {
+
         do {
-            
+
             // Validate our current access token
             let receivedJWT = try JWT(token: token)
-            
-            var key: Bytes = Configuration.getTokenSignatureKey()
-            
-            if(Configuration.instance!.publicKey != nil){
-                
-                key = try Configuration.getTokenPublicKey()
+
+            var key: Bytes = self.getTokenSignatureKey()
+
+            if(self.publicKey != nil){
+
+                key = try self.getTokenPublicKey()
             }
-            
+
             // Verify signature
-            let signer: Signer = Configuration.getSigner(key: key)
+            let signer: Signer = self.getSigner(key: key)
             if try receivedJWT.verifySignatureWith(signer) {
-                
-                
+
+
                 // If we have expiration set on config, verify it
-                if Configuration.instance!.secondsToExpire! > 0 {
-                    
+                if self.secondsToExpire! > 0 {
+
                     return receivedJWT.verifyClaims([ExpirationTimeClaim()])
-                    
+
                 }
-                
+
                 // No claims to verify so return true
                 return true
-                
+
             }
-            
+
         } catch {
-            
+
             throw AuthError.invalidBearerAuthorization
-            
+
         }
-        
+
         return false
     }
-    
+
+    /// Generates a token for the user
+    ///
+    /// - Returns: string with valid JWT token
+    public func generateToken(userId: Node) throws -> String {
+
+        // Prepare payload Node
+        var payload: Node
+
+        // Prepare contents for payload
+        var contents: [Claim] = []
+
+        let subClaim = SubjectClaim(String(describing: userId))
+
+        contents.append(subClaim)
+
+        // Prepare expiration claim if needed
+        if self.secondsToExpire! > 0 {
+
+            contents.append(ExpirationTimeClaim( try self.generateExpirationDate()))
+
+        }
+
+        payload = Node(contents)
+
+        // Generate our Token
+        let jwt = try JWT(
+            payload: payload,
+            signer: self.getSigner(key: self.getTokenSignatureKey())
+        )
+
+        // Return the token string
+        return try jwt.createToken()
+
+    }
+
 }
