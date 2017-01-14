@@ -10,21 +10,24 @@ public struct UserRoutes: RouteCollection {
     private let authMiddleware: Middleware
     private let jwtAuthMiddleware: JWTAuthMiddleware
     private let protectMiddleware: ProtectMiddleware
+    private let configuration: ConfigurationType
 
     public init(
         drop: Droplet,
+        configuration: ConfigurationType,
+        jwtAuthMiddleware: JWTAuthMiddleware,
         authMiddleware: Middleware = AuthMiddleware<User>(),
-        jwtAuthMiddleware: JWTAuthMiddleware = JWTAuthMiddleware(),
         protectMiddleware: ProtectMiddleware = ProtectMiddleware(
             error: Abort.custom(
                 status: .unauthorized,
                 message: Status.unauthorized.reasonPhrase
             )
         )
-    ) {
+    ) throws {
         self.drop = drop
-        self.authMiddleware = authMiddleware
+        self.configuration = configuration
         self.jwtAuthMiddleware = jwtAuthMiddleware
+        self.authMiddleware = authMiddleware
         self.protectMiddleware = protectMiddleware
     }
 
@@ -33,11 +36,11 @@ public struct UserRoutes: RouteCollection {
     ) where Builder.Value == Responder {
 
         // Define the controller
-        let controller = UsersController()
-        
+        let controller = UsersController(configuration: self.configuration)
+
         // Get the base path group
         let path = builder.grouped("users")
-        
+
         // Public routes
         path.post(handler: controller.register)
 
@@ -45,7 +48,7 @@ public struct UserRoutes: RouteCollection {
         path.group(authMiddleware) { jwtRoutes in
             jwtRoutes.post("login", handler: controller.login)
         }
-        
+
         // Protected routes
         path.group(jwtAuthMiddleware, authMiddleware, protectMiddleware) { secured in
             secured.get("logout", handler: controller.logout)
