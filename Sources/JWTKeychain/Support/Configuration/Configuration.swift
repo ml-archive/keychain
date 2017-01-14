@@ -8,7 +8,7 @@ import Auth
 public protocol ConfigurationType {
 
      func validateToken(token: String) throws -> Bool
-     func generateToken(userId: Node) throws -> String
+     func generateToken(userId: Node, extraClaims: Claim...) throws -> String
 }
 
 public struct Configuration: ConfigurationType {
@@ -168,9 +168,10 @@ public struct Configuration: ConfigurationType {
     }
 
     /// Generates a token for the user
-    ///
+    /// - Parameter: userId is used to create a SubjectClaim
+    /// - Parameter: extraClaims are optional customized claims
     /// - Returns: string with valid JWT token
-    public func generateToken(userId: Node) throws -> String {
+    public func generateToken(userId: Node, extraClaims: Claim...) throws -> String {
 
         // Prepare payload Node
         var payload: Node
@@ -181,6 +182,10 @@ public struct Configuration: ConfigurationType {
         let subClaim = SubjectClaim(String(describing: userId))
 
         contents.append(subClaim)
+
+        for claim in extraClaims {
+            contents.append(claim)
+        }
 
         // Prepare expiration claim if needed
         if self.secondsToExpire > 0 {
