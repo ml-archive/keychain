@@ -7,7 +7,7 @@ import Auth
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
 
-     var secondsToExpire: Double? { get }
+     var secondsToExpire: Double { get }
 
      var signatureKey: String { get }
 
@@ -16,7 +16,7 @@ public protocol ConfigurationType {
      var signer: String { get }
 
      func getTokenSignatureKey() -> Bytes
-     func generateExpirationDate() throws -> Date
+     func generateExpirationDate() -> Date
      func getSigner(key: Bytes) -> Signer
      func validateToken(token: String) throws -> Bool
      func generateToken(userId: Node) throws -> String
@@ -25,7 +25,7 @@ public protocol ConfigurationType {
 public struct Configuration: ConfigurationType {
 
     /// Seconds the JWT has to expire (in the future)
-    public var secondsToExpire: Double? = nil
+    public var secondsToExpire: Double
 
     /// Key used to sign the JWT
     public var signatureKey: String
@@ -105,13 +105,15 @@ public struct Configuration: ConfigurationType {
     ///
     /// - Returns: token expiration date
     /// - Throws: on unable to create the date
-    public func generateExpirationDate() throws -> Date {
-        return Date() + self.secondsToExpire!
+    public func generateExpirationDate() -> Date {
+        return Date() + self.secondsToExpire
 
     }
 
     public func getSigner(key: Bytes) -> Signer {
+
         switch self.signer {
+
         case "HS384":
             return HS384(key: key)
         case "HS512":
@@ -130,7 +132,6 @@ public struct Configuration: ConfigurationType {
             return ES512(key: key)
         default:
             return HS256(key: key)
-
         }
 
     }
@@ -150,7 +151,7 @@ public struct Configuration: ConfigurationType {
 
             var key: Bytes = self.getTokenSignatureKey()
 
-            if(self.publicKey != nil){
+            if self.publicKey != nil {
 
                 key = try self.getTokenPublicKey()
             }
@@ -161,7 +162,7 @@ public struct Configuration: ConfigurationType {
 
 
                 // If we have expiration set on config, verify it
-                if self.secondsToExpire! > 0 {
+                if self.secondsToExpire > 0 {
 
                     return receivedJWT.verifyClaims([ExpirationTimeClaim()])
 
@@ -197,9 +198,9 @@ public struct Configuration: ConfigurationType {
         contents.append(subClaim)
 
         // Prepare expiration claim if needed
-        if self.secondsToExpire! > 0 {
+        if self.secondsToExpire > 0 {
 
-            contents.append(ExpirationTimeClaim( try self.generateExpirationDate()))
+            contents.append(ExpirationTimeClaim(self.generateExpirationDate()))
 
         }
 

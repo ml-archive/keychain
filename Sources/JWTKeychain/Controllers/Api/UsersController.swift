@@ -17,7 +17,7 @@ open class UsersController {
   ///
   /// - Parameters:
   /// configuration : the JWT configuration to be used to generate user tokens
-  public init(configuration: ConfigurationType){
+  public init(configuration: ConfigurationType) {
     self.configuration = configuration
   }
 
