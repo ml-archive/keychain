@@ -7,8 +7,8 @@ import Auth
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
 
-     func validateToken(token: String) throws -> Bool
-     func generateToken(userId: Node, extraClaims: Claim...) throws -> String
+    func validateToken(token: String) throws -> Bool
+    func generateToken(userId: Node, extraClaims: Claim...) throws -> String
 }
 
 public struct Configuration: ConfigurationType {
@@ -24,6 +24,9 @@ public struct Configuration: ConfigurationType {
 
     /// Which signer will be used while signing the JWT
     private var signer: String
+
+    /// The path to the reset password email
+    private var resetPasswordEmail: String
 
     public enum Error: Swift.Error {
         case noJWTConfig
@@ -52,6 +55,10 @@ public struct Configuration: ConfigurationType {
             throw Error.missingConfig("signatureKey")
         }
 
+        guard let resetPasswordEmail = jwtConfig["resetPasswordEmail"]?.string else {
+            throw Error.missingConfig("resetPasswordEmail")
+        }
+
         let publicKey: String? = jwtConfig["publicKey"]?.string
 
         if publicKey == nil {
@@ -61,16 +68,23 @@ public struct Configuration: ConfigurationType {
             }
         }
 
-        self.init(signer: signer, signatureKey: signatureKey, publicKey: publicKey, secondsToExpire: secondsToExpire)
+        self.init(
+            signer: signer,
+            signatureKey: signatureKey,
+            publicKey: publicKey,
+            secondsToExpire: secondsToExpire,
+            resetPasswordEmail: resetPasswordEmail
+        )
 
     }
 
-    public init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double){
+    public init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double, resetPasswordEmail: String){
         self.signer = signer
         self.signatureKey = signatureKey
         self.publicKey = publicKey
         self.secondsToExpire = secondsToExpire
-      }
+        self.resetPasswordEmail = resetPasswordEmail
+    }
 
     /// The Bytes representation of the signatureKey
     var signatureKeyBytes : Bytes {
@@ -79,11 +93,11 @@ public struct Configuration: ConfigurationType {
 
     /// The Bytes representation of the publicKey (may be nil)
     var publicKeyBytes: Bytes? {
-      if let publicKey = publicKey {
-         return Array(publicKey.utf8)
-      } else {
-         return nil
-      }
+        if let publicKey = publicKey {
+            return Array(publicKey.utf8)
+        } else {
+            return nil
+        }
     }
 
     /// Generates the expiration date based on the
@@ -189,22 +203,22 @@ public struct Configuration: ConfigurationType {
 
         // Prepare expiration claim if needed
         if self.secondsToExpire > 0 {
-
+            
             contents.append(ExpirationTimeClaim(self.generateExpirationDate()))
-
+            
         }
-
+        
         payload = Node(contents)
-
+        
         // Generate our Token
         let jwt = try JWT(
             payload: payload,
             signer: self.getSigner(key: self.signatureKeyBytes)
         )
-
+        
         // Return the token string
         return try jwt.createToken()
-
+        
     }
-
+    
 }

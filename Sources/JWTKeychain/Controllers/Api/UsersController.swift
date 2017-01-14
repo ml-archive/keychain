@@ -11,15 +11,16 @@ import VaporForms
 
 /// Controller for user api requests
 open class UsersController {
-  private let configuration: ConfigurationType
+    
+    private let configuration: ConfigurationType
 
-  /// Initializes the UsersController with a JWT configuration
-  ///
-  /// - Parameters:
-  /// configuration : the JWT configuration to be used to generate user tokens
-  public init(configuration: ConfigurationType) {
-    self.configuration = configuration
-  }
+    /// Initializes the UsersController with a JWT configuration
+    ///
+    /// - Parameters:
+    /// configuration : the JWT configuration to be used to generate user tokens
+    public init(configuration: ConfigurationType) {
+        self.configuration = configuration
+    }
 
     /// Registers a user on the DB
     ///
@@ -118,4 +119,32 @@ open class UsersController {
         return try user.makeJSON(token: token)
     }
 
+    /// Reset password submit
+    ///
+    /// It's on purpose that we show a success message if user is not found.
+    /// Else this action could be used to find emails in db
+    ///
+    /// - Parameter request: Request
+    /// - Returns: Response
+    public func resetPassword(request: Request) -> ResponseRepresentable {
+        do {
+
+            guard
+                let email = request.data["email"]?.string,
+                let user: User = try User.query().filter("email", email).first() else {
+                    return JSON(["success": "Instructions were sent to the provided email"])
+            }
+
+            // Make a token
+            var token = try self.configuration.generateToken(userId: user.id!)
+
+            // Send mail
+            try Mailer.sendResetPasswordMail(drop: drop, user: backendUser, token: token)
+            
+            return JSON(["success": "Instructions were sent to the provided email"])
+        } catch {
+            return JSON(["error": "An error occured."])
+        }
+    }
+    
 }
