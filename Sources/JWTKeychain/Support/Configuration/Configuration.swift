@@ -7,17 +7,6 @@ import Auth
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
 
-     var secondsToExpire: Double { get }
-
-     var signatureKey: String { get }
-
-     var publicKey: String? { get }
-
-     var signer: String { get }
-
-     func getTokenSignatureKey() -> Bytes
-     func generateExpirationDate() -> Date
-     func getSigner(key: Bytes) -> Signer
      func validateToken(token: String) throws -> Bool
      func generateToken(userId: Node) throws -> String
 }
@@ -25,16 +14,16 @@ public protocol ConfigurationType {
 public struct Configuration: ConfigurationType {
 
     /// Seconds the JWT has to expire (in the future)
-    public var secondsToExpire: Double
+    private var secondsToExpire: Double
 
     /// Key used to sign the JWT
-    public var signatureKey: String
+    private var signatureKey: String
 
     /// Key used to check the signing the JWT
-    public var publicKey: String? = nil
+    private var publicKey: String? = nil
 
     /// Which signer will be used while signing the JWT
-    public var signer: String
+    private var signer: String
 
     public enum Error: Swift.Error {
         case noJWTConfig
@@ -83,21 +72,18 @@ public struct Configuration: ConfigurationType {
         self.secondsToExpire = secondsToExpire
       }
 
-    /// Gets token signature key
-    ///
-    /// - Returns: signature key
-    public func getTokenSignatureKey() -> Bytes {
+    /// The Bytes representation of the signatureKey
+    var signatureKeyBytes : Bytes {
         return Array(self.signatureKey.utf8)
-
     }
 
-    /// Gets token public key
-    ///
-    /// - Returns: public key
-    /// - Throws: if cannot retrieve signature key
-    public func getTokenPublicKey() throws -> Bytes {
-        return Array(self.publicKey!.utf8)
-
+    /// The Bytes representation of the publicKey (may be nil)
+    var publicKeyBytes: Bytes? {
+      if let publicKey = publicKey {
+         return Array(publicKey.utf8)
+      } else {
+         return nil
+      }
     }
 
     /// Generates the expiration date based on the
@@ -110,7 +96,7 @@ public struct Configuration: ConfigurationType {
 
     }
 
-    public func getSigner(key: Bytes) -> Signer {
+    private func getSigner(key: Bytes) -> Signer {
 
         switch self.signer {
 
@@ -149,11 +135,10 @@ public struct Configuration: ConfigurationType {
             // Validate our current access token
             let receivedJWT = try JWT(token: token)
 
-            var key: Bytes = self.getTokenSignatureKey()
+            var key: Bytes = self.signatureKeyBytes
 
-            if self.publicKey != nil {
-
-                key = try self.getTokenPublicKey()
+            if let publicKeyBytes = self.publicKeyBytes {
+                key = publicKeyBytes
             }
 
             // Verify signature
@@ -209,7 +194,7 @@ public struct Configuration: ConfigurationType {
         // Generate our Token
         let jwt = try JWT(
             payload: payload,
-            signer: self.getSigner(key: self.getTokenSignatureKey())
+            signer: self.getSigner(key: self.signatureKeyBytes)
         )
 
         // Return the token string
