@@ -7,6 +7,7 @@ import Auth
 import VaporJWT
 import Core
 import Sugar
+import FluentMySQL
 
 
 /// The representation of a User on our system
