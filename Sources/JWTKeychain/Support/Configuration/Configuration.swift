@@ -172,14 +172,18 @@ public struct Configuration: ConfigurationType {
     /// - Parameter: extraClaims are optional customized claims
     /// - Returns: string with valid JWT token
     public func generateToken(userId: Node, extraClaims: Claim...) throws -> String {
-
+         // Unwrap id
+         guard let id = userId.string else {
+            throw Abort.custom(status: .internalServerError, message: "JWTKeyChain.Configuration - Passed userId could not be casted to string, maybe its nil")
+        }
+        
         // Prepare payload Node
         var payload: Node
 
         // Prepare contents for payload
         var contents: [Claim] = []
 
-        let subClaim = SubjectClaim(String(describing: userId))
+        let subClaim = SubjectClaim(id)
 
         contents.append(subClaim)
 
