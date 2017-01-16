@@ -30,7 +30,6 @@ signer[ES256, ES384, ES512, RS256, RS384, RS512] + secondsToExpire + signatureKe
 
 Create config `jwt.json`
 ```json
-
 {
     "signer": "HS256",
     "secondsToExpire": 3600,
@@ -47,6 +46,8 @@ import JWTKeychain
 
 ## Getting started 🚀
 
+### Minimal setup
+
 Register user routes
 
 ```swift
@@ -61,15 +62,34 @@ That's it, now you'll have the following routes out-of-the-box:
 - Token regenerate: `PATCH /users/token/regenerate`
 - Me: `GET /users/me`
 
-If you want to roll out your own routes, then have a look at `UserRoutes.swift` for inspiration and apply the middleware as needed, e.g.
+### Customized setup
+
+If you want to roll out your own routes or have more control of the controller logic, you can initialize the routes like this:
 
 ```swift
-let configuration = try Configuration(drop: drop)
-let jwtAuthMiddleware = JWTAuthMiddleware(configuration: configuration)
-// Setup routes
-try UserRoutes(drop: drop, configuration: configuration, jwtAuthMiddleware: jwtAuthMiddleware)
+let configuration = try JWTKeychain.Configuration(drop: drop)
+let jwtAuthMiddleware = JWTKeychain.AuthMiddleware(configuration: configuration)
+let authMiddleware = Auth.AuthMiddleware<MyCustomUser>()
+let protectMiddleWare = ProtectMiddleware(
+    error: Abort.custom(
+        status: .unauthorized,
+        message: Status.unauthorized.reasonPhrase
+    )
+)
+let userController = MyUserController(configuration: configuration)
 
+try drop.collection(UserRoutes(
+    drop: drop,
+    configuration: configuration,
+    jwtAuthMiddleware: jwtAuthMiddleware,
+    authMiddleware: authMiddleware,
+    protectMiddleware: protectMiddleWare,
+    userController: userController
+))
 ```
+
+Most of the parameters has default values, so feel free to mix and match as needed.
+
 
 The aim is to encode the user identifier on the SubjectClaim of the JWT. This way we don't
 need to keep track of the user's tokens on the database. The tokens generated are signed by

@@ -3,12 +3,12 @@ import XCTest
 @testable import JWTKeychain
 import HTTP
 
-class JWTAuthMiddlewareTests: XCTestCase {
+class AuthMiddlewareTests: XCTestCase {
 
-    private var middleware: JWTAuthMiddleware?
+    private var middleware: JWTKeychain.AuthMiddleware?
     private var configuration: ConfigurationType?
 
-    static var allTests : [(String, (JWTAuthMiddlewareTests) -> () throws -> Void)] {
+    static var allTests : [(String, (AuthMiddlewareTests) -> () throws -> Void)] {
         return [
             ("testAbsenseOfAuthorizationHeaderThrows", testAbsenseOfAuthorizationHeaderThrows),
             ("testInvalidAuthorizationTokenThrows", testInvalidAuthorizationTokenThrows),
@@ -20,7 +20,7 @@ class JWTAuthMiddlewareTests: XCTestCase {
       
           self.configuration = Configuration(signer: "HS256", signatureKey: "key", publicKey: nil, secondsToExpire: 0)
 
-          self.middleware = JWTAuthMiddleware(configuration: self.configuration!)
+          self.middleware = JWTKeychain.AuthMiddleware(configuration: self.configuration!)
 
     }
 
