@@ -3,5 +3,5 @@ import XCTest
 
 XCTMain([
      testCase(JWTKeychainTests.allTests),
-     testCase(JWTAuthMiddlewareTests.allTests),
+     testCase(AuthMiddlewareTests.allTests),
 ])
