@@ -68,6 +68,18 @@ open class User: UserType {
         self.email = credentials.email
         self.password = BCrypt.hash(password: credentials.password)
     }
+
+    public func makeJSON(token: String) throws -> JSON {
+        return try JSON(node: [
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "token": token,
+            "created_at": self.createdAt?.to(Date.Format.ISO8601),
+            "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
+            "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
+        ])
+    }
 }
 
 
@@ -177,20 +189,4 @@ extension User: NodeRepresentable {
         ])
     }
 
-}
-
-
-// MARK: - JSONRepresentable
-extension User: JSONRepresentable {
-    func makeJSON(token: String) throws -> JSON {
-        return try JSON(node: [
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "token": token,
-            "created_at": self.createdAt?.to(Date.Format.ISO8601),
-            "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
-            "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
-        ])
-    }
 }
