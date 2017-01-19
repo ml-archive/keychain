@@ -8,12 +8,12 @@ import Turnstile
 extension Request {
     
     // Base URL returns the hostname, scheme, and port in a URL string form.
-    var baseURL: String {
+    public var baseURL: String {
         return uri.scheme + "://" + uri.host + (uri.port == nil ? "" : ":\(uri.port!)")
     }
     
     // Exposes the Turnstile subject, as Vapor has a facade on it.
-    var subject: Subject {
+    public var subject: Subject {
         return storage["subject"] as! Subject
     }
     
@@ -21,10 +21,10 @@ extension Request {
     ///
     /// - Returns: Authenticated user
     /// - Throws: UnsupportedCredentialsError
-    public func user() throws -> User {
+    public func user() throws -> UserType {
         
         // Try to retrieve authenticated user
-        guard let user = try auth.user() as? User else {
+        guard let user = try auth.user() as? UserType else {
             throw UnsupportedCredentialsError()
         }
         return user
