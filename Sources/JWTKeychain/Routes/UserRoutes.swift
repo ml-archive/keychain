@@ -36,7 +36,10 @@ public struct UserRoutes: RouteCollection {
     ) where Builder.Value == Responder {
 
         // Define the controller
-        let controller = UsersController(configuration: self.configuration)
+        let controller = UsersController(
+            configuration: self.configuration,
+            drop: self.drop
+        )
 
         // Get the base path group
         let path = builder.grouped("users")

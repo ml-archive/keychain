@@ -14,12 +14,15 @@ open class UsersController {
     
     private let configuration: ConfigurationType
 
+    private let drop: Droplet
+
     /// Initializes the UsersController with a JWT configuration
     ///
     /// - Parameters:
     /// configuration : the JWT configuration to be used to generate user tokens
-    public init(configuration: ConfigurationType) {
+    public init(configuration: ConfigurationType, drop: Droplet) {
         self.configuration = configuration
+        self.drop = drop
     }
 
     /// Registers a user on the DB
@@ -136,10 +139,10 @@ open class UsersController {
             }
 
             // Make a token
-            var token = try self.configuration.generateToken(userId: user.id!)
+            let token = try self.configuration.generateToken(userId: user.id!)
 
             // Send mail
-            try Mailer.sendResetPasswordMail(drop: drop, user: backendUser, token: token)
+            try Mailer.sendResetPasswordMail(drop: self.drop, user: user, token: token)
             
             return JSON(["success": "Instructions were sent to the provided email"])
         } catch {
