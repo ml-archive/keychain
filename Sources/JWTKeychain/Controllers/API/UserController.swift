@@ -152,7 +152,7 @@ open class UserController: UserControllerType {
 
         guard
             let userId = jwt.payload["user"]?.object?["id"]?.int,
-            let userPasswordHash = jwt.payload["password"]?.string,
+            let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
             var user = try User.query().filter("id", userId).first() else {
                 return Response(redirect: "/api/v1/users/reset-password/form")
                     .flash(.error, "Token is invalid")
