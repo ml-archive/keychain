@@ -49,7 +49,7 @@ public struct UserRoutes: RouteCollection {
         self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(configuration: config)
         self.authMiddleware = authMiddleware
         self.protectMiddleware = protectMiddleware
-        self.controller = userController ?? UserController(configuration: config)
+        self.controller = userController ?? UserController(configuration: config, drop: drop)
     }
 
     public func build<Builder: RouteBuilder>(

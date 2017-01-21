@@ -8,7 +8,7 @@ import TurnstileWeb
 import VaporForms
 
 /// Controller for user api requests
-open class UsersController {
+open class UserController: UserControllerType {
     
     private let configuration: ConfigurationType
 
