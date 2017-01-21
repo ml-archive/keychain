@@ -151,7 +151,7 @@ open class UserController: UserControllerType {
         let jwt = try JWT(token: token)
 
         guard
-            let userId = jwt.payload["id"]?.string,
+            let userId = jwt.payload["user"]?.object?["id"]?.int,
             let userPasswordHash = jwt.payload["password"]?.string,
             var user = try User.query().filter("id", userId).first() else {
                 return Response(redirect: "/api/v1/users/reset-password/form")

@@ -220,7 +220,7 @@ public struct Configuration: ConfigurationType {
         var contents: [Node] = []
 
         // Add the user Node
-        contents.append(userInfo)
+        contents.append(Node(["user": userInfo]))
 
         // Add the claims as Nodes
         for claim in claims {
