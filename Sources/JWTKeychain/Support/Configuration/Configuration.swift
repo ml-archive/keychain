@@ -196,9 +196,6 @@ public struct Configuration: ConfigurationType {
     /// - Returns: string with valid JWT token
     public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
 
-        // Prepare payload Node
-        var payload: Node
-
         // Extract user info into Node
         let userInfo = try user.makeNode()
 
@@ -216,22 +213,14 @@ public struct Configuration: ConfigurationType {
         // Add the claims passed into the method
         claims.append(contentsOf: extraClaims)
 
-        // Prepare contents for payload
-        var contents: [Node] = []
+        // Add user info
+        claims.append(UserClaim(userInfo))
 
-        // Add the user Node
-        contents.append(Node(["user": userInfo]))
+        let claimNode = Node(claims)
 
-        // Add the claims as Nodes
-        for claim in claims {
-            contents.append(claim.node)
-        }
-        
-        payload = Node(contents)
-        
         // Generate our Token
         let jwt = try JWT(
-            payload: payload,
+            payload: claimNode,
             signer: self.getSigner(key: self.signatureKeyBytes)
         )
         

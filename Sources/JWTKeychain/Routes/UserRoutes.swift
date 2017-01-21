@@ -69,7 +69,7 @@ public struct UserRoutes: RouteCollection {
         }
 
         // Protected routes
-        path.group(jwtAuthMiddleware, authMiddleware, protectMiddleware) { secured in
+        path.group(authMiddleware, jwtAuthMiddleware,  protectMiddleware) { secured in
             secured.get("logout", handler: controller.logout)
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)

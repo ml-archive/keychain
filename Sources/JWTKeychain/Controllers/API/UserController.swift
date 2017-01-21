@@ -112,7 +112,7 @@ open class UserController: UserControllerType {
         let jwt = try JWT(token: token)
 
         guard
-            let userId = jwt.payload["id"]?.string,
+            let userId = jwt.payload["user"]?.object?["id"]?.int,
             let _ = try User.query().filter("id", userId).first() else {
             throw Abort.notFound
         }
@@ -145,7 +145,7 @@ open class UserController: UserControllerType {
         // Validate token
         if try !self.configuration.validateToken(token: token) {
             return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Invalid token")
+                .flash(.error, "Token is invalid")
         }
 
         let jwt = try JWT(token: token)
@@ -155,7 +155,7 @@ open class UserController: UserControllerType {
             let userPasswordHash = jwt.payload["password"]?.string,
             var user = try User.query().filter("id", userId).first() else {
                 return Response(redirect: "/api/v1/users/reset-password/form")
-                    .flash(.error, "Invalid token")
+                    .flash(.error, "Token is invalid")
         }
 
         if user.email != email {
@@ -165,7 +165,7 @@ open class UserController: UserControllerType {
 
         if user.password != userPasswordHash {
             return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Password was already changed. Cannot use same token.")
+                .flash(.error, "Password already changed. Cannot use the same token again.")
         }
 
         if password != passwordConfirmation {
@@ -177,8 +177,6 @@ open class UserController: UserControllerType {
         try user.save()
 
         return Response(redirect: "/api/v1/users/reset-password/form")
-            .flash(.success, "Password reset complete. You can close this page now.")
-
-
+            .flash(.success, "Password changed. You can close this page now.")
     }
 }
