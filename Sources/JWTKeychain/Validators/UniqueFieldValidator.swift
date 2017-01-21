@@ -20,7 +20,7 @@ public class UniqueFieldValidator<ModelType: Entity>: FieldValidator<String> {
     public override func validate(input value: String) -> FieldValidationResult {
         
         // Let's create the main filter
-        do{
+        do {
             let query = try ModelType.query()
             
             try query.filter(self.column, value)

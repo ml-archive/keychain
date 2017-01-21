@@ -1,28 +1,26 @@
 import Vapor
 import Fluent
 import Foundation
+import Auth
 import Turnstile
 import TurnstileCrypto
-import Auth
 import VaporJWT
-import Core
 import Sugar
+import FluentMySQL
 
-
-/// The representation of a User on our system
-open class User: Auth.User {
-
+/// Defines basic user that can be authorized.
+open class User: UserType {
     public var id: Node?
-
     public var exists: Bool = false
 
-    var name: String!
-    var email: String!
-    var password: String!
+    public var name: String!
+    public var email: String!
+    public var password: String!
 
-    var createdAt: Date?
-    var updatedAt: Date?
-    var deletedAt: Date?
+    public var createdAt: Date?
+    public var updatedAt: Date?
+    public var deletedAt: Date?
+
 
     /// Initializes the User with name, email and password (plain)
     ///
@@ -31,15 +29,12 @@ open class User: Auth.User {
     ///   - email: email of the user
     ///   - password: password of the user (plain)
     public init(name: String, email: String, password: String) {
-
         self.name = name
         self.email = email
         self.password = BCrypt.hash(password: password)
         self.createdAt = Date()
         self.updatedAt = Date()
-
     }
-
 
     /// Initializes a User from a given Node
     ///
@@ -48,7 +43,6 @@ open class User: Auth.User {
     ///   - context: context
     /// - Throws: if not able to retrieve expected data
     required public init(node: Node, in context: Context) throws {
-
         self.id = try node.extract("id")
         self.name = try node.extract("name")
         self.email = try node.extract("email")
@@ -65,33 +59,39 @@ open class User: Auth.User {
         if let deletedAt = node["deleted_at"]?.string {
             self.deletedAt = Date.parse(.dateTime, deletedAt)
         }
-
     }
-
 
     /// Initializes a User with EmailPassword credentials only
     ///
     /// - Parameter credentials: the email and password
     init(credentials: EmailPassword) {
-
         self.email = credentials.email
         self.password = BCrypt.hash(password: credentials.password)
-
     }
 
+    public func makeJSON(token: String) throws -> JSON {
+        return try JSON(node: [
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "token": token,
+            "created_at": self.createdAt?.to(Date.Format.ISO8601),
+            "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
+            "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
+        ])
+    }
 }
+
 
 // MARK: - Authorization and registration
 extension User {
 
-    @discardableResult
     /// Authenticates the user with the given credentials
     ///
     /// - Parameter credentials: user credentials
     /// - Returns: authenticated User
     /// - Throws: if we can't get the User
     public static func authenticate(credentials: Credentials) throws -> Auth.User {
-
         var user: User?
 
         switch credentials {
@@ -131,7 +131,6 @@ extension User {
         }
     }
 
-    @discardableResult
     public static func register(credentials: Credentials) throws -> Auth.User {
 
         var newUser: User
@@ -151,15 +150,12 @@ extension User {
         } else {
             throw AccountTakenError()
         }
-
     }
-
 }
 
 
 // MARK: - Preparation
 extension User: Preparation {
-
     public static func prepare(_ database: Database) throws {
         try database.create("users"){ users in
             users.id()
@@ -171,7 +167,6 @@ extension User: Preparation {
         }
 
         try database.index(table: "users", column: "email", name: "users_email_index")
-
     }
 
     public static func revert(_ database: Database) throws {
@@ -179,9 +174,9 @@ extension User: Preparation {
     }
 }
 
+
 // MARK: - NodeRepresentable
 extension User: NodeRepresentable {
-
     public func makeNode(context: Context) throws -> Node {
         return try Node(node: [
             "id": self.id,
@@ -191,23 +186,7 @@ extension User: NodeRepresentable {
             "created_at": self.createdAt?.to(Date.Format.dateTime),
             "updated_at": self.updatedAt?.to(Date.Format.dateTime),
             "deleted_at": self.deletedAt?.to(Date.Format.dateTime)
-            ])
+        ])
     }
 
-}
-
-// MARK: - JSONRepresentable
-extension User: JSONRepresentable {
-
-    func makeJSON(token: String) throws -> JSON {
-        return try JSON(node: [
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "token": token,
-            "created_at": self.createdAt?.to(Date.Format.ISO8601),
-            "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
-            "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
-            ])
-    }
 }
