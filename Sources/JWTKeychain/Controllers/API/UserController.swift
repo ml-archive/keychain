@@ -6,6 +6,8 @@ import Turnstile
 import TurnstileCrypto
 import TurnstileWeb
 import VaporForms
+import VaporJWT
+import Flash
 
 /// Controller for user api requests
 open class UserController: UserControllerType {
@@ -31,7 +33,7 @@ open class UserController: UserControllerType {
             )
 
             try user.save()
-            let token = try self.configuration.generateToken(userId: user.id!)
+            let token = try self.configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
 
         } catch FormError.validationFailed(let fieldset) {
@@ -53,7 +55,7 @@ open class UserController: UserControllerType {
 
             try request.auth.login(credentials)
             let user = try request.user()
-            let token = try configuration.generateToken(userId: user.id!)
+            let token = try configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
 
         } catch _ {
@@ -70,24 +72,17 @@ open class UserController: UserControllerType {
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
         let user = try request.user()
-        let token = try self.configuration.generateToken(userId: user.id!)
+        let token = try self.configuration.generateToken(user: user)
         return try JSON(node: ["token": token])
     }
 
     open func me(request: Request) throws -> ResponseRepresentable {
         let user = try request.user()
-        let token = try self.configuration.generateToken(userId: user.id!)
+        let token = try self.configuration.generateToken(user: user)
         return try user.makeJSON(token: token)
     }
 
-    /// Reset password submit
-    ///
-    /// It's on purpose that we show a success message if user is not found.
-    /// Else this action could be used to find emails in db
-    ///
-    /// - Parameter request: Request
-    /// - Returns: Response
-    public func resetPassword(request: Request) -> ResponseRepresentable {
+    open func resetPasswordEmail(request: Request) -> ResponseRepresentable {
         do {
 
             guard
@@ -96,8 +91,7 @@ open class UserController: UserControllerType {
                     return JSON(["success": "Instructions were sent to the provided email"])
             }
 
-            // Make a token
-            let token = try self.configuration.generateToken(userId: user.id!)
+            let token = try self.configuration.generateResetPasswordToken(user: user)
 
             // Send mail
             try Mailer.sendResetPasswordMail(drop: self.drop, user: user, token: token)
@@ -106,5 +100,85 @@ open class UserController: UserControllerType {
         } catch {
             return JSON(["error": "An error occured."])
         }
+    }
+
+    open func resetPasswordForm(request: Request, token: String) throws -> View {
+
+        // Validate token
+        if try !self.configuration.validateToken(token: token) {
+            throw Abort.notFound
+        }
+
+        let jwt = try JWT(token: token)
+
+        guard
+            let userId = jwt.payload["id"]?.string,
+            let _ = try User.query().filter("id", userId).first() else {
+            throw Abort.notFound
+        }
+
+        return try drop.view.make("ResetPassword/form", ["token": token])
+    }
+
+    open func resetPasswordChange(request: Request) throws -> Response {
+
+        guard let token = request.data["token"]?.string else {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Missing token")
+        }
+
+        guard let email = request.data["email"]?.string else {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Missing email")
+        }
+
+        guard let password = request.data["password"]?.string else {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Missing password")
+        }
+
+        guard let passwordConfirmation = request.data["password_confirmation"]?.string else {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Missing password confirmation")
+        }
+
+        // Validate token
+        if try !self.configuration.validateToken(token: token) {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Invalid token")
+        }
+
+        let jwt = try JWT(token: token)
+
+        guard
+            let userId = jwt.payload["id"]?.string,
+            let userPasswordHash = jwt.payload["password"]?.string,
+            var user = try User.query().filter("id", userId).first() else {
+                return Response(redirect: "/api/v1/users/reset-password/form")
+                    .flash(.error, "Invalid token")
+        }
+
+        if user.email != email {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Email did not match")
+        }
+
+        if user.password != userPasswordHash {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Password was already changed. Cannot use same token.")
+        }
+
+        if password != passwordConfirmation {
+            return Response(redirect: "/api/v1/users/reset-password/form")
+                .flash(.error, "Password and password confirmation don't match")
+        }
+
+        user.password = BCrypt.hash(password: password)
+        try user.save()
+
+        return Response(redirect: "/api/v1/users/reset-password/form")
+            .flash(.success, "Password reset complete. You can close this page now.")
+
+
     }
 }

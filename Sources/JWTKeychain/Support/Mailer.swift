@@ -49,7 +49,6 @@ public class Mailer {
             ]
             ).data.string()
 
-
         let email: SMTP.Email = Email(
             from: from,
             to: user.email,
@@ -62,7 +61,7 @@ public class Mailer {
             port: smtpPort,
             securityLayer: SecurityLayer.tls(nil)
         )
-
+        
         try client.send(email, using: credentials)
     }
 }

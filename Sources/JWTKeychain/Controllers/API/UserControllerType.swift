@@ -44,4 +44,24 @@ public protocol UserControllerType {
     /// - Returns: JSON response with User data.
     /// - Throws: on no user found.
     func me(request: Request) throws -> ResponseRepresentable
+
+    /// Requests a reset of password for the given email.
+    ///
+    /// - Parameter request: current request.
+    /// - Returns: success or failure message
+    func resetPasswordEmail(request: Request) -> ResponseRepresentable
+
+    /// Shows the form where the user can reset the password
+    ///
+    /// - Parameter request: current request
+    /// - Returns: view
+    func resetPasswordForm(request: Request, token: String) throws -> View
+
+    /// Validates the reset request and actually changes the password
+    ///
+    /// - Parameter request: current request
+    /// - Returns: success or error response
+    /// - Throws: if something goes wrong
+    func resetPasswordChange(request: Request) throws -> Response
+
 }
