@@ -122,61 +122,59 @@ open class UserController: UserControllerType {
 
     open func resetPasswordChange(request: Request) throws -> Response {
 
-        guard let token = request.data["token"]?.string else {
-            return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Missing token")
-        }
+        do {
+            // Validate request
+            let requestData = try ResetPasswordRequest(validating: request.data)
 
-        guard let email = request.data["email"]?.string else {
-            return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Missing email")
-        }
-
-        guard let password = request.data["password"]?.string else {
-            return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Missing password")
-        }
-
-        guard let passwordConfirmation = request.data["password_confirmation"]?.string else {
-            return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Missing password confirmation")
-        }
-
-        // Validate token
-        if try !self.configuration.validateToken(token: token) {
-            return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Token is invalid")
-        }
-
-        let jwt = try JWT(token: token)
-
-        guard
-            let userId = jwt.payload["user"]?.object?["id"]?.int,
-            let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
-            var user = try User.query().filter("id", userId).first() else {
+            // Validate token
+            if try !self.configuration.validateToken(token: requestData.token) {
                 return Response(redirect: "/api/v1/users/reset-password/form")
                     .flash(.error, "Token is invalid")
-        }
+            }
 
-        if user.email != email {
+            let jwt = try JWT(token: requestData.token)
+
+            guard
+                let userId = jwt.payload["user"]?.object?["id"]?.int,
+                let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
+                var user = try User.query().filter("id", userId).first() else {
+                    return Response(redirect: "/api/v1/users/reset-password/form")
+                        .flash(.error, "Token is invalid")
+            }
+
+            if user.email != requestData.email {
+                return Response(redirect: "/api/v1/users/reset-password/form")
+                    .flash(.error, "Email did not match")
+            }
+
+            if user.password != userPasswordHash {
+                return Response(redirect: "/api/v1/users/reset-password/form")
+                    .flash(.error, "Password already changed. Cannot use the same token again.")
+            }
+
+            if requestData.password != requestData.passwordConfirmation {
+                return Response(redirect: "/api/v1/users/reset-password/form")
+                    .flash(.error, "Password and password confirmation don't match")
+            }
+
+            user.password = BCrypt.hash(password: requestData.password)
+            try user.save()
+            
             return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Email did not match")
-        }
+                .flash(.success, "Password changed. You can close this page now.")
 
-        if user.password != userPasswordHash {
+
+        } catch FormError.validationFailed(let fieldset) {
+
+            let response = Response(redirect: "/api/v1/users/reset-password/form").flash(.error, "Data is invalid")
+            response.storage["_fieldset"] = try fieldset.makeNode()
+
+            return response
+
+        } catch {
             return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Password already changed. Cannot use the same token again.")
+                .flash(.error, "Something went wrong")
         }
 
-        if password != passwordConfirmation {
-            return Response(redirect: "/api/v1/users/reset-password/form")
-                .flash(.error, "Password and password confirmation don't match")
-        }
-
-        user.password = BCrypt.hash(password: password)
-        try user.save()
-
-        return Response(redirect: "/api/v1/users/reset-password/form")
-            .flash(.success, "Password changed. You can close this page now.")
     }
 }

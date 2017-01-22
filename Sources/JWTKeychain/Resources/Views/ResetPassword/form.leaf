@@ -59,19 +59,29 @@
             <input type="hidden" name="token" value="#(token)">
             <div class="form-group action-wrapper">
                 <label for="email">E-mail</label>
-                <input type="email" id="email" class="form-control" name="email" required placeholder="Insert email"/>
+                <input type="email" id="email" class="form-control" name="email" required placeholder="Insert email" 
+                value='#valueForField(fieldset, "email")'/>
+                #ifFieldHasErrors(fieldset, "email") { <ul class="errorlist"> }
+                #loopErrorsForField(fieldset, "email", "message") { <li>#(message)</li> }
+                #ifFieldHasErrors(fieldset, "email") { </ul> }
             </div>
 
             <div class="form-group">
                 <label for="password">New password</label>
                 <input type="password" id="password" class="form-control" name="password" required
                        placeholder="Insert password"/>
+                #ifFieldHasErrors(fieldset, "password") { <ul class="errorlist"> }
+                #loopErrorsForField(fieldset, "password", "message") { <li>#(message)</li> }
+                #ifFieldHasErrors(fieldset, "password") { </ul> }
             </div>
 
             <div class="form-group">
                 <label for="password_confirmation">New password confirmation</label>
                 <input type="password" id="password_confirmation" class="form-control" name="password_confirmation" required
                        placeholder="Insert password"/>
+                #ifFieldHasErrors(fieldset, "password_confirmation") { <ul class="errorlist"> }
+                #loopErrorsForField(fieldset, "password_confirmation", "message") { <li>#(message)</li> }
+                #ifFieldHasErrors(fieldset, "password_confirmation") { </ul> }
             </div>
 
             <div class="form-group">
