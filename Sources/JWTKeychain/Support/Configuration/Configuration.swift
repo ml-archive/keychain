@@ -197,7 +197,7 @@ public struct Configuration: ConfigurationType {
     public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
 
         // Extract user info into Node
-        let userInfo = try user.makeNode()
+        let userInfo = try user.makeJWTNode()
 
         // Prepare claims
         var claims: [Claim] = []

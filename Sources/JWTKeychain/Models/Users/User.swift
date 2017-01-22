@@ -80,6 +80,14 @@ open class User: UserType {
             "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
         ])
     }
+
+    public func makeJWTNode() throws -> Node {
+        return try Node(node: [
+            "id": self.id,
+            "email": self.email,
+            "password": self.password,
+        ])
+    }
 }
 
 
