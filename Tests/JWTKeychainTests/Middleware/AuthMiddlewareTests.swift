@@ -18,7 +18,7 @@ class AuthMiddlewareTests: XCTestCase {
 
     override func setUp() {
       
-          self.configuration = JWTKeychain.Configuration(signer: "HS256", signatureKey: "key", publicKey: nil, secondsToExpire: 0)
+          self.configuration = JWTKeychain.Configuration(signer: "HS256", signatureKey: "key", publicKey: nil, secondsToExpire: 0, resetPasswordEmail: "Emails/reset-password", secondsToExpireResetPassword: 3600)
 
           self.middleware = JWTKeychain.AuthMiddleware(configuration: self.configuration!)
 
@@ -83,7 +83,7 @@ class AuthMiddlewareTests: XCTestCase {
 
         let req = try? Request(method: .get, uri: "api/v1/users/me")
 
-        let token = try self.configuration!.generateToken(user: user.id!)
+        let token = try self.configuration!.generateToken(user: user)
 
         req?.headers["Authorization"] = "Bearer " + token
 
