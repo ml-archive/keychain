@@ -9,7 +9,7 @@ import VaporForms
 
 /// Basic controller functionality for a user than can be authorized.
 open class UserController: UserControllerType {
-    private let configuration: ConfigurationType
+    public let configuration: ConfigurationType
 
     required public init(configuration: ConfigurationType) {
         self.configuration = configuration
