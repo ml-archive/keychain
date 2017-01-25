@@ -11,8 +11,8 @@ import Flash
 
 /// Controller for user api requests
 open class UserController: UserControllerType {
-    
-    private let configuration: ConfigurationType
+
+    public let configuration: ConfigurationType
 
     private let drop: Droplet
 
