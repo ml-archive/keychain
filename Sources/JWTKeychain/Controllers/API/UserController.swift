@@ -16,8 +16,11 @@ open class UserController: UserControllerType {
 
     private let drop: Droplet
 
-    required public init(configuration: ConfigurationType, drop: Droplet) {
+    private let mailer: MailerType
+
+    required public init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType) {
         self.configuration = configuration
+        self.mailer = mailer
         self.drop = drop
     }
 
@@ -82,24 +85,26 @@ open class UserController: UserControllerType {
         return try user.makeJSON(token: token)
     }
 
-    open func resetPasswordEmail(request: Request) -> ResponseRepresentable {
-        do {
+    open func resetPasswordEmail(request: Request) throws -> ResponseRepresentable {
 
-            guard
-                let email = request.data["email"]?.string,
-                let user: User = try User.query().filter("email", email).first() else {
-                    return JSON(["success": "Instructions were sent to the provided email"])
-            }
-
-            let token = try self.configuration.generateResetPasswordToken(user: user)
-
-            // Send mail
-            try Mailer.sendResetPasswordMail(drop: self.drop, user: user, token: token)
-            
-            return JSON(["success": "Instructions were sent to the provided email"])
-        } catch {
-            return JSON(["error": "An error occured."])
+        if request.data["email"]?.string == nil {
+            throw Abort.custom(status: .preconditionFailed, message: "Email is required")
         }
+
+        let email: Valid<Email> = try request.data["email"].validated()
+
+        guard
+            let user: User = try User.query().filter("email", email.value).first() else {
+                return JSON(["success": "Instructions were sent to the provided email"])
+        }
+
+        let token = try self.configuration.generateResetPasswordToken(user: user)
+
+        // Send mail
+        try self.mailer.sendResetPasswordMail(user: user, token: token, subject: "Reset Password")
+
+        return JSON(["success": "Instructions were sent to the provided email"])
+
     }
 
     open func resetPasswordForm(request: Request, token: String) throws -> View {
@@ -113,7 +118,7 @@ open class UserController: UserControllerType {
 
         guard
             let userId = jwt.payload["user"]?.object?["id"]?.int,
-            let _ = try User.query().filter("id", userId).first() else {
+            try User.query().filter("id", userId).first() != nil else {
             throw Abort.notFound
         }
 

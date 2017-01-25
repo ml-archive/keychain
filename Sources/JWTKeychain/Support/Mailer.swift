@@ -2,27 +2,28 @@ import Vapor
 import SMTP
 import Transport
 
-public class Mailer {
+public class Mailer: MailerType {
 
-    /// Sends an email to the user with the password reset URL
-    ///
-    /// - Parameters:
-    ///   - drop: droplet
-    ///   - user: user that is resetting the password
-    ///   - token: JWT token generated to identify the user
-    ///   - resetPasswordEmail: the path to the email view
-    ///   - expires: how much time the token will be valid (in minutes)
+    public let configuration: ConfigurationType
+
+    private let drop: Droplet
+
+    required public init(configuration: ConfigurationType, drop: Droplet) {
+        self.configuration = configuration
+        self.drop = drop
+    }
+
     /// - Throws: if essential configs are not present
-    public static func sendResetPasswordMail(drop: Droplet, user: User, token: String, resetPasswordEmail: String? = nil, expires: Int? = nil) throws {
+    public func sendResetPasswordMail(user: UserType, token: String, subject: String) throws {
 
-        guard let smtpUser = drop.config["mail", "user"]?.string,
-            let smtpPassword = drop.config["mail", "password"]?.string,
-            let fromEmail = drop.config["mail", "fromEmail"]?.string,
-            let fromName = drop.config["mail", "fromName"]?.string,
-            let smtpHost = drop.config["mail", "smtpHost"]?.string,
-            let smtpPort = drop.config["mail", "smtpPort"]?.int,
-            let appUrl = drop.config["app", "url"]?.string,
-            let appName = drop.config["app", "name"]?.string
+        guard let smtpUser = self.drop.config["mail", "user"]?.string,
+            let smtpPassword = self.drop.config["mail", "password"]?.string,
+            let fromEmail = self.drop.config["mail", "fromEmail"]?.string,
+            let fromName = self.drop.config["mail", "fromName"]?.string,
+            let smtpHost = self.drop.config["mail", "smtpHost"]?.string,
+            let smtpPort = self.drop.config["mail", "smtpPort"]?.int,
+            let appUrl = self.drop.config["app", "url"]?.string,
+            let appName = self.drop.config["app", "name"]?.string
             else {
                 throw Abort.custom(
                     status: .internalServerError,
@@ -38,13 +39,12 @@ public class Mailer {
         let from = EmailAddress(name: fromName, address: fromEmail)
 
         // Generate HTML
-        let html = try drop.view.make(
-            resetPasswordEmail ?? "Emails/reset-password",
+        let html = try drop.view.make(self.configuration.getResetPasswordEmaiView(),
             [
                 "name": appName,
                 "user": user.makeNode(),
                 "token": token,
-                "expire": expires ?? 0,
+                "expire": self.configuration.getResetPasswordTokenExpirationTime(),
                 "url": appUrl
             ]
             ).data.string()
@@ -52,7 +52,7 @@ public class Mailer {
         let email: SMTP.Email = Email(
             from: from,
             to: user.email,
-            subject: "Reset password",
+            subject: subject,
             body: EmailBody(type: .html, content: html)
         )
 

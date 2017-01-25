@@ -7,9 +7,37 @@ import Auth
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
 
+    /// Validates a given token
+    ///
+    /// - Parameter token: string with the token
+    /// - Returns: true if token is valid, else false
+    /// - Throws: if unable to create JWT instance
     func validateToken(token: String) throws -> Bool
+
+    /// Generates a token for the user
+    /// - Parameter: userId is used to create a SubjectClaim
+    /// - Parameter: extraClaims are optional customized claims
+    /// - Returns: string with valid JWT token
     func generateToken(user: UserType, extraClaims: Claim...) throws -> String
+
+    /// Generates the reset password token with the settings provided on the
+    /// config
+    ///
+    /// - Parameter user: user to generate the token
+    /// - Returns: token string
+    /// - Throws: not able to generate token
     func generateResetPasswordToken(user: UserType) throws -> String
+
+    /// Returns the path to the reset password view
+    ///
+    /// - Returns: path
+    func getResetPasswordEmaiView() -> String
+
+    /// Returns number of seconds that the token will expire in
+    ///
+    /// - Returns: seconds
+    func getResetPasswordTokenExpirationTime() -> Double
+
 }
 
 public struct Configuration: ConfigurationType {
@@ -27,7 +55,7 @@ public struct Configuration: ConfigurationType {
     private var signer: String
 
     /// The path to the reset password email
-    private var resetPasswordEmail: String
+    public var resetPasswordEmail: String
 
     /// Seconds the reset password token has to expire (in the future)
     private var secondsToExpireResetPassword: Double
@@ -145,12 +173,6 @@ public struct Configuration: ConfigurationType {
 
     }
 
-
-    /// Validates a given token
-    ///
-    /// - Parameter token: string with the token
-    /// - Returns: true if token is valid, else false
-    /// - Throws: if unable to create JWT instance
     public func validateToken(token: String) throws -> Bool {
 
         do {
@@ -190,10 +212,6 @@ public struct Configuration: ConfigurationType {
         return false
     }
 
-    /// Generates a token for the user
-    /// - Parameter: userId is used to create a SubjectClaim
-    /// - Parameter: extraClaims are optional customized claims
-    /// - Returns: string with valid JWT token
     public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
 
         // Extract user info into Node
@@ -226,21 +244,21 @@ public struct Configuration: ConfigurationType {
         
         // Return the token string
         return try jwt.createToken()
-        
     }
 
-    /// Generates the reset password token with the settings provided on the 
-    /// config
-    ///
-    /// - Parameter user: user to generate the token
-    /// - Returns: token string
-    /// - Throws: not able to generate token
     public func generateResetPasswordToken(user: UserType) throws -> String {
 
         // Make a token that expires in
         let expiryClaim = ExpirationTimeClaim(Date() + self.secondsToExpireResetPassword)
         return try self.generateToken(user: user, extraClaims: expiryClaim)
+    }
 
+    public func getResetPasswordEmaiView() -> String {
+        return self.resetPasswordEmail
+    }
+
+    public func getResetPasswordTokenExpirationTime() -> Double {
+        return self.secondsToExpireResetPassword
     }
     
 }

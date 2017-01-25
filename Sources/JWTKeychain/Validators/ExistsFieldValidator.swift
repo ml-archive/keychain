@@ -44,7 +44,7 @@ public class ExistsFieldValidator<ModelType: Entity>: FieldValidator<String> {
 
             // Check if any record exists
             if(try query.count() < 1){
-                return .failure([.validationFailed(message: message ?? "\(self.column) is does not exist")])
+                return .failure([.validationFailed(message: message ?? "\(self.column) \(value) does not exist")])
             }
 
             // If not we have green light
@@ -52,7 +52,7 @@ public class ExistsFieldValidator<ModelType: Entity>: FieldValidator<String> {
 
 
         } catch {
-            return .failure([.validationFailed(message: message ?? "\(self.column) is does not exist")])
+            return .failure([.validationFailed(message: message ?? "\(self.column) \(value) does not exist")])
         }
     }
 }

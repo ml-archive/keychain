@@ -3,12 +3,13 @@ import HTTP
 
 /// Defines basic authorization functionality.
 public protocol UserControllerType {
+
     /// Initializes the UsersController with a JWT configuration.
     ///
     /// - Parameters:
     /// configuration : the JWT configuration to be used to generate user tokens.
     /// drop : the Droplet instance 
-    init(configuration: ConfigurationType, drop: Droplet)
+    init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType)
 
     /// Registers a user on the DB.
     ///
@@ -49,7 +50,7 @@ public protocol UserControllerType {
     ///
     /// - Parameter request: current request.
     /// - Returns: success or failure message
-    func resetPasswordEmail(request: Request) -> ResponseRepresentable
+    func resetPasswordEmail(request: Request) throws -> ResponseRepresentable
 
     /// Shows the form where the user can reset the password
     ///
