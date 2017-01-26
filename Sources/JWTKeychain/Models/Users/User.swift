@@ -80,6 +80,14 @@ open class User: UserType {
             "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
         ])
     }
+
+    public func makeJWTNode() throws -> Node {
+        return try Node(node: [
+            "id": self.id,
+            "email": self.email,
+            "password": self.password,
+        ])
+    }
 }
 
 
@@ -114,7 +122,7 @@ extension User {
 
             let token = try JWT(token: credentials.string)
 
-            if let userId = token.payload[SubjectClaim.name]?.string {
+            if let userId =  token.payload["user"]?.object?["id"]?.int {
                 user = try User.query().filter("id", userId).first()
             }
 

@@ -7,8 +7,37 @@ import Auth
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
 
-     func validateToken(token: String) throws -> Bool
-     func generateToken(userId: Node, extraClaims: Claim...) throws -> String
+    /// Validates a given token
+    ///
+    /// - Parameter token: string with the token
+    /// - Returns: true if token is valid, else false
+    /// - Throws: if unable to create JWT instance
+    func validateToken(token: String) throws -> Bool
+
+    /// Generates a token for the user
+    /// - Parameter: userId is used to create a SubjectClaim
+    /// - Parameter: extraClaims are optional customized claims
+    /// - Returns: string with valid JWT token
+    func generateToken(user: UserType, extraClaims: Claim...) throws -> String
+
+    /// Generates the reset password token with the settings provided on the
+    /// config
+    ///
+    /// - Parameter user: user to generate the token
+    /// - Returns: token string
+    /// - Throws: not able to generate token
+    func generateResetPasswordToken(user: UserType) throws -> String
+
+    /// Returns the path to the reset password view
+    ///
+    /// - Returns: path
+    func getResetPasswordEmaiView() -> String
+
+    /// Returns number of seconds that the token will expire in
+    ///
+    /// - Returns: seconds
+    func getResetPasswordTokenExpirationTime() -> Double
+
 }
 
 public struct Configuration: ConfigurationType {
@@ -24,6 +53,12 @@ public struct Configuration: ConfigurationType {
 
     /// Which signer will be used while signing the JWT
     private var signer: String
+
+    /// The path to the reset password email
+    public var resetPasswordEmail: String
+
+    /// Seconds the reset password token has to expire (in the future)
+    private var secondsToExpireResetPassword: Double
 
     public enum Error: Swift.Error {
         case noJWTConfig
@@ -52,6 +87,14 @@ public struct Configuration: ConfigurationType {
             throw Error.missingConfig("signatureKey")
         }
 
+        guard let resetPasswordEmail = jwtConfig["resetPasswordEmail"]?.string else {
+            throw Error.missingConfig("resetPasswordEmail")
+        }
+
+        guard let secondsToExpireResetPassword = jwtConfig["secondsToExpireResetPassword"]?.double else {
+            throw Error.missingConfig("secondsToExpireResetPassword")
+        }
+
         let publicKey: String? = jwtConfig["publicKey"]?.string
 
         if publicKey == nil {
@@ -61,16 +104,25 @@ public struct Configuration: ConfigurationType {
             }
         }
 
-        self.init(signer: signer, signatureKey: signatureKey, publicKey: publicKey, secondsToExpire: secondsToExpire)
+        self.init(
+            signer: signer,
+            signatureKey: signatureKey,
+            publicKey: publicKey,
+            secondsToExpire: secondsToExpire,
+            resetPasswordEmail: resetPasswordEmail,
+            secondsToExpireResetPassword: secondsToExpireResetPassword
+        )
 
     }
 
-    public init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double){
+    public init(signer: String, signatureKey: String, publicKey: String?, secondsToExpire: Double, resetPasswordEmail: String, secondsToExpireResetPassword: Double){
         self.signer = signer
         self.signatureKey = signatureKey
         self.publicKey = publicKey
         self.secondsToExpire = secondsToExpire
-      }
+        self.resetPasswordEmail = resetPasswordEmail
+        self.secondsToExpireResetPassword = secondsToExpireResetPassword
+    }
 
     /// The Bytes representation of the signatureKey
     var signatureKeyBytes : Bytes {
@@ -79,11 +131,11 @@ public struct Configuration: ConfigurationType {
 
     /// The Bytes representation of the publicKey (may be nil)
     var publicKeyBytes: Bytes? {
-      if let publicKey = publicKey {
-         return Array(publicKey.utf8)
-      } else {
-         return nil
-      }
+        if let publicKey = publicKey {
+            return Array(publicKey.utf8)
+        } else {
+            return nil
+        }
     }
 
     /// Generates the expiration date based on the
@@ -93,7 +145,6 @@ public struct Configuration: ConfigurationType {
     /// - Throws: on unable to create the date
     public func generateExpirationDate() -> Date {
         return Date() + self.secondsToExpire
-
     }
 
     private func getSigner(key: Bytes) -> Signer {
@@ -122,12 +173,6 @@ public struct Configuration: ConfigurationType {
 
     }
 
-
-    /// Validates a given token
-    ///
-    /// - Parameter token: string with the token
-    /// - Returns: true if token is valid, else false
-    /// - Throws: if unable to create JWT instance
     public func validateToken(token: String) throws -> Bool {
 
         do {
@@ -167,48 +212,53 @@ public struct Configuration: ConfigurationType {
         return false
     }
 
-    /// Generates a token for the user
-    /// - Parameter: userId is used to create a SubjectClaim
-    /// - Parameter: extraClaims are optional customized claims
-    /// - Returns: string with valid JWT token
-    public func generateToken(userId: Node, extraClaims: Claim...) throws -> String {
-         // Unwrap id
-         guard let id = userId.string else {
-            throw Abort.custom(status: .internalServerError, message: "JWTKeyChain.Configuration - Passed userId could not be casted to string, maybe its nil")
-        }
-        
-        // Prepare payload Node
-        var payload: Node
+    public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
 
-        // Prepare contents for payload
-        var contents: [Claim] = []
+        // Extract user info into Node
+        let userInfo = try user.makeJWTNode()
 
-        let subClaim = SubjectClaim(id)
+        // Prepare claims
+        var claims: [Claim] = []
 
-        contents.append(subClaim)
-
-        for claim in extraClaims {
-            contents.append(claim)
+        // Prepare expiration claim if needed. If we added an expiration time claim
+        // DO NOT override it
+        if self.secondsToExpire > 0 && !extraClaims.contains(where: { $0 is ExpirationTimeClaim }) {
+            
+            claims.append(ExpirationTimeClaim(self.generateExpirationDate()))
+            
         }
 
-        // Prepare expiration claim if needed
-        if self.secondsToExpire > 0 {
+        // Add the claims passed into the method
+        claims.append(contentsOf: extraClaims)
 
-            contents.append(ExpirationTimeClaim(self.generateExpirationDate()))
+        // Add user info
+        claims.append(UserClaim(userInfo))
 
-        }
-
-        payload = Node(contents)
+        let claimNode = Node(claims)
 
         // Generate our Token
         let jwt = try JWT(
-            payload: payload,
+            payload: claimNode,
             signer: self.getSigner(key: self.signatureKeyBytes)
         )
-
+        
         // Return the token string
         return try jwt.createToken()
-
     }
 
+    public func generateResetPasswordToken(user: UserType) throws -> String {
+
+        // Make a token that expires in
+        let expiryClaim = ExpirationTimeClaim(Date() + self.secondsToExpireResetPassword)
+        return try self.generateToken(user: user, extraClaims: expiryClaim)
+    }
+
+    public func getResetPasswordEmaiView() -> String {
+        return self.resetPasswordEmail
+    }
+
+    public func getResetPasswordTokenExpirationTime() -> Double {
+        return self.secondsToExpireResetPassword
+    }
+    
 }

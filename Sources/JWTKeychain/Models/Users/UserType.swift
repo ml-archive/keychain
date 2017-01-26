@@ -26,4 +26,11 @@ public protocol UserType: Auth.User {
     /// - Returns: User in JSON format.
     /// - Throws: On transformation issue.
     func makeJSON(token: String) throws -> JSON
+
+    /// Creates a Node specifically for the 
+    /// JWT token
+    ///
+    /// - Returns: Node
+    /// - Throws: cannot create Node
+    func makeJWTNode() throws -> Node
 }

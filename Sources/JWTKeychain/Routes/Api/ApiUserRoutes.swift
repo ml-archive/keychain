@@ -4,7 +4,7 @@ import Routing
 import HTTP
 
 /// Defines basic user authorization routes.
-public struct UserRoutes: RouteCollection {
+public struct ApiUserRoutes: RouteCollection {
     public typealias Wrapped = Responder
 
     private let drop: Droplet
@@ -13,7 +13,7 @@ public struct UserRoutes: RouteCollection {
     private let protectMiddleware: ProtectMiddleware
     private let configuration: ConfigurationType!
     private let controller: UserControllerType!
-
+    private let mailer: MailerType!
 
     /// Initializes the user route collection.
     ///
@@ -36,25 +36,28 @@ public struct UserRoutes: RouteCollection {
         jwtAuthMiddleware: AuthMiddleware? = nil,
         authMiddleware: Middleware = Auth.AuthMiddleware<User>(),
         protectMiddleware: ProtectMiddleware = ProtectMiddleware(
-            error: Abort.custom(
-                status: .unauthorized,
-                message: Status.unauthorized.reasonPhrase
-            )
+        error: Abort.custom(
+            status: .unauthorized,
+            message: Status.unauthorized.reasonPhrase
+        )
         ),
-        userController: UserControllerType? = nil
-    ) throws {
+        userController: UserControllerType? = nil,
+        mailer: MailerType
+        ) throws {
         self.drop = drop
         let config = try configuration ?? Configuration(drop: drop)
         self.configuration = config
         self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(configuration: config)
         self.authMiddleware = authMiddleware
         self.protectMiddleware = protectMiddleware
-        self.controller = userController ?? UserController(configuration: config)
+        self.mailer = mailer
+        self.controller = userController ?? UserController(configuration: config, drop: drop, mailer: mailer)
     }
 
     public func build<Builder: RouteBuilder>(
         _ builder: Builder
-    ) where Builder.Value == Responder {
+        ) where Builder.Value == Responder {
+
         // Get the base path group
         let path = builder.grouped("users")
 
@@ -62,10 +65,13 @@ public struct UserRoutes: RouteCollection {
         path.group(authMiddleware) { jwtRoutes in
             jwtRoutes.post(handler: controller.register)
             jwtRoutes.post("login", handler: controller.login)
+            jwtRoutes.post("reset-password", "request", handler: controller.resetPasswordEmail)
+            jwtRoutes.get("reset-password", "form", String.self, handler: controller.resetPasswordForm)
+            jwtRoutes.post("reset-password", "change", handler: controller.resetPasswordChange)
         }
 
         // Protected routes
-        path.group(jwtAuthMiddleware, authMiddleware, protectMiddleware) { secured in
+        path.group(authMiddleware, jwtAuthMiddleware,  protectMiddleware) { secured in
             secured.get("logout", handler: controller.logout)
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)
