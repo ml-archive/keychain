@@ -28,17 +28,16 @@ open class UserController: UserControllerType {
         do {
             // Validate request
             let requestData = try StoreRequest(validating: request.data)
-            
+
             var user = User(
                 name: requestData.name,
                 email: requestData.email,
                 password: requestData.password
             )
-            
+
             try user.save()
             let token = try self.configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
-            
         } catch FormError.validationFailed(let fieldset) {
             throw Abort.custom(status: Status.preconditionFailed, message: "Invalid data: \(fieldset.errors)")
         } catch {
@@ -67,7 +66,6 @@ open class UserController: UserControllerType {
     open func logout(request: Request) throws -> ResponseRepresentable {
         // Clear the session
         request.subject.logout()
-        
         return try JSON(node: ["success": true])
     }
 
@@ -102,7 +100,7 @@ open class UserController: UserControllerType {
 
         return JSON(["success": "Instructions were sent to the provided email"])
     }
-    
+
     open func resetPasswordForm(request: Request, token: String) throws -> View {
         // Validate token
         if try !self.configuration.validateToken(token: token) {
@@ -113,8 +111,9 @@ open class UserController: UserControllerType {
 
         guard
             let userId = jwt.payload["user"]?.object?["id"]?.int,
-            try User.query().filter("id", userId).first() != nil else {
-                throw Abort.notFound
+            try User.query().filter("id", userId).first() != nil
+        else {
+            throw Abort.notFound
         }
 
         return try drop.view.make("ResetPassword/form", ["token": token], for: request)
