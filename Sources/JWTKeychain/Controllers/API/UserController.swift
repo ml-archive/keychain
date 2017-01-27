@@ -38,7 +38,6 @@ open class UserController: UserControllerType {
             try user.save()
             let token = try self.configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
-
         } catch FormError.validationFailed(let fieldset) {
             throw Abort.custom(status: Status.preconditionFailed, message: "Invalid data: \(fieldset.errors)")
         } catch {
@@ -55,12 +54,10 @@ open class UserController: UserControllerType {
         let credentials = EmailPassword(email: email, password: password)
 
         do {
-
             try request.auth.login(credentials)
             let user = try request.user()
             let token = try configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
-
         } catch _ {
             throw Abort.custom(status: Status.badRequest, message: "Invalid email or password")
         }
@@ -69,7 +66,6 @@ open class UserController: UserControllerType {
     open func logout(request: Request) throws -> ResponseRepresentable {
         // Clear the session
         request.subject.logout()
-
         return try JSON(node: ["success": true])
     }
 
@@ -86,7 +82,6 @@ open class UserController: UserControllerType {
     }
 
     open func resetPasswordEmail(request: Request) throws -> ResponseRepresentable {
-
         if request.data["email"]?.string == nil {
             throw Abort.custom(status: .preconditionFailed, message: "Email is required")
         }
@@ -104,11 +99,9 @@ open class UserController: UserControllerType {
         try self.mailer.sendResetPasswordMail(user: user, token: token, subject: "Reset Password")
 
         return JSON(["success": "Instructions were sent to the provided email"])
-
     }
 
     open func resetPasswordForm(request: Request, token: String) throws -> View {
-
         // Validate token
         if try !self.configuration.validateToken(token: token) {
             throw Abort.notFound
@@ -118,14 +111,19 @@ open class UserController: UserControllerType {
 
         guard
             let userId = jwt.payload["user"]?.object?["id"]?.int,
-            try User.query().filter("id", userId).first() != nil else {
+            try User.query().filter("id", userId).first() != nil
+        else {
             throw Abort.notFound
         }
 
-        return try drop.view.make("ResetPassword/form", ["token": token])
+        return try drop.view.make("ResetPassword/form", ["token": token], for: request)
     }
-
+    
     open func resetPasswordChange(request: Request) throws -> Response {
+        guard let token = request.data["token"]?.string else {
+            throw Abort.badRequest
+        }
+        let redirectUrl = "/api/v1/users/reset-password/form/\(token)"
 
         do {
             // Validate request
@@ -133,7 +131,7 @@ open class UserController: UserControllerType {
 
             // Validate token
             if try !self.configuration.validateToken(token: requestData.token) {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: redirectUrl)
                     .flash(.error, "Token is invalid")
             }
 
@@ -142,44 +140,39 @@ open class UserController: UserControllerType {
             guard
                 let userId = jwt.payload["user"]?.object?["id"]?.int,
                 let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
-                var user = try User.query().filter("id", userId).first() else {
-                    return Response(redirect: "/api/v1/users/reset-password/form")
-                        .flash(.error, "Token is invalid")
+                var user = try User.query().filter("id", userId).first()
+            else {
+                return Response(redirect: redirectUrl)
+                    .flash(.error, "Token is invalid")
             }
 
             if user.email != requestData.email {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: redirectUrl)
                     .flash(.error, "Email did not match")
             }
 
             if user.password != userPasswordHash {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: redirectUrl)
                     .flash(.error, "Password already changed. Cannot use the same token again.")
             }
 
             if requestData.password != requestData.passwordConfirmation {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: redirectUrl)
                     .flash(.error, "Password and password confirmation don't match")
             }
 
             user.password = BCrypt.hash(password: requestData.password)
             try user.save()
             
-            return Response(redirect: "/api/v1/users/reset-password/form")
+            return Response(redirect: redirectUrl)
                 .flash(.success, "Password changed. You can close this page now.")
-
-
         } catch FormError.validationFailed(let fieldset) {
-
-            let response = Response(redirect: "/api/v1/users/reset-password/form").flash(.error, "Data is invalid")
+            let response = Response(redirect: redirectUrl).flash(.error, "Data is invalid")
             response.storage["_fieldset"] = try fieldset.makeNode()
-
             return response
-
         } catch {
-            return Response(redirect: "/api/v1/users/reset-password/form")
+            return Response(redirect: redirectUrl)
                 .flash(.error, "Something went wrong")
         }
-
     }
 }
