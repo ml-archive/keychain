@@ -212,14 +212,10 @@ public struct Configuration: ConfigurationType {
         return false
     }
 
-    public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
-
-        // Extract user info into Node
-        let userInfo = try user.makeJWTNode()
-
+     public func generateToken(node: Node, extraClaims: [Claim]) throws -> String {
         // Prepare claims
         var claims: [Claim] = []
-
+        
         // Prepare expiration claim if needed. If we added an expiration time claim
         // DO NOT override it
         if self.secondsToExpire > 0 && !extraClaims.contains(where: { $0 is ExpirationTimeClaim }) {
@@ -227,15 +223,15 @@ public struct Configuration: ConfigurationType {
             claims.append(ExpirationTimeClaim(self.generateExpirationDate()))
             
         }
-
+        
         // Add the claims passed into the method
         claims.append(contentsOf: extraClaims)
-
+        
         // Add user info
-        claims.append(UserClaim(userInfo))
-
+        claims.append(UserClaim(node))
+        
         let claimNode = Node(claims)
-
+        
         // Generate our Token
         let jwt = try JWT(
             payload: claimNode,
@@ -244,6 +240,14 @@ public struct Configuration: ConfigurationType {
         
         // Return the token string
         return try jwt.createToken()
+    }
+    
+    public func generateToken(node: Node, extraClaims: Claim...) throws -> String {
+        return try generateToken(node: node, extraClaims: extraClaims)
+    }
+    
+    public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
+        return try generateToken(node: user.makeJWTNode(), extraClaims: extraClaims)
     }
 
     public func generateResetPasswordToken(user: UserType) throws -> String {
