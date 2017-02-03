@@ -2,7 +2,7 @@ import Vapor
 
 /// Defines basic email functionality.
 public protocol MailerType {
-
+    associatedtype MailUserType: UserType
     /// Initializes the Mailer with the JWT configuration.
     ///
     /// - Parameters:
@@ -16,5 +16,5 @@ public protocol MailerType {
     ///   - user: user that is resetting the password
     ///   - token: JWT token generated to identify the user
     /// - Throws: if essential configs are not present
-    func sendResetPasswordMail(user: UserType, token: String, subject: String) throws
+    func sendResetPasswordMail(user: MailUserType, token: String, subject: String) throws
 }

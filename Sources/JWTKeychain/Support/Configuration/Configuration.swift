@@ -18,7 +18,7 @@ public protocol ConfigurationType {
     /// - Parameter: userId is used to create a SubjectClaim
     /// - Parameter: extraClaims are optional customized claims
     /// - Returns: string with valid JWT token
-    func generateToken(user: UserType, extraClaims: Claim...) throws -> String
+    func generateToken<T: UserType>(user: T, extraClaims: Claim...) throws -> String
 
     /// Generates the reset password token with the settings provided on the
     /// config
@@ -26,7 +26,7 @@ public protocol ConfigurationType {
     /// - Parameter user: user to generate the token
     /// - Returns: token string
     /// - Throws: not able to generate token
-    func generateResetPasswordToken(user: UserType) throws -> String
+    func generateResetPasswordToken<T: UserType>(user: T) throws -> String
 
     /// Returns the path to the reset password view
     ///
@@ -246,11 +246,11 @@ public struct Configuration: ConfigurationType {
         return try generateToken(node: node, extraClaims: extraClaims)
     }
     
-    public func generateToken(user: UserType, extraClaims: Claim...) throws -> String {
+    public func generateToken<T: UserType>(user: T, extraClaims: Claim...) throws -> String {
         return try generateToken(node: user.makeJWTNode(), extraClaims: extraClaims)
     }
 
-    public func generateResetPasswordToken(user: UserType) throws -> String {
+    public func generateResetPasswordToken<T: UserType>(user: T) throws -> String {
 
         // Make a token that expires in
         let expiryClaim = ExpirationTimeClaim(Date() + self.secondsToExpireResetPassword)

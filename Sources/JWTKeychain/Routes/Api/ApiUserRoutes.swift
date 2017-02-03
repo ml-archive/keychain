@@ -4,16 +4,16 @@ import Routing
 import HTTP
 
 /// Defines basic user authorization routes.
-public struct ApiUserRoutes: RouteCollection {
+public struct ApiUserRoutes<T: UserType>: RouteCollection {
     public typealias Wrapped = Responder
 
     private let drop: Droplet
     private let authMiddleware: Middleware
     private let jwtAuthMiddleware: JWTKeychain.AuthMiddleware!
     private let protectMiddleware: ProtectMiddleware
-    private let configuration: ConfigurationType!
-    private let controller: UserControllerType!
-    private let mailer: MailerType!
+    private let configuration: ConfigurationType
+    private let controller: UserControllerType
+    //private let mailer: MailerType!
 
     /// Initializes the user route collection.
     ///
@@ -36,27 +36,36 @@ public struct ApiUserRoutes: RouteCollection {
         jwtAuthMiddleware: AuthMiddleware? = nil,
         authMiddleware: Middleware = Auth.AuthMiddleware<User>(),
         protectMiddleware: ProtectMiddleware = ProtectMiddleware(
-        error: Abort.custom(
-            status: .unauthorized,
-            message: Status.unauthorized.reasonPhrase
-        )
+            error: Abort.custom(
+                status: .unauthorized,
+                message: Status.unauthorized.reasonPhrase
+            )
         ),
-        userController: UserControllerType? = nil,
-        mailer: MailerType
-        ) throws {
+        userController: UserControllerType? = nil //,
+       // mailer: MailerType
+    ) throws {
         self.drop = drop
         let config = try configuration ?? Configuration(drop: drop)
         self.configuration = config
-        self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(configuration: config)
+        
+        self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(
+            configuration: config
+        )
         self.authMiddleware = authMiddleware
         self.protectMiddleware = protectMiddleware
-        self.mailer = mailer
-        self.controller = userController ?? UserController(configuration: config, drop: drop, mailer: mailer)
+        
+        //self.mailer = mailer
+        
+        self.controller = userController ?? BasicUserController(
+            configuration: config,
+            drop: drop //,
+            //mailer: mailer
+        )
     }
 
     public func build<Builder: RouteBuilder>(
         _ builder: Builder
-        ) where Builder.Value == Responder {
+    ) where Builder.Value == Responder {
 
         // Get the base path group
         let path = builder.grouped("users")

@@ -3,13 +3,13 @@ import HTTP
 
 /// Defines basic authorization functionality.
 public protocol UserControllerType {
-
     /// Initializes the UsersController with a JWT configuration.
     ///
     /// - Parameters:
     /// configuration : the JWT configuration to be used to generate user tokens.
-    /// drop : the Droplet instance 
-    init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType)
+    /// drop : the Droplet instance
+    //TODO: mailer
+    init(configuration: ConfigurationType, drop: Droplet)
 
     /// Registers a user on the DB.
     ///
