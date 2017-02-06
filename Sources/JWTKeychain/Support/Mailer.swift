@@ -2,9 +2,7 @@ import Vapor
 import SMTP
 import Transport
 
-public class Mailer<T: UserType>: MailerType {
-    public typealias MailUserType = T
-    
+public class Mailer: MailerType {
     public let configuration: ConfigurationType
 
     private let drop: Droplet
@@ -15,7 +13,7 @@ public class Mailer<T: UserType>: MailerType {
     }
 
     /// - Throws: if essential configs are not present
-    public func sendResetPasswordMail(user: MailUserType, token: String, subject: String) throws {
+    public func sendResetPasswordMail<T: UserType>(user: T, token: String, subject: String) throws {
         guard let smtpUser = self.drop.config["mail", "user"]?.string,
             let smtpPassword = self.drop.config["mail", "password"]?.string,
             let fromEmail = self.drop.config["mail", "fromEmail"]?.string,

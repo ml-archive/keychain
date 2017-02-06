@@ -12,6 +12,7 @@ import VaporForms
 /// Defines basic user that can be authorized.
 final class User: UserType {
     typealias Validator = StoreRequest
+    
     public var id: Node?
     public var exists: Bool = false
 
@@ -24,10 +25,10 @@ final class User: UserType {
     public var deletedAt: Date?
 
 
-    init(validator: StoreRequest) {
-        name = validator.name
-        email = validator.email
-        password = validator.password
+    init(validated: StoreRequest) {
+        name = validated.name
+        email = validated.email
+        password = validated.password
     }
     
     /// Initializes the User with name, email and password (plain)

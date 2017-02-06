@@ -10,10 +10,10 @@ import VaporJWT
 import Flash
 
 /// Basic user controller that uses the `User` model.
-typealias BasicUserController = UserController<User, Mailer<User>>
+typealias BasicUserController = UserController<User>
 
 /// Controller for user api requests
-open class UserController<T: UserType, M: MailerType>: UserControllerType {
+open class UserController<T: UserType>: UserControllerType {
     /// Initializes the UsersController with a JWT configuration.
     ///
     /// - Parameters:
@@ -22,15 +22,9 @@ open class UserController<T: UserType, M: MailerType>: UserControllerType {
 
     public let configuration: ConfigurationType
     private let drop: Droplet
-    private let mailer: M?
-
-    required public init(configuration: ConfigurationType, drop: Droplet) {
-        self.configuration = configuration
-        self.drop = drop
-        self.mailer = nil
-    }
+    private let mailer: MailerType
     
-    required public init(configuration: ConfigurationType, drop: Droplet, mailer: M) {
+    required public init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType) {
         self.configuration = configuration
         self.mailer = mailer
         self.drop = drop
@@ -40,7 +34,7 @@ open class UserController<T: UserType, M: MailerType>: UserControllerType {
         do {
             // Validate request
             let validator = try T.Validator(validating: request.data)
-            var user = T(validator: validator)
+            var user = T(validated: validator)
             try user.save()
             let token = try self.configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
@@ -94,14 +88,14 @@ open class UserController<T: UserType, M: MailerType>: UserControllerType {
 
         let email: Valid<Email> = try request.data["email"].validated()
 
-        guard let user = try M.MailUserType.query().filter("email", email.value).first() else {
+        guard let user = try T.query().filter("email", email.value).first() else {
             return JSON(["success": "Instructions were sent to the provided email"])
         }
 
         let token = try self.configuration.generateResetPasswordToken(user: user)
 
         // Send mail
-        try self.mailer?.sendResetPasswordMail(user: user, token: token, subject: "Reset Password")
+        try self.mailer.sendResetPasswordMail(user: user, token: token, subject: "Reset Password")
 
         return JSON(["success": "Instructions were sent to the provided email"])
     }

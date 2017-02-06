@@ -9,7 +9,7 @@ public protocol UserControllerType {
     /// configuration : the JWT configuration to be used to generate user tokens.
     /// drop : the Droplet instance
     //TODO: mailer
-    init(configuration: ConfigurationType, drop: Droplet)
+    init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType)
 
     /// Registers a user on the DB.
     ///

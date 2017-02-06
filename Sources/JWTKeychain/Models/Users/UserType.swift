@@ -6,7 +6,9 @@ import VaporForms
 
 /// Defines minimum requirements for setting up a user than can be authorized.
 public protocol UserType: Auth.User, Model {
+    /// The type of validator to be initialized on model instantiation.
     associatedtype Validator: Form
+    
     /// Name of user.
     var name: String? { get set }
     /// Email of user.
@@ -21,7 +23,7 @@ public protocol UserType: Auth.User, Model {
     /// Deleted at time stamp.
     var deletedAt: Date? { get set }
     
-    init(validator: Validator)
+    init(validated: Validator)
     
     /// Creates JSON.
     ///

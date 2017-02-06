@@ -13,7 +13,7 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
     private let protectMiddleware: ProtectMiddleware
     private let configuration: ConfigurationType
     private let controller: UserControllerType
-    //private let mailer: MailerType!
+    private let mailer: MailerType
 
     /// Initializes the user route collection.
     ///
@@ -41,8 +41,8 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
                 message: Status.unauthorized.reasonPhrase
             )
         ),
-        userController: UserControllerType? = nil //,
-       // mailer: MailerType
+        userController: UserControllerType? = nil,
+        mailer: MailerType
     ) throws {
         self.drop = drop
         let config = try configuration ?? Configuration(drop: drop)
@@ -54,12 +54,12 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
         self.authMiddleware = authMiddleware
         self.protectMiddleware = protectMiddleware
         
-        //self.mailer = mailer
+        self.mailer = mailer
         
         self.controller = userController ?? BasicUserController(
             configuration: config,
-            drop: drop //,
-            //mailer: mailer
+            drop: drop ,
+            mailer: mailer
         )
     }
 
