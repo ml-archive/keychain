@@ -10,7 +10,7 @@ import VaporJWT
 import Flash
 
 /// Basic user controller that uses the `User` model.
-typealias BasicUserController = UserController<User>
+public typealias BasicUserController = UserController<User>
 
 /// Controller for user api requests
 open class UserController<T: UserType>: UserControllerType {
