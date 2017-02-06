@@ -33,7 +33,9 @@ Create config `jwt.json`
 {
     "signer": "HS256",
     "secondsToExpire": 3600,
-    "signatureKey": "our-little-secret"
+    "signatureKey": "our-little-secret",
+    "resetPasswordEmail": "path/to/email/iew",
+    "secondsToExpireResetPassword": 3600
 }
 ```
 See https://github.com/siemensikkema/vapor-jwt to know more about signing
