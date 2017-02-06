@@ -11,7 +11,6 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
     private let authMiddleware: Middleware
     private let jwtAuthMiddleware: JWTKeychain.AuthMiddleware!
 
-    private let protectMiddleware: ProtectMiddleware
     private let configuration: ConfigurationType
     private let controller: UserControllerType
     private let mailer: MailerType
@@ -34,12 +33,6 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
         configuration: ConfigurationType? = nil,
         jwtAuthMiddleware: AuthMiddleware? = nil,
         authMiddleware: Middleware = Auth.AuthMiddleware<User>(),
-        protectMiddleware: ProtectMiddleware = ProtectMiddleware(
-            error: Abort.custom(
-                status: .unauthorized,
-                message: Status.unauthorized.reasonPhrase
-            )
-        ),
         userController: UserControllerType? = nil,
         mailer: MailerType
     ) throws {
