@@ -125,9 +125,6 @@ public protocol UserType: Auth.User, Model {
 ```
 `Validator` is a typealias for the `Form` you wish to instantiate and validate the incoming request with. The fields `createdAt`, `updatedAt`, and `deletedAt` and the functions `makeJSON(token: String)` and `func makeJWTNode()` are all optional and have a default implementations.
 
-## 🏆 Credits
-This package is developed and maintained by the Vapor team at [Nodes](https://www.nodes.dk).
-
 ### The UserControllerType protocol
 If you wish to modify the behavior of the `BasicUserController` you can simply extend it and override any function you wish. If you're wanting to create your own UserController from scratch you can conform to the following protocol:
 ```swift
@@ -151,6 +148,9 @@ public protocol UserControllerType {
     func resetPasswordChange(request: Request) throws -> Response
 }
 ```
+
+## 🏆 Credits
+This package is developed and maintained by the Vapor team at [Nodes](https://www.nodes.dk).
 
 ## 📄 License
 This package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
