@@ -21,10 +21,10 @@ extension Request {
     ///
     /// - Returns: Authenticated user
     /// - Throws: UnsupportedCredentialsError
-    public func user() throws -> UserType {
+    public func user<T: UserType>() throws -> T {
         
         // Try to retrieve authenticated user
-        guard let user = try auth.user() as? UserType else {
+        guard let user = try auth.user() as? T else {
             throw UnsupportedCredentialsError()
         }
         return user

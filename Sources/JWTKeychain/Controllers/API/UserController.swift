@@ -9,15 +9,21 @@ import VaporForms
 import VaporJWT
 import Flash
 
+/// Basic user controller that uses the `User` model.
+public typealias BasicUserController = UserController<User>
+
 /// Controller for user api requests
-open class UserController: UserControllerType {
+open class UserController<T: UserType>: UserControllerType {
+    /// Initializes the UsersController with a JWT configuration.
+    ///
+    /// - Parameters:
+    /// configuration : the JWT configuration to be used to generate user tokens.
+    /// drop : the Droplet instance
 
     public let configuration: ConfigurationType
-
     private let drop: Droplet
-
     private let mailer: MailerType
-
+    
     required public init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType) {
         self.configuration = configuration
         self.mailer = mailer
@@ -27,14 +33,8 @@ open class UserController: UserControllerType {
     open func register(request: Request) throws -> ResponseRepresentable {
         do {
             // Validate request
-            let requestData = try StoreRequest(validating: request.data)
-
-            var user = User(
-                name: requestData.name,
-                email: requestData.email,
-                password: requestData.password
-            )
-
+            let validator = try T.Validator(validating: request.data)
+            var user = T(validated: validator)
             try user.save()
             let token = try self.configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
@@ -55,7 +55,7 @@ open class UserController: UserControllerType {
 
         do {
             try request.auth.login(credentials)
-            let user = try request.user()
+            let user: T = try request.user()
             let token = try configuration.generateToken(user: user)
             return try user.makeJSON(token: token)
         } catch _ {
@@ -70,13 +70,13 @@ open class UserController: UserControllerType {
     }
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
-        let user = try request.user()
+        let user: T = try request.user()
         let token = try self.configuration.generateToken(user: user)
         return try JSON(node: ["token": token])
     }
 
     open func me(request: Request) throws -> ResponseRepresentable {
-        let user = try request.user()
+        let user: T = try request.user()
         let token = try self.configuration.generateToken(user: user)
         return try user.makeJSON(token: token)
     }
@@ -88,9 +88,8 @@ open class UserController: UserControllerType {
 
         let email: Valid<Email> = try request.data["email"].validated()
 
-        guard
-            let user: User = try User.query().filter("email", email.value).first() else {
-                return JSON(["success": "Instructions were sent to the provided email"])
+        guard let user = try T.query().filter("email", email.value).first() else {
+            return JSON(["success": "Instructions were sent to the provided email"])
         }
 
         let token = try self.configuration.generateResetPasswordToken(user: user)

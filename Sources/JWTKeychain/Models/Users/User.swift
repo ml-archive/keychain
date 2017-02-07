@@ -7,21 +7,30 @@ import TurnstileCrypto
 import VaporJWT
 import Sugar
 import FluentMySQL
+import VaporForms
 
 /// Defines basic user that can be authorized.
-open class User: UserType {
+public final class User: UserType {
+    public typealias Validator = StoreRequest
+    
     public var id: Node?
     public var exists: Bool = false
 
-    public var name: String!
-    public var email: String!
-    public var password: String!
+    public var name: String?
+    public var email: String
+    public var password: String
 
     public var createdAt: Date?
     public var updatedAt: Date?
     public var deletedAt: Date?
 
 
+    public required init(validated: StoreRequest) {
+        name = validated.name
+        email = validated.email
+        password = validated.password
+    }
+    
     /// Initializes the User with name, email and password (plain)
     ///
     /// - Parameters:
@@ -35,27 +44,27 @@ open class User: UserType {
         self.createdAt = Date()
         self.updatedAt = Date()
     }
-
+    
     /// Initializes a User from a given Node
     ///
     /// - Parameters:
     ///   - node: Node with user data
     ///   - context: context
     /// - Throws: if not able to retrieve expected data
-    required public init(node: Node, in context: Context) throws {
+    public init(node: Node, in context: Context) throws {
         self.id = try node.extract("id")
         self.name = try node.extract("name")
         self.email = try node.extract("email")
         self.password = try node.extract("password")
-
+        
         if let createdAt = node["created_at"]?.string {
             self.createdAt = Date.parse(.dateTime, createdAt)
         }
-
+        
         if let updatedAt = node["updated_at"]?.string {
             self.updatedAt = Date.parse(.dateTime, updatedAt)
         }
-
+        
         if let deletedAt = node["deleted_at"]?.string {
             self.deletedAt = Date.parse(.dateTime, deletedAt)
         }
@@ -67,26 +76,6 @@ open class User: UserType {
     init(credentials: EmailPassword) {
         self.email = credentials.email
         self.password = BCrypt.hash(password: credentials.password)
-    }
-
-    public func makeJSON(token: String) throws -> JSON {
-        return try JSON(node: [
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "token": token,
-            "created_at": self.createdAt?.to(Date.Format.ISO8601),
-            "updated_at": self.updatedAt?.to(Date.Format.ISO8601),
-            "deleted_at": self.deletedAt?.to(Date.Format.ISO8601),
-        ])
-    }
-
-    public func makeJWTNode() throws -> Node {
-        return try Node(node: [
-            "id": self.id,
-            "email": self.email,
-            "password": self.password,
-        ])
     }
 }
 
@@ -162,8 +151,20 @@ extension User {
 }
 
 
-// MARK: - Preparation
-extension User: Preparation {
+// MARK: - Vapor Model
+extension User {
+    public func makeNode(context: Context) throws -> Node {
+        return try Node(node: [
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "password": self.password,
+            "created_at": self.createdAt?.to(Date.Format.dateTime),
+            "updated_at": self.updatedAt?.to(Date.Format.dateTime),
+            "deleted_at": self.deletedAt?.to(Date.Format.dateTime)
+        ])
+    }
+    
     public static func prepare(_ database: Database) throws {
         try database.create("users"){ users in
             users.id()
@@ -180,21 +181,4 @@ extension User: Preparation {
     public static func revert(_ database: Database) throws {
         try database.delete("users")
     }
-}
-
-
-// MARK: - NodeRepresentable
-extension User: NodeRepresentable {
-    public func makeNode(context: Context) throws -> Node {
-        return try Node(node: [
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "password": self.password,
-            "created_at": self.createdAt?.to(Date.Format.dateTime),
-            "updated_at": self.updatedAt?.to(Date.Format.dateTime),
-            "deleted_at": self.deletedAt?.to(Date.Format.dateTime)
-        ])
-    }
-
 }
