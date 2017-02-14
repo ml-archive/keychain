@@ -2,7 +2,7 @@ import Vapor
 import HTTP
 import Turnstile
 import Auth
-import VaporJWT
+import JWT
 
 /// Middleware to extract and authorize a user via
 /// Authorization Bearer Token + JWT

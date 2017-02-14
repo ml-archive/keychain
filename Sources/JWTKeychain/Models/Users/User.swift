@@ -4,7 +4,7 @@ import Foundation
 import Auth
 import Turnstile
 import TurnstileCrypto
-import VaporJWT
+import JWT
 import Sugar
 import FluentMySQL
 import VaporForms

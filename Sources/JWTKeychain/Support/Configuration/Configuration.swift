@@ -1,7 +1,7 @@
 import Foundation
 import Vapor
 import HTTP
-import VaporJWT
+import JWT
 import Auth
 
 /// Sets the protocol of what is expected on the config file
@@ -176,7 +176,6 @@ public struct Configuration: ConfigurationType {
     public func validateToken(token: String) throws -> Bool {
 
         do {
-
             // Validate our current access token
             let receivedJWT = try JWT(token: token)
 
@@ -188,28 +187,19 @@ public struct Configuration: ConfigurationType {
 
             // Verify signature
             let signer: Signer = self.getSigner(key: key)
-            if try receivedJWT.verifySignatureWith(signer) {
+            try receivedJWT.verifySignature(using: signer)
 
-
-                // If we have expiration set on config, verify it
-                if self.secondsToExpire > 0 {
-
-                    return receivedJWT.verifyClaims([ExpirationTimeClaim()])
-
-                }
-
-                // No claims to verify so return true
-                return true
-
+            // If we have expiration set on config, verify it
+            if self.secondsToExpire > 0 {
+                return receivedJWT.verifyClaims([ExpirationTimeClaim()])
             }
 
+            // No claims to verify so return true
+            return true
+
         } catch {
-
             throw AuthError.invalidBearerAuthorization
-
         }
-
-        return false
     }
 
      public func generateToken(node: Node, extraClaims: [Claim]) throws -> String {

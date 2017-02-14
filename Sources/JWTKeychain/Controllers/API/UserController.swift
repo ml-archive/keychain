@@ -6,7 +6,7 @@ import Turnstile
 import TurnstileCrypto
 import TurnstileWeb
 import VaporForms
-import VaporJWT
+import JWT
 import Flash
 
 /// Basic user controller that uses the `User` model.
