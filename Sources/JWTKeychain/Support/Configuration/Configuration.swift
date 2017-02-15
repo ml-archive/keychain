@@ -10,9 +10,8 @@ public protocol ConfigurationType {
     /// Validates a given token
     ///
     /// - Parameter token: string with the token
-    /// - Returns: true if token is valid, else false
-    /// - Throws: if unable to create JWT instance
-    func validateToken(token: String) throws -> Bool
+    /// - Throws: if unable to create JWT instance or if token is invalid
+    func validateToken(token: String) throws
 
     /// Generates a token for the user
     /// - Parameter: userId is used to create a SubjectClaim
@@ -63,6 +62,7 @@ public struct Configuration: ConfigurationType {
     public enum Error: Swift.Error {
         case noJWTConfig
         case missingConfig(String)
+        case invalidClaims
     }
 
     public init(drop: Droplet) throws {
@@ -173,8 +173,7 @@ public struct Configuration: ConfigurationType {
 
     }
 
-    public func validateToken(token: String) throws -> Bool {
-
+    public func validateToken(token: String) throws {
         do {
             // Validate our current access token
             let receivedJWT = try JWT(token: token)
@@ -191,12 +190,10 @@ public struct Configuration: ConfigurationType {
 
             // If we have expiration set on config, verify it
             if self.secondsToExpire > 0 {
-                return receivedJWT.verifyClaims([ExpirationTimeClaim()])
+                guard receivedJWT.verifyClaims([ExpirationTimeClaim()]) else {
+                    throw Error.invalidClaims
+                }
             }
-
-            // No claims to verify so return true
-            return true
-
         } catch {
             throw AuthError.invalidBearerAuthorization
         }
