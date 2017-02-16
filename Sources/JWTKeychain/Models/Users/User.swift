@@ -23,12 +23,17 @@ public final class User: UserType {
     public var createdAt: Date?
     public var updatedAt: Date?
     public var deletedAt: Date?
-
-
+    
+    /// Initializes the User with name, email and password (plain)
+    ///
+    /// - Parameters:
+    ///   - validated: an instance of `StoreRequest` that has a name, email and password.
     public required init(validated: StoreRequest) {
         name = validated.name
         email = validated.email
-        password = validated.password
+        password = BCrypt.hash(password: validated.password)
+        createdAt = Date()
+        updatedAt = Date()
     }
     
     /// Initializes the User with name, email and password (plain)
