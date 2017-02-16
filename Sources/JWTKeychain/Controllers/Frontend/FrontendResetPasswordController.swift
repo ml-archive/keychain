@@ -6,7 +6,7 @@ import Turnstile
 import TurnstileCrypto
 import TurnstileWeb
 import VaporForms
-import VaporJWT
+import JWT
 import Flash
 
 /// Controller for reset password requests
@@ -24,7 +24,9 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
     open func resetPasswordForm(request: Request, token: String) throws -> View {
 
         // Validate token
-        if try !self.configuration.validateToken(token: token) {
+        do {
+            try self.configuration.validateToken(token: token)
+        } catch Configuration.Error.invalidClaims {
             throw Abort.notFound
         }
 
@@ -46,7 +48,9 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
             let requestData = try ResetPasswordRequest(validating: request.data)
 
             // Validate token
-            if try !self.configuration.validateToken(token: requestData.token) {
+            do {
+                try self.configuration.validateToken(token: requestData.token)
+            } catch Configuration.Error.invalidClaims {
                 return Response(redirect: "/api/v1/users/reset-password/form")
                     .flash(.error, "Token is invalid")
             }

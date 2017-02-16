@@ -1,5 +1,5 @@
 import Node
-import VaporJWT
+import JWT
 
 public struct UserClaim: Claim {
     public static var name = "user"

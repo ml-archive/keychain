@@ -6,7 +6,7 @@ import Turnstile
 import TurnstileCrypto
 import TurnstileWeb
 import VaporForms
-import VaporJWT
+import JWT
 import Flash
 
 /// Basic user controller that uses the `User` model.
@@ -102,7 +102,9 @@ open class UserController<T: UserType>: UserControllerType {
 
     open func resetPasswordForm(request: Request, token: String) throws -> View {
         // Validate token
-        if try !self.configuration.validateToken(token: token) {
+        do {
+            try self.configuration.validateToken(token: token)
+        } catch Configuration.Error.invalidClaims {
             throw Abort.notFound
         }
 
@@ -129,7 +131,9 @@ open class UserController<T: UserType>: UserControllerType {
             let requestData = try ResetPasswordRequest(validating: request.data)
 
             // Validate token
-            if try !self.configuration.validateToken(token: requestData.token) {
+            do {
+                try self.configuration.validateToken(token: requestData.token)
+            } catch Configuration.Error.invalidClaims {
                 return Response(redirect: redirectUrl)
                     .flash(.error, "Token is invalid")
             }

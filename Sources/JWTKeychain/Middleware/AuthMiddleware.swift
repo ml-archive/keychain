@@ -2,7 +2,7 @@ import Vapor
 import HTTP
 import Turnstile
 import Auth
-import VaporJWT
+import JWT
 
 /// Middleware to extract and authorize a user via
 /// Authorization Bearer Token + JWT
@@ -30,11 +30,10 @@ public class AuthMiddleware: Middleware {
             let bearer = try request.getAuthorizationBearerToken()
 
             // Verify the token
-            if try self.configuration.validateToken(token: bearer.string) {
-
+            do {
+                try self.configuration.validateToken(token: bearer.string)
                 try? request.auth.login(bearer, persist: false)
-
-            } else {
+            } catch Configuration.Error.invalidClaims {
                 throw Abort.custom(
                     status: .unauthorized,
                     message: "Please reauthenticate with the server."
