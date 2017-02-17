@@ -5,7 +5,7 @@ import Foundation
 import VaporForms
 
 /// Defines minimum requirements for setting up a user than can be authorized.
-public protocol UserType: Auth.User, Model {
+public protocol UserType: Auth.User, NodesModel {
     /// The type of validator to be initialized on model instantiation.
     associatedtype Validator: Form
     
@@ -15,13 +15,6 @@ public protocol UserType: Auth.User, Model {
     var email: String { get set }
     /// Password for user.
     var password: String { get set }
-
-    /// Created at time stamp.
-    var createdAt: Date? { get set }
-    /// Updated at time stamp.
-    var updatedAt: Date? { get set }
-    /// Deleted at time stamp.
-    var deletedAt: Date? { get set }
     
     init(validated: Validator)
     
