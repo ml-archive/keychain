@@ -82,7 +82,7 @@ let authMiddleware = Auth.AuthMiddleware<MyCustomUser>()
 let userController = MyUserController(configuration: configuration)
 
 drop.collection(
-    ApiUserRoutes(
+    try ApiUserRoutes<JWTKeychain.User>(
         drop: drop,
         configuration: configuration,
         jwtAuthMiddleware: jwtAuthMiddleware,
