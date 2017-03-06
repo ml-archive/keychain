@@ -63,6 +63,7 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
         
         // Auth routes
         path.group(authMiddleware) { jwtRoutes in
+            
             jwtRoutes.post(handler: controller.register)
             jwtRoutes.post("login", handler: controller.login)
             jwtRoutes.post("reset-password", "request", handler: controller.resetPasswordEmail)

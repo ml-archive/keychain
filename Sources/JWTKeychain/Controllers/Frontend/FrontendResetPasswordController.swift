@@ -22,23 +22,24 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
     }
 
     open func resetPasswordForm(request: Request, token: String) throws -> View {
-
+        
         // Validate token
         do {
             try self.configuration.validateToken(token: token)
-        } catch Configuration.Error.invalidClaims {
-            throw Abort.notFound
+            
+            let jwt = try JWT(token: token)
+            
+            guard
+                let userId = jwt.payload["user"]?.object?["id"]?.int,
+                let _ = try User.query().filter("id", userId).first() else {
+                    throw Abort.notFound
+            }
+            
+        } catch {
+            throw Abort.custom(status: .badRequest, message: "The provided token does not validate. Try to reset your password again")
         }
 
-        let jwt = try JWT(token: token)
-
-        guard
-            let userId = jwt.payload["user"]?.object?["id"]?.int,
-            let _ = try User.query().filter("id", userId).first() else {
-                throw Abort.notFound
-        }
-
-        return try drop.view.make("ResetPassword/form", ["token": token])
+        return try drop.view.make("ResetPassword/form", ["token": token], for: request)
     }
 
     open func resetPasswordChange(request: Request) throws -> Response {
@@ -51,7 +52,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
             do {
                 try self.configuration.validateToken(token: requestData.token)
             } catch Configuration.Error.invalidClaims {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Token is invalid")
             }
 
@@ -61,41 +62,43 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
                 let userId = jwt.payload["user"]?.object?["id"]?.int,
                 let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
                 var user = try User.query().filter("id", userId).first() else {
-                    return Response(redirect: "/api/v1/users/reset-password/form")
+                    return Response(redirect: "/reset-password/form/" + requestData.token)
                         .flash(.error, "Token is invalid")
             }
 
             if user.email != requestData.email {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Email did not match")
             }
 
             if user.password != userPasswordHash {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Password already changed. Cannot use the same token again.")
             }
 
             if requestData.password != requestData.passwordConfirmation {
-                return Response(redirect: "/api/v1/users/reset-password/form")
+                return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Password and password confirmation don't match")
             }
 
             user.password = BCrypt.hash(password: requestData.password)
             try user.save()
 
-            return Response(redirect: "/api/v1/users/reset-password/form")
+            return Response(redirect: "/reset-password/form/" + requestData.token)
                 .flash(.success, "Password changed. You can close this page now.")
 
 
         } catch FormError.validationFailed(let fieldset) {
 
-            let response = Response(redirect: "/api/v1/users/reset-password/form").flash(.error, "Data is invalid")
+            let response = Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
+                .flash(.error, "Data is invalid")
+            
             response.storage["_fieldset"] = try fieldset.makeNode()
             
             return response
             
         } catch {
-            return Response(redirect: "/api/v1/users/reset-password/form")
+            return Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
                 .flash(.error, "Something went wrong")
         }
         
