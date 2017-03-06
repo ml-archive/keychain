@@ -93,9 +93,7 @@ open class UserController<T: UserType>: UserControllerType {
         }
 
         let token = try self.configuration.generateResetPasswordToken(user: user)
-        
-        print(token)
-        
+
         let base64EncodedToken = try Base64Encoding().encode(token.bytes)
 
         // Send mail
