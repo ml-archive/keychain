@@ -67,8 +67,6 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
             jwtRoutes.post(handler: controller.register)
             jwtRoutes.post("login", handler: controller.login)
             jwtRoutes.post("reset-password", "request", handler: controller.resetPasswordEmail)
-            jwtRoutes.get("reset-password", "form", String.self, handler: controller.resetPasswordForm)
-            jwtRoutes.post("reset-password", "change", handler: controller.resetPasswordChange)
         }
         
         // Protected routes

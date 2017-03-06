@@ -93,89 +93,14 @@ open class UserController<T: UserType>: UserControllerType {
         }
 
         let token = try self.configuration.generateResetPasswordToken(user: user)
+        
+        print(token)
+        
+        let base64EncodedToken = try Base64Encoding().encode(token.bytes)
 
         // Send mail
-        try self.mailer.sendResetPasswordMail(user: user, token: token, subject: "Reset Password")
+        try self.mailer.sendResetPasswordMail(user: user, token: base64EncodedToken, subject: "Reset Password")
 
         return JSON(["success": "Instructions were sent to the provided email"])
-    }
-
-    open func resetPasswordForm(request: Request, token: String) throws -> View {
-        // Validate token
-        do {
-            try self.configuration.validateToken(token: token)
-        } catch Configuration.Error.invalidClaims {
-            throw Abort.notFound
-        }
-
-        let jwt = try JWT(token: token)
-
-        guard
-            let userId = jwt.payload["user"]?.object?["id"]?.int,
-            try User.query().filter("id", userId).first() != nil
-        else {
-            throw Abort.notFound
-        }
-
-        return try drop.view.make("ResetPassword/form", ["token": token], for: request)
-    }
-    
-    open func resetPasswordChange(request: Request) throws -> Response {
-        guard let token = request.data["token"]?.string else {
-            throw Abort.badRequest
-        }
-        let redirectUrl = "/api/v1/users/reset-password/form/\(token)"
-
-        do {
-            // Validate request
-            let requestData = try ResetPasswordRequest(validating: request.data)
-
-            // Validate token
-            do {
-                try self.configuration.validateToken(token: requestData.token)
-            } catch Configuration.Error.invalidClaims {
-                return Response(redirect: redirectUrl)
-                    .flash(.error, "Token is invalid")
-            }
-
-            let jwt = try JWT(token: requestData.token)
-
-            guard
-                let userId = jwt.payload["user"]?.object?["id"]?.int,
-                let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
-                var user = try User.query().filter("id", userId).first()
-            else {
-                return Response(redirect: redirectUrl)
-                    .flash(.error, "Token is invalid")
-            }
-
-            if user.email != requestData.email {
-                return Response(redirect: redirectUrl)
-                    .flash(.error, "Email did not match")
-            }
-
-            if user.password != userPasswordHash {
-                return Response(redirect: redirectUrl)
-                    .flash(.error, "Password already changed. Cannot use the same token again.")
-            }
-
-            if requestData.password != requestData.passwordConfirmation {
-                return Response(redirect: redirectUrl)
-                    .flash(.error, "Password and password confirmation don't match")
-            }
-
-            user.password = BCrypt.hash(password: requestData.password)
-            try user.save()
-            
-            return Response(redirect: redirectUrl)
-                .flash(.success, "Password changed. You can close this page now.")
-        } catch FormError.validationFailed(let fieldset) {
-            let response = Response(redirect: redirectUrl).flash(.error, "Data is invalid")
-            response.storage["_fieldset"] = try fieldset.makeNode()
-            return response
-        } catch {
-            return Response(redirect: redirectUrl)
-                .flash(.error, "Something went wrong")
-        }
     }
 }
