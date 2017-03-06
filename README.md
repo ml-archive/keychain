@@ -55,8 +55,10 @@ Create config `mail.json`
     "fromName": "TODO"
 }
 
-
 ```
+Copy package resources
+`/Packages/JWTKeyChainX.Y.Z/Resource/Views to /Resource/Views`
+
 See https://github.com/vapor/vapor-jwt to know more about signing
 
 Import the module whenever needed:
