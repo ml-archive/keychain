@@ -19,15 +19,23 @@ public class Mailer: MailerType {
             let fromEmail = self.drop.config["mail", "fromEmail"]?.string,
             let fromName = self.drop.config["mail", "fromName"]?.string,
             let smtpHost = self.drop.config["mail", "smtpHost"]?.string,
-            let smtpPort = self.drop.config["mail", "smtpPort"]?.int,
-            let appUrl = self.drop.config["app", "url"]?.string,
-            let appName = self.drop.config["app", "name"]?.string
+            let smtpPort = self.drop.config["mail", "smtpPort"]?.int
             else {
                 throw Abort.custom(
                     status: .internalServerError,
-                    message: "Settings required to send email are not set. Please check mail.json (user, password, fromEmail, smtpHost, smtpPort) and app.json (name, url)."
+                    message: "Config required to send email are not set. Please check mail.json (user, password, fromEmail, fromName, smtpHost, smtpPort)"
                 )
         }
+        
+        guard let appUrl = self.drop.config["app", "url"]?.string,
+        let appName = self.drop.config["app", "name"]?.string
+            else {
+                throw Abort.custom(
+                    status: .internalServerError,
+                    message: "Config required to send email are not set. Please check app.json name, url"
+                )
+        }
+        
 
         let credentials = SMTPCredentials(
             user: smtpUser,
