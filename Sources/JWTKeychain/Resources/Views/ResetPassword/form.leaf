@@ -57,7 +57,7 @@
                     </div>
                     }
             
-                    <form method="POST" action="/api/v1/users/reset-password/change">
+                    <form method="POST" action="/reset-password/change">
                         <input type="hidden" name="token" value="#(token)">
                 
                         <div class="form-group action-wrapper">

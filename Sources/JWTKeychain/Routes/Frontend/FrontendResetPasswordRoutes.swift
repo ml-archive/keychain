@@ -2,6 +2,8 @@ import Vapor
 import Auth
 import Routing
 import HTTP
+import Flash
+import Sugar
 
 /// Defines basic reset password routes.
 public struct FrontendResetPasswordRoutes: RouteCollection {
@@ -38,11 +40,13 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
         _ builder: Builder
         ) where Builder.Value == Responder {
         
-        // Get the base path group
-        builder.group("reset-password") { routes in
-            routes.get("form", String.self, handler: controller.resetPasswordForm)
-            routes.post("change", handler: controller.resetPasswordChange)
-        }
         
+        builder.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
+            // Get the base path group
+            routes.group("reset-password") { routes in
+                routes.get("form", String.self, handler: controller.resetPasswordForm)
+                routes.post("change", handler: controller.resetPasswordChange)
+            }
+        }
     }
 }
