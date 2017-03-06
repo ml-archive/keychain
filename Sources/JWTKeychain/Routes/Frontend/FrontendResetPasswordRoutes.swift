@@ -3,6 +3,7 @@ import Auth
 import Routing
 import HTTP
 import Flash
+import Sugar
 
 /// Defines basic reset password routes.
 public struct FrontendResetPasswordRoutes: RouteCollection {
@@ -40,7 +41,7 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
         ) where Builder.Value == Responder {
         
         
-        builder.group(FlashMiddleware()) { routes in
+        builder.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
             // Get the base path group
             routes.group("reset-password") { routes in
                 routes.get("form", String.self, handler: controller.resetPasswordForm)
