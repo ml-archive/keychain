@@ -20,6 +20,11 @@ Update your `Package.swift` file.
 .Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
+Add Vapor forms as provider in main.swift
+```swift
+import VaporForms
+try drop.addProvider(VaporForms.Provider.self)
+```
 Create config jwt.json with:
 
 signer[HS256, HS384, HS512] + secondsToExpire + signatureKey
@@ -38,7 +43,21 @@ Create config `jwt.json`
     "secondsToExpireResetPassword": 3600
 }
 ```
-See https://github.com/siemensikkema/vapor-jwt to know more about signing
+
+Create config `mail.json`
+```swift
+{
+    "smtpHost": "TODO",
+    "smtpPort": "TODO",
+    "user": "TODO",
+    "password": "TODO",
+    "fromEmail": "TODO@todo.com",
+    "fromName": "TODO"
+}
+
+
+```
+See https://github.com/vapor/vapor-jwt to know more about signing
 
 Import the module whenever needed:
 
