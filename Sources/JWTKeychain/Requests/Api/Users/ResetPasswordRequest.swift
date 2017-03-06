@@ -11,8 +11,8 @@ class ResetPasswordRequest: Form {
 
     static let fieldset = Fieldset([
         "email": StringField(String.EmailValidator()),
-        "password": StringField(String.MinimumLengthValidator(characters: 6), RegexValidator(regex: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])")),
-        "password_confirmation": StringField(String.MinimumLengthValidator(characters: 6), RegexValidator(regex: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])")),
+        "password": StringField(String.MinimumLengthValidator(characters: 6), RegexValidator(regex: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])", message: "Must have 1 number and 1 big letter")),
+        "password_confirmation": StringField(String.MinimumLengthValidator(characters: 6), RegexValidator(regex: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])", message: "Must have 1 number and 1 big letter")),
         
         // any form of verification in order to get the field passed along
         "token": StringField(String.MinimumLengthValidator(characters: 10))

@@ -40,10 +40,11 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
         } catch {
             throw Abort.custom(status: .badRequest, message: "The provided token does not validate. Try to reset your password again")
         }
-
-        print(request.storage)
         
-        return try drop.view.make("ResetPassword/form", ["token": token], for: request)
+        return try drop.view.make("ResetPassword/form", [
+            "token": token,
+            "fieldset": request.storage["_fieldset"] as? Node ?? nil
+        ], for: request)
     }
 
     open func resetPasswordChange(request: Request) throws -> Response {
@@ -68,25 +69,21 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
                 let userId = jwt.payload["user"]?.object?["id"]?.int,
                 let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
                 var user = try User.query().filter("id", userId).first() else {
-                    print("Token is invalid")
                     return Response(redirect: "/reset-password/form/" + requestData.token)
                         .flash(.error, "Token is invalid")
             }
 
             if user.email != requestData.email {
-                print("Email did not match")
                 return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Email did not match")
             }
 
             if user.password != userPasswordHash {
-                print("Password already changed. Cannot use the same token again.")
                 return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Password already changed. Cannot use the same token again.")
             }
 
             if requestData.password != requestData.passwordConfirmation {
-                print("Password and password confirmation don't match")
                 return Response(redirect: "/reset-password/form/" + requestData.token)
                     .flash(.error, "Password and password confirmation don't match")
             }
@@ -94,30 +91,20 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
             user.password = BCrypt.hash(password: requestData.password)
             try user.save()
 
-            print("success")
             return Response(redirect: "/reset-password/form/" + requestData.token)
                 .flash(.success, "Password changed. You can close this page now.")
 
 
         } catch FormError.validationFailed(let fieldset) {
 
-            let response = Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
-                .flash(.error, "Data is invalid")
-            
-            
-            print("Data is invalid")
-            print(fieldset)
-            
-            response.storage["_fieldset"] = try fieldset.makeNode()
-            
-            return response
+            return Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
+                .flash(.error, "Validation error(s)")
+                .withFieldset(fieldset)
             
         } catch {
             
-            print(error)
             return Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
                 .flash(.error, "Something went wrong")
         }
-        
     }
 }
