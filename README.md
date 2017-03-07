@@ -77,7 +77,7 @@ Register the basic user routes
 let configuration = try JWTKeychain.Configuration(drop: drop)
 
 drop.collection(
-    ApiUserRoutes(
+    try ApiUserRoutes<User>(
         drop: drop,
         mailer: Mailer(configuration: configuration, drop: drop)
     )
