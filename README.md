@@ -45,17 +45,25 @@ Create config `jwt.json`
 ```
 
 Create config `mail.json`
-```swift
+```json
 {
     "smtpHost": "TODO",
     "smtpPort": "TODO",
     "user": "TODO",
     "password": "TODO",
     "fromEmail": "TODO@todo.com",
-    "fromName": "TODO"
 }
 
 ```
+
+Make sure name is setup in `app.json`
+```json
+{
+    "name": "TODO"
+}
+
+```
+
 Copy package resources
 `/Packages/JWTKeyChainX.Y.Z/Resource/Views to /Resource/Views`
 
