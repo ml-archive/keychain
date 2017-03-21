@@ -17,13 +17,13 @@ public class Mailer: MailerType {
         guard let smtpUser = self.drop.config["mail", "user"]?.string,
             let smtpPassword = self.drop.config["mail", "password"]?.string,
             let fromEmail = self.drop.config["mail", "fromEmail"]?.string,
-            let fromName = self.drop.config["mail", "fromName"]?.string,
+            let fromName = self.drop.config["app", "name"]?.string,
             let smtpHost = self.drop.config["mail", "smtpHost"]?.string,
             let smtpPort = self.drop.config["mail", "smtpPort"]?.int
             else {
                 throw Abort.custom(
                     status: .internalServerError,
-                    message: "Config required to send email are not set. Please check mail.json (user, password, fromEmail, fromName, smtpHost, smtpPort)"
+                    message: "Config required to send email are not set. Please check mail.json (user, password, fromEmail, smtpHost, smtpPort)"
                 )
         }
         
