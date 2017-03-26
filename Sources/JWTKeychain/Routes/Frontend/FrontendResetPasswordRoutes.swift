@@ -40,8 +40,10 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
         _ builder: Builder
         ) where Builder.Value == Responder {
         
-        
-        builder.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
+        // Get the base path group
+        let path = builder.grouped("users")
+
+        path.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
             // Get the base path group
             routes.group("reset-password") { routes in
                 routes.get("form", String.self, handler: controller.resetPasswordForm)
