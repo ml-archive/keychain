@@ -14,7 +14,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
 
     public let configuration: ConfigurationType
     private let drop: Droplet
-    private let resetPasswordBaseUrl = "/reset-password/form/"
+    private let resetPasswordBaseUrl = "/users/reset-password/form/"
 
     required public init(drop: Droplet, configuration: ConfigurationType) {
         self.configuration = configuration
