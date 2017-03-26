@@ -20,12 +20,12 @@ Update your `Package.swift` file.
 .Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
-Add Vapor forms as provider in main.swift
+Add Vapor forms as provider in `main.swift`
 ```swift
 import VaporForms
 try drop.addProvider(VaporForms.Provider.self)
 ```
-Create config jwt.json with:
+Create config `jwt.json` with:
 
 signer[HS256, HS384, HS512] + secondsToExpire + signatureKey
 
@@ -89,6 +89,8 @@ drop.collection(
         drop: drop,
         mailer: Mailer(configuration: configuration, drop: drop)
     )
+    
+    try FrontendResetPasswordRoutes(drop: drop)
 )
 ```
 
@@ -99,6 +101,7 @@ That's it! Now, you'll have the following routes out-of-the-box:
 - Logout: `GET /users/logout`
 - Token regenerate: `PATCH /users/token/regenerate`
 - Me: `GET /users/me`
+- Reset password: `POST /users/reset-password/request`
 
 ### Customized setup
 
