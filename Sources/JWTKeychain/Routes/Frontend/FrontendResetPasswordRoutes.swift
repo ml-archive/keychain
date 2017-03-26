@@ -27,7 +27,7 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
         drop: Droplet,
         configuration: ConfigurationType? = nil,
         resetPasswordController: FrontendResetPasswordControllerType? = nil
-        ) throws {
+    ) throws {
         
         self.drop = drop
         let config = try configuration ?? Configuration(drop: drop)
@@ -38,10 +38,12 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
     
     public func build<Builder: RouteBuilder>(
         _ builder: Builder
-        ) where Builder.Value == Responder {
+    ) where Builder.Value == Responder {
         
+        // Get the base path group
+        let path = builder.grouped("users")
         
-        builder.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
+        path.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
             // Get the base path group
             routes.group("reset-password") { routes in
                 routes.get("form", String.self, handler: controller.resetPasswordForm)
