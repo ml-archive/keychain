@@ -13,8 +13,8 @@ import Flash
 open class FrontendResetPasswordController: FrontendResetPasswordControllerType {
 
     public let configuration: ConfigurationType
-
     private let drop: Droplet
+    private let resetPasswordBaseUrl = "/reset-password/form/"
 
     required public init(drop: Droplet, configuration: ConfigurationType) {
         self.configuration = configuration
@@ -59,7 +59,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
             do {
                 try self.configuration.validateToken(token: decodedToken)
             } catch Configuration.Error.invalidClaims {
-                return Response(redirect: "/reset-password/form/" + requestData.token)
+                return Response(redirect: resetPasswordBaseUrl + requestData.token)
                     .flash(.error, "Token is invalid")
             }
 
@@ -69,35 +69,35 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
                 let userId = jwt.payload["user"]?.object?["id"]?.int,
                 let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
                 var user = try User.query().filter("id", userId).first() else {
-                    return Response(redirect: "/reset-password/form/" + requestData.token)
+                    return Response(redirect: resetPasswordBaseUrl + requestData.token)
                         .flash(.error, "Token is invalid")
             }
 
             if user.email != requestData.email {
-                return Response(redirect: "/reset-password/form/" + requestData.token)
+                return Response(redirect: resetPasswordBaseUrl + requestData.token)
                     .flash(.error, "Email did not match")
             }
 
             if user.password != userPasswordHash {
-                return Response(redirect: "/reset-password/form/" + requestData.token)
+                return Response(redirect: resetPasswordBaseUrl + requestData.token)
                     .flash(.error, "Password already changed. Cannot use the same token again.")
             }
 
             if requestData.password != requestData.passwordConfirmation {
-                return Response(redirect: "/reset-password/form/" + requestData.token)
+                return Response(redirect: resetPasswordBaseUrl + requestData.token)
                     .flash(.error, "Password and password confirmation don't match")
             }
 
             user.password = BCrypt.hash(password: requestData.password)
             try user.save()
 
-            return Response(redirect: "/reset-password/form/" + requestData.token)
+            return Response(redirect: resetPasswordBaseUrl + requestData.token)
                 .flash(.success, "Password changed. You can close this page now.")
 
 
         } catch FormError.validationFailed(let fieldset) {
 
-            return Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
+            return Response(redirect: resetPasswordBaseUrl + (request.data["token"]?.string ?? "invalid"))
                 .flash(.error, "Validation error(s)")
                 .withFieldset(fieldset)
             
