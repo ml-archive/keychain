@@ -41,7 +41,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
             throw Abort.custom(status: .badRequest, message: "The provided token does not validate. Try to reset your password again")
         }
         
-        return try drop.view.make("ResetPassword/form", [
+        return try drop.view.make("ResetPassword/user-form", [
             "token": token,
             "fieldset": request.storage["_fieldset"] as? Node ?? nil
         ], for: request)
