@@ -9,7 +9,7 @@ public final class TokenGeneratorCommand: Command {
 
     public let id = "generator:token"
     public let help: [String] = [
-        "Generates a JWT token by passing in the user's id."
+        "Generates a JWT token by passing in the user's email."
     ]
     public let console: ConsoleProtocol
     public let drop: Droplet
@@ -27,14 +27,14 @@ public final class TokenGeneratorCommand: Command {
 
         guard
             arguments.count == 1,
-            let user = try User.find(arguments[0])
+            let user = try User.query().filter("email", arguments[0]).first()
         else {
-            print("Bad arguments or user not found with id \(arguments[0])")
+            print("Bad arguments or user not found with email \(arguments[0])")
             return
         }
 
         let token = try configuration.generateToken(user: user)
-        print("Token generated for user with id: \(String(describing: user.id)) and email \(user.email):")
+        print("Token generated for user with email \(user.email):")
         print(token)
 
         console.info("Finished the token generator script")
