@@ -9,7 +9,7 @@ public final class TokenGeneratorCommand: Command {
 
     public let id = "generator:token"
     public let help: [String] = [
-        "Adds all advantages to all users."
+        "Generates a JWT token by passing in the user's id."
     ]
     public let console: ConsoleProtocol
     public let drop: Droplet
