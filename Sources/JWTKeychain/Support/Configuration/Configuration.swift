@@ -2,7 +2,7 @@ import Foundation
 import Vapor
 import HTTP
 import JWT
-import Auth
+import Authentication
 
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {

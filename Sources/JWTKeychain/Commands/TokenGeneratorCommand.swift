@@ -1,6 +1,6 @@
 import Vapor
 import Console
-import Auth
+import Authentication
 
 public final class TokenGeneratorCommand: Command {
     enum TokenGeneratorError: Error {

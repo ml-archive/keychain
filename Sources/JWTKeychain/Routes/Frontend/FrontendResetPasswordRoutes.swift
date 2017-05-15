@@ -1,5 +1,5 @@
 import Vapor
-import Auth
+import Authentication
 import Routing
 import HTTP
 import Flash
