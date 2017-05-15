@@ -1,8 +1,8 @@
+import Authentication
 import Foundation
-import Vapor
 import HTTP
 import JWT
-import Authentication
+import Vapor
 
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
@@ -14,18 +14,18 @@ public protocol ConfigurationType {
     func validateToken(token: String) throws
 
     /// Generates a token for the user
-    /// - Parameter: userId is used to create a SubjectClaim
+    /// - Parameter: user is used to create a UserClaim
     /// - Parameter: extraClaims are optional customized claims
     /// - Returns: string with valid JWT token
-    func generateToken<T: UserType>(user: T, extraClaims: Claim...) throws -> String
+    func generateToken(user: UserClaimRepresentable, extraClaims: Claim...) throws -> String
 
     /// Generates the reset password token with the settings provided on the
     /// config
     ///
-    /// - Parameter user: user to generate the token
+    /// - Parameter user: is used to create a UserClaim
     /// - Returns: token string
     /// - Throws: not able to generate token
-    func generateResetPasswordToken<T: UserType>(user: T) throws -> String
+    func generateResetPasswordToken(user: UserClaimRepresentable) throws -> String
 
     /// Returns the path to the reset password view
     ///
@@ -197,29 +197,20 @@ public struct Configuration: ConfigurationType {
         }
     }
 
-     public func generateToken(node: Node, extraClaims: [Claim]) throws -> String {
+     public func generateToken(userClaim: UserClaim, extraClaims: [Claim]) throws -> String {
         // Prepare claims
-        var claims: [Claim] = []
+        var claims = extraClaims + [userClaim]
         
         // Prepare expiration claim if needed. If we added an expiration time claim
         // DO NOT override it
         if self.secondsToExpire > 0 && !extraClaims.contains(where: { $0 is ExpirationTimeClaim }) {
             
             claims.append(ExpirationTimeClaim(date: self.generateExpirationDate()))
-
         }
-        
-        // Add the claims passed into the method
-        claims.append(contentsOf: extraClaims)
-        
-        // Add user info
-        claims.append(UserClaim(node))
-        
-        let claimNode = Node(claims)
-        
+
         // Generate our Token
         let jwt = try JWT(
-            payload: JSON(claimNode),
+            payload: JSON(claims),
             signer: self.getSigner(key: self.signatureKeyBytes)
         )
         
@@ -227,17 +218,13 @@ public struct Configuration: ConfigurationType {
         return try jwt.createToken()
     }
     
-    public func generateToken(node: Node, extraClaims: Claim...) throws -> String {
-        return try generateToken(node: node, extraClaims: extraClaims)
+    public func generateToken(user: UserClaimRepresentable, extraClaims: Claim...) throws -> String {
+        return try generateToken(userClaim: try user.makeUserClaim(), extraClaims: extraClaims)
     }
     
-    public func generateToken<T: UserType>(user: T, extraClaims: Claim...) throws -> String {
-        return try generateToken(node: user.makeJWTNode(), extraClaims: extraClaims)
-    }
+    public func generateResetPasswordToken(user: UserClaimRepresentable) throws -> String {
 
-    public func generateResetPasswordToken<T: UserType>(user: T) throws -> String {
-
-        // Make a token that expires in
+        // Make a token that expires in the configured amount of seconds
         let expiryClaim = ExpirationTimeClaim(date: Date() + self.secondsToExpireResetPassword)
         return try self.generateToken(user: user, extraClaims: expiryClaim)
     }

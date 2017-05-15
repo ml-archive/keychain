@@ -5,11 +5,8 @@ import HTTP
 import JWT
 import Flash
 
-/// Basic user controller that uses the `User` model.
-public typealias BasicUserController = UserController<User>
-
 /// Controller for user api requests
-open class UserController<T: UserType>: UserControllerType {
+open class UserController: UserControllerType {
     /// Initializes the UsersController with a JWT configuration.
     ///
     /// - Parameters:

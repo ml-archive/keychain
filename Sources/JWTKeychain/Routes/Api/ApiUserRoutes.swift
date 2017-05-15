@@ -4,7 +4,7 @@ import Routing
 import HTTP
 
 /// Defines basic user authorization routes.
-public struct ApiUserRoutes<T: UserType>: RouteCollection {
+public struct ApiUserRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
     private let drop: Droplet
@@ -47,7 +47,7 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
       
         self.mailer = mailer
         
-        self.controller = userController ?? BasicUserController(
+        self.controller = userController ?? UserController(
             configuration: config,
             drop: drop ,
             mailer: mailer
