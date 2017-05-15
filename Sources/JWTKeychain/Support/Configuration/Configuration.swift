@@ -30,7 +30,7 @@ public protocol ConfigurationType {
     /// Returns the path to the reset password view
     ///
     /// - Returns: path
-    func getResetPasswordEmaiView() -> String
+    func getResetPasswordEmailView() -> String
 
     /// Returns number of seconds that the token will expire in
     ///
@@ -242,7 +242,7 @@ public struct Configuration: ConfigurationType {
         return try self.generateToken(user: user, extraClaims: expiryClaim)
     }
 
-    public func getResetPasswordEmaiView() -> String {
+    public func getResetPasswordEmailView() -> String {
         return self.resetPasswordEmail
     }
 
