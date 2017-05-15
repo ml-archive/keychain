@@ -1,8 +1,8 @@
-import Auth
+import Authentication
 import Vapor
 import Sugar
 import Foundation
-import VaporForms
+//import VaporForms
 
 /// Defines minimum requirements for setting up a user than can be authorized.
 public protocol UserType: Auth.User, NodesModel {

@@ -1,4 +1,4 @@
-import Turnstile
+//import Turnstile
 
 /// Represents User credentials by combination of email and password
 public class EmailPassword: Credentials {

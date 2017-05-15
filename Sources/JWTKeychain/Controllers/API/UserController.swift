@@ -1,11 +1,11 @@
 import Vapor
-import Auth
+import Authentication
 import Foundation
 import HTTP
-import Turnstile
-import TurnstileCrypto
-import TurnstileWeb
-import VaporForms
+//import Turnstile
+//import TurnstileCrypto
+//import TurnstileWeb
+//import VaporForms
 import JWT
 import Flash
 

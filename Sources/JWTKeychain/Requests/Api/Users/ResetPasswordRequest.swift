@@ -1,6 +1,6 @@
 import Vapor
 import HTTP
-import VaporForms
+//import VaporForms
 
 /// Handles the validation of resetting password
 class ResetPasswordRequest: Form {

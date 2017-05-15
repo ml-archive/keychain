@@ -1,13 +1,13 @@
 import Vapor
 import Fluent
 import Foundation
-import Auth
-import Turnstile
-import TurnstileCrypto
+import Authentication
+//import Turnstile
+//import TurnstileCrypto
 import JWT
 import Sugar
-import FluentMySQL
-import VaporForms
+//import FluentMySQL
+//import VaporForms
 
 /// Defines basic user that can be authorized.
 public final class User: UserType {
