@@ -9,7 +9,7 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
     
     private let drop: Droplet
     private let authMiddleware: Middleware
-    private let jwtAuthMiddleware: JWTKeychain.AuthMiddleware!
+//    private let jwtAuthMiddleware: JWTKeychain.AuthMiddleware!
 
     private let configuration: ConfigurationType
     private let controller: UserControllerType
@@ -31,8 +31,8 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
     public init(
         drop: Droplet,
         configuration: ConfigurationType? = nil,
-        jwtAuthMiddleware: AuthMiddleware? = nil,
-        authMiddleware: Middleware = Auth.AuthMiddleware<User>(),
+//        jwtAuthMiddleware: AuthMiddleware? = nil,
+        authMiddleware: Middleware,// = Authentication.AuthenticationMiddleware<User>(),
         userController: UserControllerType? = nil,
         mailer: MailerType
     ) throws {
@@ -40,9 +40,9 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
         let config = try configuration ?? Configuration(drop: drop)
         self.configuration = config
         
-        self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(
-            configuration: config
-        )
+//        self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(
+//            configuration: config
+//        )
         self.authMiddleware = authMiddleware
       
         self.mailer = mailer
@@ -53,11 +53,10 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
             mailer: mailer
         )
     }
-    
-    public func build<Builder: RouteBuilder>(
-        _ builder: Builder
-    ) where Builder.Value == Responder {
 
+    public func build(
+        _ builder: RouteBuilder
+    ) throws {
         // Get the base path group
         let path = builder.grouped("users")
         
@@ -70,7 +69,8 @@ public struct ApiUserRoutes<T: UserType>: RouteCollection {
         }
         
         // Protected routes
-        path.group(authMiddleware, jwtAuthMiddleware) { secured in
+        // TODO: use PayloadAuthenticationMiddleware
+        path.group(authMiddleware /*, jwtAuthMiddleware*/) { secured in
             secured.get("logout", handler: controller.logout)
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)

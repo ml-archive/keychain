@@ -22,12 +22,13 @@ public final class TokenGeneratorCommand: Command {
     public func run(arguments: [String]) throws {
         console.info("Started the token generator")
 
+        // TODO: is this still relevant?
         // BUG FIX WHILE WAITING FOR VAPOR UPDATE
         User.database = drop.database
 
         guard
             arguments.count == 1,
-            let user = try User.query().filter("email", arguments[0]).first()
+            let user = try User.makeQuery().filter("email", arguments[0]).first()
         else {
             print("Bad arguments or user not found with email \(arguments[0])")
             return

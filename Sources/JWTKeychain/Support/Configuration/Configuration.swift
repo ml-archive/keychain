@@ -190,12 +190,10 @@ public struct Configuration: ConfigurationType {
 
             // If we have expiration set on config, verify it
             if self.secondsToExpire > 0 {
-                guard receivedJWT.verifyClaims([ExpirationTimeClaim()]) else {
-                    throw Error.invalidClaims
-                }
+                try receivedJWT.verifyClaims([ExpirationTimeClaim()])
             }
         } catch {
-            throw AuthError.invalidBearerAuthorization
+            throw AuthenticationError.invalidBearerAuthorization
         }
     }
 
@@ -207,8 +205,8 @@ public struct Configuration: ConfigurationType {
         // DO NOT override it
         if self.secondsToExpire > 0 && !extraClaims.contains(where: { $0 is ExpirationTimeClaim }) {
             
-            claims.append(ExpirationTimeClaim(self.generateExpirationDate()))
-            
+            claims.append(ExpirationTimeClaim(date: self.generateExpirationDate()))
+
         }
         
         // Add the claims passed into the method
@@ -221,7 +219,7 @@ public struct Configuration: ConfigurationType {
         
         // Generate our Token
         let jwt = try JWT(
-            payload: claimNode,
+            payload: JSON(claimNode),
             signer: self.getSigner(key: self.signatureKeyBytes)
         )
         
@@ -240,7 +238,7 @@ public struct Configuration: ConfigurationType {
     public func generateResetPasswordToken<T: UserType>(user: T) throws -> String {
 
         // Make a token that expires in
-        let expiryClaim = ExpirationTimeClaim(Date() + self.secondsToExpireResetPassword)
+        let expiryClaim = ExpirationTimeClaim(date: Date() + self.secondsToExpireResetPassword)
         return try self.generateToken(user: user, extraClaims: expiryClaim)
     }
 
