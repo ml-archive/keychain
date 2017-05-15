@@ -1,7 +1,11 @@
+import SMTP
 import Vapor
 
 /// Defines basic email functionality.
 public protocol MailerType {
+
+    typealias MailerUserType = NodeConvertible & EmailAddressRepresentable
+
     /// Initializes the Mailer with the JWT configuration.
     ///
     /// - Parameters:
@@ -15,5 +19,5 @@ public protocol MailerType {
     ///   - user: user that is resetting the password
     ///   - token: JWT token generated to identify the user
     /// - Throws: if essential configs are not present
-    func sendResetPasswordMail<T: UserType>(user: T, token: String, subject: String) throws
+    func sendResetPasswordMail<T: MailerUserType>(user: T, token: String, subject: String) throws
 }
