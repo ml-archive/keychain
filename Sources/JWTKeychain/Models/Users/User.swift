@@ -1,14 +1,12 @@
-import Vapor
+import Authentication
 import FluentProvider
 import Foundation
-import Authentication
 import JWT
 import Sugar
+import Vapor
 
 /// Defines basic user that can be authorized.
-public final class User: UserType, Model {
-//    public typealias Validator = StoreRequest
-
+public final class User: Model {
     public let storage = Storage()
 
     public var id: Node?
@@ -49,53 +47,38 @@ public final class User: UserType, Model {
         self.createdAt = Date()
         self.updatedAt = Date()
     }
-    
-//    /// Initializes a User from a given Node
-//    ///
-//    /// - Parameters:
-//    ///   - node: Node with user data
-//    ///   - context: context
-//    /// - Throws: if not able to retrieve expected data
-//    public init(node: Node, in context: Context) throws {
-//        self.id = try node.extract("id")
-//        self.name = try node.extract("name")
-//        self.email = try node.extract("email")
-//        self.password = try node.extract("password")
-//        
-//        if let createdAt = node["created_at"]?.string {
-//            self.createdAt = Date.parse(.dateTime, createdAt)
-//        }
-//        
-//        if let updatedAt = node["updated_at"]?.string {
-//            self.updatedAt = Date.parse(.dateTime, updatedAt)
-//        }
-//        
-//        if let deletedAt = node["deleted_at"]?.string {
-//            self.deletedAt = Date.parse(.dateTime, deletedAt)
-//        }
-//    }
-
-//    /// Initializes a User with EmailPassword credentials only
-//    ///
-//    /// - Parameter credentials: the email and password
-//    init(credentials: EmailPassword) {
-//        self.email = credentials.email
-//        self.password = BCrypt.hash(password: credentials.password)
-//    }
 
     public init(row: Row) throws {
-        // TODO: implement
-        self.id = ""
-        self.name = ""
-        self.email = ""
-        self.password = ""
+        self.id = try row.get("id")
+        self.name = try row.get("name")
+        self.email = try row.get("email")
+        self.password = try row.get("password")
+
+        if let createdAt: String = try row.get("created_at") {
+            self.createdAt = Date.parse(.dateTime, createdAt)
+        }
+
+        if let updatedAt: String = try row.get("updated_at") {
+            self.updatedAt = Date.parse(.dateTime, updatedAt)
+        }
+
+        if let deletedAt: String = try row.get("deleted_at") {
+            self.deletedAt = Date.parse(.dateTime, deletedAt)
+        }
     }
 }
 
 extension User {
     public func makeRow() throws -> Row {
-        // TODO: implement
-        return Row()
+        var row = Row()
+        try row.set("id", self.id)
+        try row.set("name", self.name)
+        try row.set("email", self.email)
+        try row.set("password", self.password)
+        try row.set("created_at", self.createdAt?.to(.dateTime))
+        try row.set("updated_at", self.updatedAt?.to(.dateTime))
+        try row.set("deleted_at", self.deletedAt?.to(.dateTime))
+        return row
     }
 }
 
@@ -172,28 +155,16 @@ extension User {
 
 // MARK: - Vapor Model
 extension User {
-//    public func makeNode(context: Context) throws -> Node {
-//        return try Node(node: [
-//            "id": self.id,
-//            "name": self.name,
-//            "email": self.email,
-//            "password": self.password,
-//            "created_at": self.createdAt?.to(Date.Format.dateTime),
-//            "updated_at": self.updatedAt?.to(Date.Format.dateTime),
-//            "deleted_at": self.deletedAt?.to(Date.Format.dateTime)
-//        ])
-//    }
-
     public static func prepare(_ database: Database) throws {
-        try database.create(self) { users in
-            users.id()
-            users.string("name")
-            users.string("email")
-            users.string("password")
+        try database.create(self) { user in
+            user.id()
+            user.string("name")
+            user.string("email")
+            user.string("password")
             // TODO: conform to Timestampable
-//            users.timestamps()
+//            user.timestamps()
             // TODO: conform to SoftDeletable
-//            users.softDelete()
+//            user.softDelete()
         }
 
         try database.index(table: "users", column: "email", name: "users_email_index")
@@ -201,5 +172,16 @@ extension User {
 
     public static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+
+extension User: UserClaimRepresentable {
+    public func makeUserClaim() throws -> UserClaim {
+        return UserClaim(try Node(node: [
+            // TODO: is this the right way to handle the optional id?
+            "id": self.id ?? "",
+            "email": self.email,
+            "password": self.password,
+            ]))
     }
 }
