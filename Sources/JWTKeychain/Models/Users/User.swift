@@ -1,7 +1,9 @@
 import Authentication
 import FluentProvider
 import Foundation
+import protocol JWT.Storable
 import JWT
+import JWTProvider
 import Sugar
 import Vapor
 
@@ -9,7 +11,6 @@ import Vapor
 public final class User: Model {
     public let storage = Storage()
 
-    public var id: Node?
     public var exists: Bool = false
 
     public var name: String?
@@ -49,7 +50,6 @@ public final class User: Model {
     }
 
     public init(row: Row) throws {
-        self.id = try row.get("id")
         self.name = try row.get("name")
         self.email = try row.get("email")
         self.password = try row.get("password")
@@ -71,7 +71,6 @@ public final class User: Model {
 extension User {
     public func makeRow() throws -> Row {
         var row = Row()
-        try row.set("id", self.id)
         try row.set("name", self.name)
         try row.set("email", self.email)
         try row.set("password", self.password)
@@ -178,10 +177,35 @@ extension User {
 extension User: UserClaimRepresentable {
     public func makeUserClaim() throws -> UserClaim {
         return UserClaim(try Node(node: [
-            // TODO: is this the right way to handle the optional id?
             "id": self.id ?? "",
-            "email": self.email,
-            "password": self.password,
             ]))
+    }
+}
+
+extension User: Storable {
+    public static let name = "user"
+
+    public var node: Node {
+        return id?.makeNode(in: nil) ?? ""
+    }
+}
+
+public struct UserIdentifier: JSONInitializable {
+    let id: Identifier
+
+    public init(json: JSON) throws {
+        id = Identifier(try json.get(User.name) as Node)
+    }
+}
+
+extension User: PayloadAuthenticatable {
+    public typealias PayloadType = UserIdentifier
+
+    public static func authenticate(_ payload: PayloadType) throws -> User {
+        guard let user = try User.find(payload.id) else {
+            throw Abort.init(.badRequest, reason: "User not found")
+        }
+
+        return user
     }
 }
