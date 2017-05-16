@@ -11,7 +11,7 @@ public struct ApiUserRoutes: RouteCollection {
     private let authMiddleware: Middleware
 //    private let jwtAuthMiddleware: JWTKeychain.AuthMiddleware!
 
-    private let configuration: ConfigurationType
+//    private let configuration: ConfigurationType
     private let controller: UserControllerType
     private let mailer: MailerType
   
@@ -30,16 +30,16 @@ public struct ApiUserRoutes: RouteCollection {
     /// - Throws: if configuration cannot be created.
     public init(
         drop: Droplet,
-        configuration: ConfigurationType? = nil,
+//        configuration: ConfigurationType? = nil,
 //        jwtAuthMiddleware: AuthMiddleware? = nil,
         authMiddleware: Middleware,// = Authentication.AuthenticationMiddleware<User>(),
         userController: UserControllerType? = nil,
         mailer: MailerType
     ) throws {
         self.drop = drop
-        let config = try configuration ?? Configuration(drop: drop)
-        self.configuration = config
-        
+//        let config = try configuration ?? Configuration(drop: drop)
+//        self.configuration = config
+
 //        self.jwtAuthMiddleware = jwtAuthMiddleware ?? JWTKeychain.AuthMiddleware(
 //            configuration: config
 //        )
@@ -47,11 +47,12 @@ public struct ApiUserRoutes: RouteCollection {
       
         self.mailer = mailer
         
-        self.controller = userController ?? UserController(
-            configuration: config,
-            drop: drop ,
-            mailer: mailer
-        )
+//        self.controller = userController ?? UserController(
+//            configuration: config,
+//            drop: drop ,
+//            mailer: mailer
+//        )
+        self.controller = userController ?? UserController()
     }
 
     public func build(
