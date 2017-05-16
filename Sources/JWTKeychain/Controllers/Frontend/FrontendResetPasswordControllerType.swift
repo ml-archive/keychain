@@ -10,7 +10,7 @@ public protocol FrontendResetPasswordControllerType {
     /// - Parameters:
     /// configuration : the JWT configuration to be used to generate user tokens.
     /// drop : the Droplet instance
-    init(drop: Droplet, configuration: ConfigurationType)
+//    init(drop: Droplet, configuration: ConfigurationType)
 
     /// Shows the form where the user can reset the password
     ///

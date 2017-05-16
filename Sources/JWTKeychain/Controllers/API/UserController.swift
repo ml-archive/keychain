@@ -13,15 +13,15 @@ open class UserController: UserControllerType {
     /// configuration : the JWT configuration to be used to generate user tokens.
     /// drop : the Droplet instance
 
-    public let configuration: ConfigurationType
-    private let drop: Droplet
-    private let mailer: MailerType
+    //public let configuration: ConfigurationType
+    //private let drop: Droplet
+    //private let mailer: MailerType
     
-    required public init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType) {
-        self.configuration = configuration
-        self.mailer = mailer
-        self.drop = drop
-    }
+//    required public init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType) {
+//        self.configuration = configuration
+//        self.mailer = mailer
+//        self.drop = drop
+//    }
 
     open func register(request: Request) throws -> ResponseRepresentable {
 
