@@ -18,12 +18,15 @@ public class Mailer: MailerType {
         token: String,
         subject: String) throws
     {
-        guard let smtpUser = self.drop.config["mail", "user"]?.string,
-            let smtpPassword = self.drop.config["mail", "password"]?.string,
-            let fromEmail = self.drop.config["mail", "fromEmail"]?.string,
-            let fromName = self.drop.config["app", "name"]?.string,
-            let smtpHost = self.drop.config["mail", "smtpHost"]?.string,
-            let smtpPort = self.drop.config["mail", "smtpPort"]?.int?.port
+        let config = self.drop.config
+
+        guard let smtpUser = config["mail", "user"]?.string,
+            let smtpPassword = config["mail", "password"]?.string,
+            let fromEmail = config["mail", "fromEmail"]?.string,
+            let fromName = config["app", "name"]?.string,
+            let smtpHost = config["mail", "smtpHost"]?.string,
+            let smtpPort = config["mail", "smtpPort"]?.int?.port,
+            let smtpScheme = config["mail", "smtpScheme"]?.string
             else {
                 throw Abort(
                     .internalServerError,
@@ -66,7 +69,7 @@ public class Mailer: MailerType {
         )
 
         let mailer = SMTPMailer(
-            scheme: "smtps",
+            scheme: smtpScheme,
             hostname: smtpHost,
             port: smtpPort,
             credentials: credentials)
