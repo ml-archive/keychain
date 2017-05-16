@@ -34,7 +34,8 @@ public final class TokenGeneratorCommand: Command {
             return
         }
 
-        let token = try configuration.generateToken(user: user)
+        // TODO: generate actual token
+        let token = ""
         print("Token generated for user with email \(user.email):")
         print(token)
 

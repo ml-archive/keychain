@@ -7,26 +7,6 @@ import Vapor
 /// Sets the protocol of what is expected on the config file
 public protocol ConfigurationType {
 
-    /// Validates a given token
-    ///
-    /// - Parameter token: string with the token
-    /// - Throws: if unable to create JWT instance or if token is invalid
-    func validateToken(token: String) throws
-
-    /// Generates a token for the user
-    /// - Parameter: user is used to create a UserClaim
-    /// - Parameter: extraClaims are optional customized claims
-    /// - Returns: string with valid JWT token
-    func generateToken(user: UserClaimRepresentable, extraClaims: Claim...) throws -> String
-
-    /// Generates the reset password token with the settings provided on the
-    /// config
-    ///
-    /// - Parameter user: is used to create a UserClaim
-    /// - Returns: token string
-    /// - Throws: not able to generate token
-    func generateResetPasswordToken(user: UserClaimRepresentable) throws -> String
-
     /// Returns the path to the reset password view
     ///
     /// - Returns: path
@@ -124,20 +104,6 @@ public struct Configuration: ConfigurationType {
         self.secondsToExpireResetPassword = secondsToExpireResetPassword
     }
 
-    /// The Bytes representation of the signatureKey
-    var signatureKeyBytes : Bytes {
-        return Array(self.signatureKey.utf8)
-    }
-
-    /// The Bytes representation of the publicKey (may be nil)
-    var publicKeyBytes: Bytes? {
-        if let publicKey = publicKey {
-            return Array(publicKey.utf8)
-        } else {
-            return nil
-        }
-    }
-
     /// Generates the expiration date based on the
     /// configured seconds to expire
     ///
@@ -145,88 +111,6 @@ public struct Configuration: ConfigurationType {
     /// - Throws: on unable to create the date
     public func generateExpirationDate() -> Date {
         return Date() + self.secondsToExpire
-    }
-
-    private func getSigner(key: Bytes) -> Signer {
-
-        switch self.signer {
-
-        case "HS384":
-            return HS384(key: key)
-        case "HS512":
-            return HS512(key: key)
-        case "ES256":
-            return ES256(key: key)
-        case "ES384":
-            return ES384(key: key)
-        case "ES512":
-            return ES512(key: key)
-        case "RS256":
-            return ES256(key: key)
-        case "RS384":
-            return ES384(key: key)
-        case "RS512":
-            return ES512(key: key)
-        default:
-            return HS256(key: key)
-        }
-
-    }
-
-    public func validateToken(token: String) throws {
-        do {
-            // Validate our current access token
-            let receivedJWT = try JWT(token: token)
-
-            var key: Bytes = self.signatureKeyBytes
-
-            if let publicKeyBytes = self.publicKeyBytes {
-                key = publicKeyBytes
-            }
-
-            // Verify signature
-            let signer: Signer = self.getSigner(key: key)
-            try receivedJWT.verifySignature(using: signer)
-
-            // If we have expiration set on config, verify it
-            if self.secondsToExpire > 0 {
-                try receivedJWT.verifyClaims([ExpirationTimeClaim()])
-            }
-        } catch {
-            throw AuthenticationError.invalidBearerAuthorization
-        }
-    }
-
-     public func generateToken(userClaim: UserClaim, extraClaims: [Claim]) throws -> String {
-        // Prepare claims
-        var claims = extraClaims + [userClaim]
-        
-        // Prepare expiration claim if needed. If we added an expiration time claim
-        // DO NOT override it
-        if self.secondsToExpire > 0 && !extraClaims.contains(where: { $0 is ExpirationTimeClaim }) {
-            
-            claims.append(ExpirationTimeClaim(date: self.generateExpirationDate()))
-        }
-
-        // Generate our Token
-        let jwt = try JWT(
-            payload: JSON(claims),
-            signer: self.getSigner(key: self.signatureKeyBytes)
-        )
-        
-        // Return the token string
-        return try jwt.createToken()
-    }
-    
-    public func generateToken(user: UserClaimRepresentable, extraClaims: Claim...) throws -> String {
-        return try generateToken(userClaim: try user.makeUserClaim(), extraClaims: extraClaims)
-    }
-    
-    public func generateResetPasswordToken(user: UserClaimRepresentable) throws -> String {
-
-        // Make a token that expires in the configured amount of seconds
-        let expiryClaim = ExpirationTimeClaim(date: Date() + self.secondsToExpireResetPassword)
-        return try self.generateToken(user: user, extraClaims: expiryClaim)
     }
 
     public func getResetPasswordEmailView() -> String {
