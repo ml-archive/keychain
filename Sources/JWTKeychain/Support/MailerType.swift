@@ -11,7 +11,12 @@ public protocol MailerType {
     /// - Parameters:
     /// configuration : the JWT configuration.
     /// drop : the Droplet instance
-    init(configuration: ConfigurationType, drop: Droplet)
+//    init(configuration: ConfigurationType, drop: Droplet)
+    init(
+        keychainConfig: KeychainConfig,
+        mailConfig: MailConfig,
+        appConfig: AppConfig
+    )
 
     /// Sends an email to the user with the password reset URL
     ///

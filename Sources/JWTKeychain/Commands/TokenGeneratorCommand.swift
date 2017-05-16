@@ -15,12 +15,10 @@ public final class TokenGeneratorCommand: Command {
     ]
     public let console: ConsoleProtocol
     public let drop: Droplet
-    public let configuration: ConfigurationType
 
-    public init(drop: Droplet, configuration: ConfigurationType) {
+    public init(drop: Droplet) {
         self.drop = drop
         self.console = drop.console
-        self.configuration = configuration
     }
 
     public func run(arguments: [String]) throws {

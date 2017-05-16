@@ -3,58 +3,48 @@ import Transport
 import Vapor
 
 public class Mailer: MailerType {
-    public let configuration: ConfigurationType
+//    public let configuration: ConfigurationType
+    public let keychainConfig: KeychainConfig
+    public let mailConfig: MailConfig
+    public let appConfig: AppConfig
+//    private let drop: Droplet
 
-    private let drop: Droplet
+//    required public init(configuration: ConfigurationType, drop: Droplet) {
+//        self.configuration = configuration
+//        self.drop = drop
+//    }
 
-    required public init(configuration: ConfigurationType, drop: Droplet) {
-        self.configuration = configuration
-        self.drop = drop
+    required public init(
+        keychainConfig: KeychainConfig,
+        mailConfig: MailConfig,
+        appConfig: AppConfig
+    ) {
+        self.keychainConfig = keychainConfig
+        self.mailConfig = mailConfig
+        self.appConfig = appConfig
     }
 
     /// - Throws: if essential configs are not present
     public func sendResetPasswordMail<T: MailerUserType>(
         user: T,
         token: String,
-        subject: String) throws
-    {
-        let config = self.drop.config
-
-        guard let smtpUser = config["mail", "user"]?.string,
-            let smtpPassword = config["mail", "password"]?.string,
-            let fromEmail = config["mail", "fromEmail"]?.string,
-            let fromName = config["app", "name"]?.string,
-            let smtpHost = config["mail", "smtpHost"]?.string,
-            let smtpPort = config["mail", "smtpPort"]?.int?.port,
-            let smtpScheme = config["mail", "smtpScheme"]?.string
-            else {
-                throw Abort(
-                    .internalServerError,
-                    metadata: "Config required to send email are not set. Please check mail.json (user, password, fromEmail, smtpHost, smtpPort)"
-                )
-        }
-        
-        guard let appUrl = self.drop.config["app", "url"]?.string,
-        let appName = self.drop.config["app", "name"]?.string
-            else {
-                throw Abort(
-                    .internalServerError,
-                    metadata: "Config required to send email are not set. Please check app.json name, url"
-                )
-        }
-
-        let from = EmailAddress(name: fromName, address: fromEmail)
+        subject: String
+    ) throws {
+        let from = EmailAddress(name: mailConfig.name, address: mailConfig.fromEmail)
 
         // Generate HTML
-        let html = try drop.view.make(self.configuration.getResetPasswordEmailView(),
-            [
-                "name": .string(appName),
-                "user": user.makeNode(in: nil),
-                "token": .string(token),
-                "expire": .number(.double(self.configuration.getResetPasswordTokenExpirationTime())),
-                "url": .string(appUrl)
-            ]
-            ).data.makeString()
+        // TODO: Figure out where to put this
+//        let html = try drop.view.make(resetPasswordEmailViewPath,
+//            [
+//                "name": .string(appName),
+//                "user": user.makeNode(in: nil),
+//                "token": .string(token),
+//                "expire": .number(.double(resetPasswordTokenExpirationTime)),
+//                "url": .string(appUrl)
+//            ]
+//            ).data.makeString()
+
+        let html = ""
 
         let email = SMTP.Email(
             from: from,
@@ -64,14 +54,14 @@ public class Mailer: MailerType {
         )
 
         let credentials = SMTPCredentials(
-            user: smtpUser,
-            pass: smtpPassword
+            user: mailConfig.user,
+            pass: mailConfig.password
         )
 
         let mailer = SMTPMailer(
-            scheme: smtpScheme,
-            hostname: smtpHost,
-            port: smtpPort,
+            scheme: mailConfig.smtpScheme,
+            hostname: mailConfig.smtpHost,
+            port: mailConfig.smtpPort.port,
             credentials: credentials)
 
         try mailer.send(email)

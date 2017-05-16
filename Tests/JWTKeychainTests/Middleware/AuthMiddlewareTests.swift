@@ -6,7 +6,7 @@ import HTTP
 class AuthMiddlewareTests: XCTestCase {
 
 //    private var middleware: JWTKeychain.AuthMiddleware?
-    private var configuration: ConfigurationType?
+//    private var configuration: ConfigurationType?
 
     static let allTests = [
         ("testAbsenseOfAuthorizationHeaderThrows", testAbsenseOfAuthorizationHeaderThrows),

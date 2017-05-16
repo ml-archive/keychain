@@ -9,14 +9,14 @@ import Vapor
 /// Controller for reset password requests
 open class FrontendResetPasswordController: FrontendResetPasswordControllerType {
 
-    public let configuration: ConfigurationType
-    private let drop: Droplet
+//    public let configuration: ConfigurationType
+//    private let drop: Droplet
     private let resetPasswordBaseUrl = "/users/reset-password/form/"
 
-    required public init(drop: Droplet, configuration: ConfigurationType) {
-        self.configuration = configuration
-        self.drop = drop
-    }
+//    required public init(drop: Droplet, configuration: ConfigurationType) {
+//        self.configuration = configuration
+//        self.drop = drop
+//    }
 
     open func resetPasswordForm(request: Request, token: String) throws -> View {
 
