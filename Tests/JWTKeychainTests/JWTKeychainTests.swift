@@ -3,9 +3,14 @@ import XCTest
 
 class JWTKeychainTests: XCTestCase {
     
-    static var allTests : [(String, (JWTKeychainTests) -> () throws -> Void)] {
-        return [
-        ]
+    static var allTests = [
+        ("testUser", testUser)
+    ]
+
+    func testUser() {
+
+        
+
     }
     
 }
