@@ -1,6 +1,8 @@
-import Vapor
-import Console
 import Authentication
+import Console
+import JWT
+import JWTProvider
+import Vapor
 
 public final class TokenGeneratorCommand: Command {
     enum TokenGeneratorError: Error {
@@ -14,11 +16,13 @@ public final class TokenGeneratorCommand: Command {
     public let console: ConsoleProtocol
     public let drop: Droplet
     public let configuration: ConfigurationType
+
     public init(drop: Droplet, configuration: ConfigurationType) {
         self.drop = drop
         self.console = drop.console
         self.configuration = configuration
     }
+
     public func run(arguments: [String]) throws {
         console.info("Started the token generator")
 
@@ -34,8 +38,11 @@ public final class TokenGeneratorCommand: Command {
             return
         }
 
-        // TODO: generate actual token
-        let token = ""
+        let token = try JWT(
+            payload: JSON(user as Storable),
+            signer: try drop.assertSigner()
+            )
+            .createToken()
         print("Token generated for user with email \(user.email):")
         print(token)
 
