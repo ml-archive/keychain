@@ -1,9 +1,10 @@
-import Vapor
 import Authentication
+import BCrypt
+import Flash
 import Foundation
 import HTTP
 import JWT
-import Flash
+import Vapor
 
 /// Controller for reset password requests
 open class FrontendResetPasswordController: FrontendResetPasswordControllerType {
@@ -90,8 +91,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
 //                    .flash(.error, "Password and password confirmation don't match")
 //            }
 //
-//            // TODO: reimplement password hashing
-//            user.password = ""//BCrypt.hash(password: requestData.password)
+//            user.password = try Hash.make(message: password).makeString()
 //            try user.save()
 //
 //            return Response(redirect: resetPasswordBaseUrl + requestData.token)

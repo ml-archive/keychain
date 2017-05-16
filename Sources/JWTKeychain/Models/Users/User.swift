@@ -1,4 +1,5 @@
 import Authentication
+import BCrypt
 import FluentProvider
 import Foundation
 import protocol JWT.Storable
@@ -21,11 +22,11 @@ public final class User: Model, Timestampable, SoftDeletable {
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user (plain)
-    public init(name: String, email: String, password: String) {
+    public init(name: String, email: String, password: String) throws {
         self.name = name
         self.email = email
-        // TODO: implement hashing
-        self.password = "" //BCrypt.hash(password: password)
+        // TODO: salt this hash
+        self.password = try Hash.make(message: password).makeString()
         self.createdAt = Date()
         self.updatedAt = Date()
     }
