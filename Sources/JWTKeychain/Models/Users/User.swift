@@ -174,14 +174,6 @@ extension User {
     }
 }
 
-extension User: UserClaimRepresentable {
-    public func makeUserClaim() throws -> UserClaim {
-        return UserClaim(try Node(node: [
-            "id": self.id ?? "",
-            ]))
-    }
-}
-
 extension User: Storable {
     public static let name = "user"
 
