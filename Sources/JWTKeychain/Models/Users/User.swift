@@ -5,6 +5,7 @@ import Foundation
 import protocol JWT.Storable
 import JWT
 import JWTProvider
+import SMTP
 import Sugar
 import Vapor
 
@@ -16,13 +17,14 @@ public final class User: Model, Timestampable, SoftDeletable {
     public var email: String
     public var password: String
 
+    // TODO: only accept Valid<Name>, email, password etc.
     /// Initializes the User with name, email and password (plain)
     ///
     /// - Parameters:
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user (plain)
-    public init(name: String, email: String, password: String) throws {
+    public init(name: String?, email: String, password: String) throws {
         self.name = name
         self.email = email
         // TODO: salt this hash
@@ -38,7 +40,6 @@ public final class User: Model, Timestampable, SoftDeletable {
         self.password = try row.get("password")
     }
 }
-
 
 // MARK: - RowRepresentable
 extension User {
@@ -92,6 +93,80 @@ extension User: PayloadAuthenticatable {
         guard let user = try User.find(payload.id) else {
             throw Abort.init(.badRequest, reason: "User not found")
         }
+
+        return user
+    }
+}
+
+extension User: TokenCreating {
+    public func createToken(using signer: Signer) throws -> Token {
+        let jwt = try JWT(
+            payload: JSON(self as Storable),
+            signer: signer
+        )
+        // TODO: should JWT include a version of createToken that returns a Token instead of a String?
+        return Token(string: try jwt.createToken())
+    }
+}
+
+extension User: NodeRepresentable {}
+
+extension User: HasEmail {}
+
+extension User: JSONRepresentable {
+    public func makeJSON() throws -> JSON {
+        var json = JSON()
+
+        try json.set("id", id)
+        try json.set("name", name)
+        try json.set("email", email)
+
+        return json
+    }
+}
+
+extension User: EmailAddressRepresentable {
+    public var emailAddress: EmailAddress {
+        return EmailAddress(name: name, address: email)
+    }
+}
+
+extension User: UserAuthenticating {
+    public convenience init(request: Request) throws {
+        let data = request.data
+
+        guard
+            let email = data["email"]?.string,
+            let password = data["password"]?.string else {
+                throw Abort.badRequest
+        }
+
+        try self.init(
+            name: data["name"]?.string,
+            email: email,
+            password: password)
+    }
+
+    public static func update(request: Request) throws -> Self {
+        let data = request.data
+        let user = try findById(request: request)
+
+        if let newName = data["name"]?.string {
+            user.name = newName
+        }
+
+        if let newEmail = data["email"]?.string {
+            user.email = newEmail
+        }
+
+        if
+            let newPassword = data["new_password"]?.string,
+            let oldPassword = data["password"]?.string,
+            newPassword != oldPassword {
+            // TODO: check password and update new password
+        }
+
+        try user.save()
 
         return user
     }
