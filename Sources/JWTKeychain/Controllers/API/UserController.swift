@@ -1,116 +1,140 @@
-import Vapor
 import Authentication
+import Flash
+import Fluent
 import Foundation
 import HTTP
 import JWT
-import Flash
+import SMTP
+import Vapor
+
+public protocol TokenCreating {
+    func createToken(using: Signer) throws -> Token
+}
+
+public protocol UserAuthenticating: EmailAddressRepresentable, JSONRepresentable, NodeRepresentable,
+RequestInitializable, TokenCreating {
+    static func findByEmail(request: Request) throws -> Self
+    static func findById(request: Request) throws -> Self
+    static func logIn(request: Request) throws -> Self
+    static func logOut(request: Request) throws -> Self
+    static func update(request: Request) throws -> Self
+}
+
+extension UserAuthenticating {
+    func logIn(request: Request) throws -> Self {
+        return self
+    }
+
+    func logOut(request: Request) throws -> Self {
+        return self
+    }
+}
+
+extension UserAuthenticating where Self: Entity {
+    public static func findById(request: Request) throws -> Self {
+        let id = try request.data.get("id") as Identifier
+
+        guard let user = try find(id) else {
+            throw Abort.notFound
+        }
+
+        return user
+    }
+
+    public static func logIn(request: Request) throws -> Self {
+        return try findById(request: request)
+    }
+
+    public static func logOut(request: Request) throws -> Self {
+        return try findById(request: request)
+    }
+}
+
+public protocol HasEmail: Entity {
+    var email: String { get }
+}
+
+extension UserAuthenticating where Self: HasEmail {
+    public static func findByEmail(request: Request) throws -> Self {
+        // TODO: define "email", "id", "name", "password". in an enum to avoid string typing
+        let email = try request.data.get("email") as String
+
+        guard let user = try Self.makeQuery().filter("email", email).first() else {
+            throw Abort.badRequest
+        }
+
+        return user
+     }
+}
 
 /// Controller for user api requests
-open class UserController: UserControllerType {
-    /// Initializes the UsersController with a JWT configuration.
-    ///
-    /// - Parameters:
-    /// configuration : the JWT configuration to be used to generate user tokens.
-    /// drop : the Droplet instance
+open class UserController<U: UserAuthenticating>: UserControllerType {
 
-    //public let configuration: ConfigurationType
-    //private let drop: Droplet
-    //private let mailer: MailerType
+    private let mailer: MailerType
+    private let signer: Signer
+    private let userType: U.Type
     
-//    required public init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType) {
-//        self.configuration = configuration
-//        self.mailer = mailer
-//        self.drop = drop
-//    }
+    required public init(mailer: MailerType, signer: Signer, userType: U.Type) {
+        self.mailer = mailer
+        self.signer = signer
+        self.userType = userType
+    }
+
+    private func makeResponse(token: Token? = nil, user: JSONRepresentable? = nil) throws -> ResponseRepresentable {
+        var response = JSON()
+
+        if let token = token {
+            try response.set("token", token)
+        }
+        if let user = user {
+            try response.set("user", user)
+        }
+
+        return response
+    }
 
     open func register(request: Request) throws -> ResponseRepresentable {
-
-        // TODO: implement
-        return ""
-
-//        do {
-//            // Validate request
-//            let validator = try T.Validator(validating: request.data)
-//            var user = T(validated: validator)
-//            try user.save()
-//            let token = try self.configuration.generateToken(user: user)
-//            return try user.makeJSON(token: token)
-//        } catch FormError.validationFailed(let fieldset) {
-//            throw Abort(status: Status.preconditionFailed, message: "Invalid data: \(fieldset.errors)")
-//        } catch {
-//            throw Abort(Status.unprocessableEntity, metadata: "Could not create user")
-//        }
+        let user = try userType.init(request: request)
+        let token = try user.createToken(using: signer)
+        return try makeResponse(token: token, user: user)
     }
 
     open func login(request: Request) throws -> ResponseRepresentable {
-        // TODO: implement
-        return ""
-
-        // Get our credentials
-//        guard let email = request.data["email"]?.string, let password = request.data["password"]?.string else {
-//            throw Abort(Status.preconditionFailed, metadata: "Missing email or password")
-//        }
-//
-//        let credentials = EmailPassword(email: email, password: password)
-//
-//        do {
-//            try request.auth.login(credentials)
-//            let user: T = try request.user()
-//            let token = try configuration.generateToken(user: user)
-//            return try user.makeJSON(token: token)
-//        } catch _ {
-//            throw Abort(.badRequest, metadata: "Invalid email or password")
-//        }
+        let user = try userType.logIn(request: request)
+        let token = try user.createToken(using: signer)
+        return try makeResponse(token: token, user: user)
     }
 
     open func logout(request: Request) throws -> ResponseRepresentable {
-        // TODO: implement
-        return ""
-
-//        // Clear the session
-//        request.subject.logout()
-//        return try JSON(node: ["success": true])
+        _ = try userType.logOut(request: request)
+        return try JSON(node: ["success": true])
     }
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
-        // TODO: implement
-        return ""
-
-//        let user: T = try request.user()
-//        let token = try self.configuration.generateToken(user: user)
-//        return try JSON(node: ["token": token])
+        let user = try userType.findById(request: request)
+        return try makeResponse(token: user.createToken(using: signer))
     }
 
     open func me(request: Request) throws -> ResponseRepresentable {
-        // TODO: implement
-        return ""
-
-//        let user: T = try request.user()
-//        let token = try self.configuration.generateToken(user: user)
-//        return try user.makeJSON(token: token)
+        let user = try userType.findById(request: request)
+        return try makeResponse(user: user)
     }
 
     open func resetPasswordEmail(request: Request) throws -> ResponseRepresentable {
-        // TODO: implement
-        return ""
+        do {
+            let user = try userType.findByEmail(request: request)
+            let token = try user.createToken(using: signer)
+            try mailer.sendResetPasswordMail(user: user, token: token, subject: "Reset Password")
+        } catch let error as AbortError where error.status == .notFound {
+            // ignore "notFound" errors
+        }
 
-//        if request.data["email"]?.string == nil {
-//            throw Abort(.preconditionFailed, metadata: "Email is required")
-//        }
-//
-//        let email: Valid<Email> = try request.data["email"].validated()
-//
-//        guard let user = try T.query().filter("email", email.value).first() else {
-//            return JSON(["success": "Instructions were sent to the provided email"])
-//        }
-//
-//        let token = try self.configuration.generateResetPasswordToken(user: user)
-//
-//        let base64EncodedToken = try Base64Encoding().encode(token.bytes)
-//
-//        // Send mail
-//        try self.mailer.sendResetPasswordMail(user: user, token: base64EncodedToken, subject: "Reset Password")
-//
-//        return JSON(["success": "Instructions were sent to the provided email"])
+        // the response will be the same regardless of success to prevent people from
+        return JSON(["success": "Instructions were sent to the provided email"])
+    }
+
+    open func update(request: Request) throws -> ResponseRepresentable {
+        let user = try userType.update(request: request)
+        return try makeResponse(user: user)
     }
 }

@@ -36,11 +36,7 @@ public final class TokenGeneratorCommand: Command {
             return
         }
 
-        let token = try JWT(
-            payload: JSON(user as Storable),
-            signer: try drop.assertSigner()
-            )
-            .createToken()
+        let token = try user.createToken(using: try drop.assertSigner())
         print("Token generated for user with email \(user.email):")
         print(token)
 
