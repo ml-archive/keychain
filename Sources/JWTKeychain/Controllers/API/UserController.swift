@@ -20,16 +20,6 @@ RequestInitializable, TokenCreating {
     static func update(request: Request) throws -> Self
 }
 
-extension UserAuthenticating {
-    func logIn(request: Request) throws -> Self {
-        return self
-    }
-
-    func logOut(request: Request) throws -> Self {
-        return self
-    }
-}
-
 extension UserAuthenticating where Self: Entity {
     public static func findById(request: Request) throws -> Self {
         let id = try request.data.get("id") as Identifier
