@@ -121,7 +121,7 @@ extension User: PayloadAuthenticatable {
 
     public static func authenticate(_ payload: PayloadType) throws -> User {
         guard let user = try User.find(payload.id) else {
-            throw Abort(.badRequest, reason: "User not found")
+            throw Abort.notFound
         }
 
         return user
@@ -158,13 +158,20 @@ extension User: EmailAddressRepresentable {
 }
 
 extension User: UserAuthenticating {
+
+    /// Creates a new user from the values in the request. Hashes password using the hasher.
+    /// - Parameters:
+    ///   - request: request with values for the keys "email", "password" and optionally "name".
+    ///   - hasher: the hasher with which to hash the raw password value from the request
+    /// - Throws: Abort error when email and/or password are missing or a ValidationError if any of the input is invalid
+    /// - Returns: the new user
     public static func makeUser(request: Request, hasher: HashProtocol) throws -> Self {
         let data = request.data
 
         guard
             let email = data[Keys.email]?.string,
             let password = data[Keys.password]?.string else {
-                throw Abort.badRequest
+                throw Abort(.preconditionFailed, reason: "The fields \"email\" and/or \"password\" are missing")
         }
 
         let name = data[Keys.name]?.string
@@ -175,6 +182,14 @@ extension User: UserAuthenticating {
             password: hasher.hash(Valid(password)))
     }
 
+    /// Updates an existing user with the values from the request. Hashes password using the hasher in case of a
+    /// password change .
+    /// - Parameters:
+    ///   - request: request that optionally contains values for the keys "email", "name", and both "password" +
+    ///              "new_password" in case of a password change.
+    ///   - hasher: the hasher with which to hash the raw password value from the request
+    /// - Throws: when the password does not match or the user could not be saved
+    /// - Returns: the updated user
     public static func update(request: Request, hasher: HashProtocol) throws -> Self {
         let data = request.data
         let user = try findById(request: request)

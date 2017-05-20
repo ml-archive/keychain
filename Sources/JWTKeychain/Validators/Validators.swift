@@ -31,7 +31,7 @@ public final class UniqueValidator<T: Entity>: Validator {
     public func validate(_ input: String) throws {
         let entity = try T.makeQuery().filter(fieldName, input).first()
         if entity != nil {
-            throw Abort(.badRequest, reason: "An instance of \(T.name) with that \(fieldName) already exists")
+            throw error("An instance of \(T.name) with that \(fieldName) already exists")
         }
     }
 }
