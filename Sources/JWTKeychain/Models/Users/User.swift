@@ -30,11 +30,7 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
         email: Valid<Email>,
         name: Valid<Name>?,
         password: HashedPassword
-    ) throws {
-        guard try User.makeQuery().filter(Keys.email, email.value).first() == nil else {
-            throw Abort.badRequest
-        }
-
+    ) {
         self.email = email.value
         self.name = name?.value
         self.password = password.value
