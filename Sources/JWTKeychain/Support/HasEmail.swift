@@ -6,6 +6,10 @@ public protocol HasEmail: Entity {
 }
 
 extension UserAuthenticating where Self: HasEmail {
+
+    /// Find user by email and fetches from database.
+    /// - Parameter request: request that should contain a value for the key "email"
+    /// - Throws: Abort error when "email" key is not present, or user could not be found 
     public static func findByEmail(request: Request) throws -> Self {
         let email: String
         
@@ -16,7 +20,7 @@ extension UserAuthenticating where Self: HasEmail {
         }
 
         guard let user = try Self.makeQuery().filter(User.Keys.email, email).first() else {
-            throw Abort.badRequest
+            throw Abort.notFound
         }
 
         return user
