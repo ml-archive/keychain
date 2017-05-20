@@ -4,7 +4,6 @@ import Vapor
 
 /// Defines basic email functionality.
 public protocol MailerType {
-
     typealias MailerUserType = NodeRepresentable & EmailAddressRepresentable
 
     /// Initializes the Mailer with the JWT configuration.
