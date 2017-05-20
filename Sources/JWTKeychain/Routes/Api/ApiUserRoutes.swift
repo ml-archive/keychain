@@ -10,22 +10,18 @@ public struct ApiUserRoutes: RouteCollection {
     
     private let authMiddleware: Middleware
     private let controller: UserControllerType
-    private let mailer: MailerType
-  
+
     /// Initializes the user route collection.
     ///
     /// - Parameters:
-    ///   - drop: the droplet reference.
     ///   - authMiddleware: authentication middleware.
     ///   - userController: controller for handling user routes.
     /// - Throws: if configuration cannot be created.
     public init(
         authMiddleware: Middleware,
-        mailer: MailerType,
         userController: UserControllerType
     ) throws {
         self.authMiddleware = authMiddleware
-        self.mailer = mailer
         self.controller = userController
     }
 
@@ -43,8 +39,9 @@ public struct ApiUserRoutes: RouteCollection {
         // Protected routes
         path.group(authMiddleware) { secured in
             secured.get("logout", handler: controller.logout)
-            secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.get("me", handler: controller.me)
+            secured.patch("token", "regenerate", handler: controller.regenerate)
+            secured.patch("update", handler: controller.update)
         }
     }
 }
