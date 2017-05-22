@@ -12,19 +12,19 @@ public protocol UserControllerType {
     /// - Throws: on invalid data or if unable to store data on the DB.
     func register(request: Request) throws -> ResponseRepresentable
 
-    /// Logins the user on the system, giving the token back.
+    /// Logs the user in to the system, giving the token back.
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON response with User data.
     /// - Throws: on invalid data or wrong credentials.
-    func login(request: Request) throws -> ResponseRepresentable
+    func logIn(request: Request) throws -> ResponseRepresentable
 
     /// Logs the user out of the system.
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON success response.
     /// - Throws: if not able to find token.
-    func logout(request: Request) throws -> ResponseRepresentable
+    func logOut(request: Request) throws -> ResponseRepresentable
 
     /// Generates a new token for the user.
     ///

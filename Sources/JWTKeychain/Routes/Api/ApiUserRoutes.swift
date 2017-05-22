@@ -33,12 +33,12 @@ public struct ApiUserRoutes: RouteCollection {
         
         // Auth routes
         path.post(handler: controller.register)
-        path.post("login", handler: controller.login)
+        path.post("login", handler: controller.logIn)
         path.post("reset-password", "request", handler: controller.resetPasswordEmail)
 
         // Protected routes
         path.group(authMiddleware) { secured in
-            secured.get("logout", handler: controller.logout)
+            secured.get("logout", handler: controller.logOut)
             secured.get("me", handler: controller.me)
             secured.patch("token", "regenerate", handler: controller.regenerate)
             secured.patch("update", handler: controller.update)
