@@ -48,8 +48,7 @@ open class UserController<U: UserAuthenticating>: UserControllerType {
 
     open func logOut(request: Request) throws -> ResponseRepresentable {
         _ = try userAuthenticator.logOut(request: request)
-        // TODO: is it really necessary to return this response? A status code of 200 should suffice.
-        return try JSON(node: ["success": true])
+        return status("success")
     }
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
@@ -71,12 +70,15 @@ open class UserController<U: UserAuthenticating>: UserControllerType {
             // ignore "notFound" errors and pretend the operation succeeded for security reasons
         }
 
-        // TODO: is it really necessary to return this response? A status code of 200 should suffice.
-        return JSON(["success": "Instructions were sent to the provided email"])
+        return status("Instructions were sent to the provided email")
     }
 
     open func update(request: Request) throws -> ResponseRepresentable {
         let user = try userAuthenticator.update(request: request, hasher: hasher)
         return try makeResponse(user: user)
+    }
+
+    private func status(_ status: String) -> ResponseRepresentable {
+        return JSON(["status": .string(status)])
     }
 }
