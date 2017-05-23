@@ -6,16 +6,6 @@ import Vapor
 public protocol MailerType {
     typealias MailerUserType = NodeRepresentable & EmailAddressRepresentable
 
-    /// Initializes the Mailer with the JWT configuration.
-    // TODO: update header doc
-    init(
-        appConfig: AppConfig,
-        keychainConfig: KeychainConfig,
-        mailConfig: MailConfig,
-        resetPasswordEmailViewPath: String,
-        viewRenderer: ViewRenderer
-    )
-
     /// Sends an email to the user with the password reset URL
     ///
     /// - Parameters:
