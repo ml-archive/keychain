@@ -20,7 +20,7 @@ public struct ApiUserRoutes: RouteCollection {
     public init(
         authMiddleware: Middleware,
         userController: UserControllerType
-    ) throws {
+    ) {
         self.authMiddleware = authMiddleware
         self.controller = userController
     }
