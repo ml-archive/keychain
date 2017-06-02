@@ -16,6 +16,8 @@ public protocol UserAuthenticating {
 public class UserAuthenticator: UserAuthenticating {
     public typealias U = User
 
+    public init() {}
+
     /// Creates a new user from the values in the request. Hashes password using the hasher.
     /// - Parameters:
     ///   - request: request with values for the keys "email", "password" and optionally "name".
