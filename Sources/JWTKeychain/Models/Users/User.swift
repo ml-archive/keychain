@@ -15,9 +15,9 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
 
     public let storage = Storage()
 
-    public var email: String
-    public var name: String?
-    public var password: String
+    public private(set) var email: String
+    public private(set) var name: String?
+    public private(set) var password: String
 
     /// Initializes the User with name, email and password (plain).
     ///
@@ -52,7 +52,7 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
         email: Valid<Email>?,
         name: Valid<Name>?,
         password: HashedPassword?
-    ) throws -> Self {
+    ) {
         if let email = email {
             self.email = email.value
         }
@@ -64,9 +64,6 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
         if let password = password {
             self.password = password.value
         }
-
-        try save()
-        return self
     }
 }
 

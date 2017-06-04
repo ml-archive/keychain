@@ -35,11 +35,15 @@ public class UserAuthenticator: UserAuthenticating {
 
         let name = data[User.Keys.name]?.string
 
-        return try User(
+        let user = try User(
             email: Valid(email),
             name: name.map(Valid.init),
             password: hasher.hash(Valid(password))
         )
+
+        try user.save()
+
+        return user
     }
 
     /// Updates an existing user with the values from the request. Hashes password using the hasher in case of a
@@ -69,21 +73,21 @@ public class UserAuthenticator: UserAuthenticating {
         let name = data[User.Keys.name]?.string
         let email = data[User.Keys.email]?.string
 
-        return try user.update(
+        try user.update(
             email: email.map(Valid.init),
             name: name.map(Valid.init),
             password: password.map(Valid.init).map(hasher.hash)
         )
+
+        try user.save()
+
+        return user
     }
 }
 
 extension UserAuthenticating where U: Entity {
     public func findById(request: Request) throws -> U {
-        let id: Identifier
-
-        do {
-            id = try request.data.get(U.idKey)
-        } catch {
+        guard let id: Identifier = try? request.data.get(U.idKey), id != .null else {
             throw Abort(.preconditionFailed, reason: "\"id\" is required")
         }
 
