@@ -41,7 +41,7 @@ open class UserController<U: UserAuthenticating>: UserControllerType {
     }
 
     open func logIn(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.logIn(request: request)
+        let user = try userAuthenticator.logIn(request: request, hasher: hasher)
         let token = try user.createToken(using: signer)
         return try makeResponse(token: token, user: user)
     }
