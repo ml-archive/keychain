@@ -4,7 +4,6 @@ import protocol JWT.Storable
 import JWT
 import JWTProvider
 import SMTP
-import Sugar
 
 /// Defines basic user that can be authorized.
 public final class User: Model, HasEmail, Timestampable, SoftDeletable {
@@ -82,8 +81,8 @@ extension User {
     }
 }
 
-// MARK: - Vapor Model
-extension User {
+// MARK: - Preparation
+extension User: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) { user in
             user.id()
@@ -92,7 +91,7 @@ extension User {
             user.string(Keys.password)
         }
 
-        try database.index(table: "users", column: Keys.email, name: "users_email_index")
+        try database.index("email", for: User.self)
     }
 
     public static func revert(_ database: Database) throws {
