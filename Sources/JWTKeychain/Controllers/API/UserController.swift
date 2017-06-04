@@ -52,12 +52,12 @@ open class UserController<U: UserAuthenticating>: UserControllerType {
     }
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.findById(request: request)
+        let user = try userAuthenticator.findByEmail(request: request)
         return try makeResponse(token: user.createToken(using: signer))
     }
 
     open func me(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.findById(request: request)
+        let user = try userAuthenticator.findByEmail(request: request)
         return try makeResponse(user: user)
     }
 

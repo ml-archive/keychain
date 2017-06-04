@@ -6,7 +6,6 @@ public protocol UserAuthenticating {
     associatedtype U: EmailAddressRepresentable, JSONRepresentable, NodeRepresentable, TokenCreating
 
     func findByEmail(request: Request) throws -> U
-    func findById(request: Request) throws -> U
     func logIn(request: Request) throws -> U
     func logOut(request: Request) throws -> U
     func makeUser(request: Request, hasher: HashProtocol) throws -> U
@@ -56,7 +55,7 @@ public class UserAuthenticator: UserAuthenticating {
     /// - Returns: the updated user
     public func update(request: Request, hasher: HashProtocol) throws -> U {
         let data = request.data
-        let user = try findById(request: request)
+        let user = try findByEmail(request: request)
 
         let password: String?
         if
@@ -86,24 +85,12 @@ public class UserAuthenticator: UserAuthenticating {
 }
 
 extension UserAuthenticating where U: Entity {
-    public func findById(request: Request) throws -> U {
-        guard let id: Identifier = try? request.data.get(U.idKey), id != .null else {
-            throw Abort(.preconditionFailed, reason: "\"id\" is required")
-        }
-
-        guard let user = try U.find(id) else {
-            throw Abort.notFound
-        }
-
-        return user
-    }
-
     public func logIn(request: Request) throws -> U {
-        return try findById(request: request)
+        return try findByEmail(request: request)
     }
 
     public func logOut(request: Request) throws -> U {
-        return try findById(request: request)
+        return try findByEmail(request: request)
     }
 }
 
