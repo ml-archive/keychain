@@ -6,7 +6,7 @@ public protocol UserAuthenticating {
     associatedtype U: EmailAddressRepresentable, JSONRepresentable, NodeRepresentable, TokenCreating
 
     func findByEmail(request: Request) throws -> U
-    func logIn(request: Request) throws -> U
+    func logIn(request: Request, hasher: HashProtocol) throws -> U
     func logOut(request: Request) throws -> U
     func makeUser(request: Request, hasher: HashProtocol) throws -> U
     func update(request: Request, hasher: HashProtocol) throws -> U
@@ -70,10 +70,9 @@ public class UserAuthenticator: UserAuthenticating {
         }
 
         let name = data[User.Keys.name]?.string
-        let email = data[User.Keys.email]?.string
 
         try user.update(
-            email: email.map(Valid.init),
+            email: nil,
             name: name.map(Valid.init),
             password: password.map(Valid.init).map(hasher.hash)
         )
@@ -82,13 +81,21 @@ public class UserAuthenticator: UserAuthenticating {
 
         return user
     }
+
+    public func logIn(request: Request, hasher: HashProtocol) throws -> U {
+        let user = try findByEmail(request: request)
+
+        guard
+            let password = request.data[User.Keys.password]?.string,
+            try hasher.check(password.makeBytes(), matchesHash: user.password.makeBytes()) else {
+                throw Abort.unauthorized
+        }
+        
+        return user
+    }
 }
 
 extension UserAuthenticating where U: Entity {
-    public func logIn(request: Request) throws -> U {
-        return try findByEmail(request: request)
-    }
-
     public func logOut(request: Request) throws -> U {
         return try findByEmail(request: request)
     }
