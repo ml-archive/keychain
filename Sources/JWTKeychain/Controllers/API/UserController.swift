@@ -3,17 +3,17 @@ import JWT
 import Vapor
 
 /// Controller for user api requests
-open class UserController<U: UserAuthenticating>: UserControllerType {
+open class UserController<A: UserAuthenticating>: UserControllerType {
     private let hasher: HashProtocol
     private let mailer: MailerType
     private let signer: Signer
-    private let userAuthenticator: U
+    private let userAuthenticator: A
 
     required public init(
         hasher: HashProtocol,
         mailer: MailerType,
         signer: Signer,
-        userAuthenticator: U
+        userAuthenticator: A
     ) {
         self.hasher = hasher
         self.mailer = mailer
@@ -52,12 +52,12 @@ open class UserController<U: UserAuthenticating>: UserControllerType {
     }
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.findByEmail(request: request)
+        let user: A.U = try request.auth.assertAuthenticated()
         return try makeResponse(token: user.createToken(using: signer))
     }
 
     open func me(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.findByEmail(request: request)
+        let user: A.U = try request.auth.assertAuthenticated()
         return try makeResponse(user: user)
     }
 
