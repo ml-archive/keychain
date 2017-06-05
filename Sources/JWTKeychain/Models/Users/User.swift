@@ -126,8 +126,10 @@ extension User: PayloadAuthenticatable {
 
 extension User: TokenCreating {
     public func createToken(using signer: Signer) throws -> Token {
+        let claim = ExpirationTimeClaim(seconds: Int(Date().timeIntervalSince1970 + 20))
+
         let jwt = try JWT(
-            payload: JSON(self as Storable),
+            payload: JSON([self, claim]),
             signer: signer
         )
 
