@@ -1,9 +1,10 @@
+import Authentication
 import Fluent
 import SMTP
 import Vapor
 
 public protocol UserAuthenticating {
-    associatedtype U: EmailAddressRepresentable, JSONRepresentable, NodeRepresentable, TokenCreating
+    associatedtype U: Authenticatable, EmailAddressRepresentable, JSONRepresentable, NodeRepresentable, TokenCreating
 
     func findByEmail(request: Request) throws -> U
     func logIn(request: Request, hasher: HashProtocol) throws -> U
@@ -55,7 +56,7 @@ public class UserAuthenticator: UserAuthenticating {
     /// - Returns: the updated user
     public func update(request: Request, hasher: HashProtocol) throws -> U {
         let data = request.data
-        let user = try findByEmail(request: request)
+        let user: U = try request.auth.assertAuthenticated()
 
         let password: String?
         if
@@ -97,7 +98,11 @@ public class UserAuthenticator: UserAuthenticating {
 
 extension UserAuthenticating where U: Entity {
     public func logOut(request: Request) throws -> U {
-        return try findByEmail(request: request)
+        let user: U = try request.auth.assertAuthenticated()
+
+        try request.auth.unauthenticate()
+
+        return user
     }
 }
 

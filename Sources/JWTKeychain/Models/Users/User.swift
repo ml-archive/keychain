@@ -130,7 +130,7 @@ extension User: TokenCreating {
             payload: JSON(self as Storable),
             signer: signer
         )
-        // TODO: should JWT include a version of createToken that returns a Token instead of a String?
+
         return Token(string: try jwt.createToken())
     }
 }
