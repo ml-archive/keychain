@@ -6,7 +6,9 @@ import Vapor
 
 public final class TokenGeneratorCommand: Command {
     enum TokenGeneratorError: Error {
-        case wrongArguments
+        case missingEmail
+        case missingJWTProvider
+        case userNotFound
     }
 
     public let id = "generator:token"
@@ -14,32 +16,42 @@ public final class TokenGeneratorCommand: Command {
         "Generates a JWT token by passing in the user's email."
     ]
     public let console: ConsoleProtocol
-    public let drop: Droplet
+    public let signer: Signer
 
-    public init(drop: Droplet) {
-        self.drop = drop
-        self.console = drop.console
+    public init(console: ConsoleProtocol, signer: Signer) {
+        self.console = console
+        self.signer = signer
     }
 
     public func run(arguments: [String]) throws {
         console.info("Started the token generator")
 
-        // TODO: is this still relevant?
-        // BUG FIX WHILE WAITING FOR VAPOR UPDATE
-        User.database = drop.database
-
-        guard
-            arguments.count == 1,
-            let user = try User.makeQuery().filter("email", arguments[0]).first()
-        else {
-            print("Bad arguments or user not found with email \(arguments[0])")
-            return
+        guard let email = arguments.first else {
+            throw TokenGeneratorError.missingEmail
         }
 
-        let token = try user.createToken(using: try drop.assertSigner())
-        print("Token generated for user with email \(user.email):")
-        print(token)
+        guard let user = try User.makeQuery().filter("email", email).first() else {
+            throw TokenGeneratorError.userNotFound
+        }
 
-        console.info("Finished the token generator script")
+        let token = try Token(user: user, expirationDate: 1.hour.fromNow, signer: signer)
+        console.info("Token generated for user with email \(user.email):")
+        console.print(token.string)
+
+        console.success("Finished the token generator script")
+    }
+}
+
+extension TokenGeneratorCommand: ConfigInitializable {
+    public convenience init(config: Config) throws {
+        guard let jwtProvider = config.providers.first(where: {
+            $0 is JWTProvider.Provider
+        }) as? JWTProvider.Provider else {
+            throw TokenGeneratorError.missingJWTProvider
+        }
+
+        let console = try config.resolveConsole()
+        let signer = jwtProvider.signer
+        self.init(console: console, signer: signer)
     }
 }

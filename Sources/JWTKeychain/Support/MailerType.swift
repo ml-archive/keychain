@@ -12,5 +12,5 @@ public protocol MailerType {
     ///   - user: user that is resetting the password
     ///   - token: JWT token generated to identify the user
     /// - Throws: if essential configs are not present
-    func sendResetPasswordMail<T: MailerUserType>(user: T, token: Token, subject: String) throws
+    func sendResetPasswordMail<T: MailerUserType>(user: T, accessToken: Token, subject: String) throws
 }
