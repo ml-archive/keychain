@@ -8,7 +8,8 @@ import Vapor
 public struct ApiUserRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
-    private let authMiddleware: Middleware
+    private let apiAccessMiddleware: Middleware
+    private let refreshMiddleware: Middleware
     private let controller: UserControllerType
 
     /// Initializes the user route collection.
@@ -18,10 +19,12 @@ public struct ApiUserRoutes: RouteCollection {
     ///   - userController: controller for handling user routes.
     /// - Throws: if configuration cannot be created.
     public init(
-        authMiddleware: Middleware,
+        apiAccessMiddleware: Middleware,
+        refreshMiddleware: Middleware,
         userController: UserControllerType
     ) {
-        self.authMiddleware = authMiddleware
+        self.apiAccessMiddleware = apiAccessMiddleware
+        self.refreshMiddleware = refreshMiddleware
         self.controller = userController
     }
 
@@ -37,11 +40,15 @@ public struct ApiUserRoutes: RouteCollection {
         path.get("reset-password", "request", handler: controller.resetPasswordEmail)
 
         // Protected routes
-        path.group(authMiddleware) { secured in
-            secured.get("logout", handler: controller.logOut)
-            secured.get("me", handler: controller.me)
-            secured.patch("token", "regenerate", handler: controller.regenerate)
-            secured.patch("update", handler: controller.update)
+        path.group(apiAccessMiddleware) { apiAccess in
+            apiAccess.get("logout", handler: controller.logOut)
+            apiAccess.get("me", handler: controller.me)
+            apiAccess.patch("update", handler: controller.update)
+        }
+
+        // Refresh access token
+        path.group(refreshMiddleware) { refresh in
+            refresh.patch("token", "regenerate", handler: controller.regenerate)
         }
     }
 }
