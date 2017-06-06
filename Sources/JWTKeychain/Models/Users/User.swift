@@ -1,6 +1,5 @@
 import Authentication
 import FluentProvider
-import protocol JWT.Storable
 import JWT
 import JWTProvider
 import SMTP
@@ -96,20 +95,13 @@ extension User: Preparation {
     }
 }
 
-// MARK: - JWT.Storable
-extension User: Storable {
-    public var node: Node {
-        return id?.makeNode(in: nil) ?? ""
-    }
-}
-
 // MARK: - PayloadAuthenticatable
 extension User: PayloadAuthenticatable {
     public struct UserIdentifier: JSONInitializable {
         let id: Identifier
 
         public init(json: JSON) throws {
-            id = Identifier(try json.get(User.name) as Node)
+            id = Identifier(try json.get(SubjectClaim.name) as Node)
         }
     }
 
@@ -121,19 +113,6 @@ extension User: PayloadAuthenticatable {
         }
 
         return user
-    }
-}
-
-extension User: TokenCreating {
-    public func createToken(using signer: Signer) throws -> Token {
-        let claim = ExpirationTimeClaim(seconds: Int(Date().timeIntervalSince1970 + 20))
-
-        let jwt = try JWT(
-            payload: JSON([self, claim]),
-            signer: signer
-        )
-
-        return Token(string: try jwt.createToken())
     }
 }
 

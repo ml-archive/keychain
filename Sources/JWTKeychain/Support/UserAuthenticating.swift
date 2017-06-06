@@ -2,9 +2,10 @@ import Authentication
 import Fluent
 import SMTP
 import Vapor
+import protocol JWT.Storable
 
 public protocol UserAuthenticating {
-    associatedtype U: Authenticatable, EmailAddressRepresentable, JSONRepresentable, NodeRepresentable, TokenCreating
+    associatedtype U: Authenticatable, EmailAddressRepresentable, Entity, JSONRepresentable, NodeRepresentable
 
     func findByEmail(request: Request) throws -> U
     func logIn(request: Request, hasher: HashProtocol) throws -> U
@@ -94,9 +95,7 @@ public class UserAuthenticator: UserAuthenticating {
         
         return user
     }
-}
 
-extension UserAuthenticating where U: Entity {
     public func logOut(request: Request) throws -> U {
         let user: U = try request.auth.assertAuthenticated()
 

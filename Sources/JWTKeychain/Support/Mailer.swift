@@ -27,7 +27,7 @@ public class Mailer: MailerType {
     /// - Throws: if essential configs are not present
     public func sendResetPasswordMail<T: MailerUserType>(
         user: T,
-        token: Token,
+        accessToken: Token,
         subject: String
     ) throws {
         let from = EmailAddress(name: mailConfig.name, address: mailConfig.fromEmail)
@@ -37,7 +37,7 @@ public class Mailer: MailerType {
             [
                 "name": .string(appConfig.name),
                 "user": user.makeNode(in: nil),
-                "token": .string(token.string),
+                "token": .string(accessToken.string),
                 "expire": .number(.double(keychainConfig.resetPasswordTokenExpirationTime)),
                 "url": .string(appConfig.url)
             ]
