@@ -73,10 +73,10 @@ private extension UserController {
         var response = JSON()
 
         if responseOptions.contains(.access) {
-            try response.set("access_token", makeToken(for: user, expirationDate: 1.hour.fromNow).string)
+            try response.set("accessToken", makeToken(for: user, expirationDate: 1.hour.fromNow).string)
         }
         if responseOptions.contains(.refresh) {
-            try response.set("refresh_token", makeToken(for: user, expirationDate: 1.year.fromNow).string)
+            try response.set("refreshToken", makeToken(for: user, expirationDate: 1.year.fromNow).string)
         }
         if responseOptions.contains(.user) {
             try response.set("user", user)
