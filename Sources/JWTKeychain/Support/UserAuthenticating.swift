@@ -71,10 +71,11 @@ public class UserAuthenticator: UserAuthenticating {
             password = nil
         }
 
+        let email = data[User.Keys.email]?.string
         let name = data[User.Keys.name]?.string
 
         try user.update(
-            email: nil,
+            email: email.map(Valid.init),
             name: name.map(Valid.init),
             password: password.map(Valid.init).map(hasher.hash)
         )
