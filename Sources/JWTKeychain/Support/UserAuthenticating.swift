@@ -51,7 +51,7 @@ public class UserAuthenticator: UserAuthenticating {
     /// password change.
     /// - Parameters:
     ///   - request: request that optionally contains values for the keys "email", "name", and both "password" +
-    ///              "new_password" in case of a password change.
+    ///              "newPassword" in case of a password change.
     ///   - hasher: the hasher with which to hash the raw password value from the request
     /// - Throws: when the password does not match or the user could not be saved
     /// - Returns: the updated user
@@ -61,7 +61,7 @@ public class UserAuthenticator: UserAuthenticating {
 
         let password: String?
         if
-            let newPassword = data["new_password"]?.string,
+            let newPassword = data["newPassword"]?.string,
             let oldPassword = data[User.Keys.password]?.string,
             try hasher.check(oldPassword, matchesHash: user.password),
             newPassword != oldPassword {
