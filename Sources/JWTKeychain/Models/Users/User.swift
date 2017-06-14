@@ -1,10 +1,8 @@
 import Authentication
 import FluentProvider
-import protocol JWT.Storable
 import JWT
 import JWTProvider
 import SMTP
-import Sugar
 
 /// Defines basic user that can be authorized.
 public final class User: Model, HasEmail, Timestampable, SoftDeletable {
@@ -16,9 +14,9 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
 
     public let storage = Storage()
 
-    public var email: String
-    public var name: String?
-    public var password: String
+    public private(set) var email: String
+    public private(set) var name: String?
+    public private(set) var password: String
 
     /// Initializes the User with name, email and password (plain).
     ///
@@ -53,7 +51,7 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
         email: Valid<Email>?,
         name: Valid<Name>?,
         password: HashedPassword?
-    ) throws -> Self {
+    ) {
         if let email = email {
             self.email = email.value
         }
@@ -65,9 +63,6 @@ public final class User: Model, HasEmail, Timestampable, SoftDeletable {
         if let password = password {
             self.password = password.value
         }
-
-        try save()
-        return self
     }
 }
 
@@ -82,8 +77,8 @@ extension User {
     }
 }
 
-// MARK: - Vapor Model
-extension User {
+// MARK: - Preparation
+extension User: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) { user in
             user.id()
@@ -92,18 +87,11 @@ extension User {
             user.string(Keys.password)
         }
 
-        try database.index(table: "users", column: Keys.email, name: "users_email_index")
+        try database.index("email", for: User.self)
     }
 
     public static func revert(_ database: Database) throws {
         try database.delete(self)
-    }
-}
-
-// MARK: - JWT.Storable
-extension User: Storable {
-    public var node: Node {
-        return id?.makeNode(in: nil) ?? ""
     }
 }
 
@@ -113,7 +101,7 @@ extension User: PayloadAuthenticatable {
         let id: Identifier
 
         public init(json: JSON) throws {
-            id = Identifier(try json.get(User.name) as Node)
+            id = Identifier(try json.get(SubjectClaim.name) as Node)
         }
     }
 
@@ -125,17 +113,6 @@ extension User: PayloadAuthenticatable {
         }
 
         return user
-    }
-}
-
-extension User: TokenCreating {
-    public func createToken(using signer: Signer) throws -> Token {
-        let jwt = try JWT(
-            payload: JSON(self as Storable),
-            signer: signer
-        )
-        // TODO: should JWT include a version of createToken that returns a Token instead of a String?
-        return Token(string: try jwt.createToken())
     }
 }
 

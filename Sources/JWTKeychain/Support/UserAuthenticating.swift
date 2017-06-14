@@ -1,13 +1,14 @@
+import Authentication
 import Fluent
 import SMTP
 import Vapor
+import protocol JWT.Storable
 
 public protocol UserAuthenticating {
-    associatedtype U: EmailAddressRepresentable, JSONRepresentable, NodeRepresentable, TokenCreating
+    associatedtype U: Authenticatable, EmailAddressRepresentable, Entity, JSONRepresentable, NodeRepresentable
 
     func findByEmail(request: Request) throws -> U
-    func findById(request: Request) throws -> U
-    func logIn(request: Request) throws -> U
+    func logIn(request: Request, hasher: HashProtocol) throws -> U
     func logOut(request: Request) throws -> U
     func makeUser(request: Request, hasher: HashProtocol) throws -> U
     func update(request: Request, hasher: HashProtocol) throws -> U
@@ -15,6 +16,8 @@ public protocol UserAuthenticating {
 
 public class UserAuthenticator: UserAuthenticating {
     public typealias U = User
+
+    public init() {}
 
     /// Creates a new user from the values in the request. Hashes password using the hasher.
     /// - Parameters:
@@ -33,28 +36,32 @@ public class UserAuthenticator: UserAuthenticating {
 
         let name = data[User.Keys.name]?.string
 
-        return try User(
+        let user = try User(
             email: Valid(email),
             name: name.map(Valid.init),
             password: hasher.hash(Valid(password))
         )
+
+        try user.save()
+
+        return user
     }
 
     /// Updates an existing user with the values from the request. Hashes password using the hasher in case of a
     /// password change.
     /// - Parameters:
     ///   - request: request that optionally contains values for the keys "email", "name", and both "password" +
-    ///              "new_password" in case of a password change.
+    ///              "newPassword" in case of a password change.
     ///   - hasher: the hasher with which to hash the raw password value from the request
     /// - Throws: when the password does not match or the user could not be saved
     /// - Returns: the updated user
     public func update(request: Request, hasher: HashProtocol) throws -> U {
         let data = request.data
-        let user = try findById(request: request)
+        let user: U = try request.auth.assertAuthenticated()
 
         let password: String?
         if
-            let newPassword = data["new_password"]?.string,
+            let newPassword = data["newPassword"]?.string,
             let oldPassword = data[User.Keys.password]?.string,
             try hasher.check(oldPassword, matchesHash: user.password),
             newPassword != oldPassword {
@@ -64,40 +71,38 @@ public class UserAuthenticator: UserAuthenticating {
             password = nil
         }
 
-        let name = data[User.Keys.name]?.string
         let email = data[User.Keys.email]?.string
+        let name = data[User.Keys.name]?.string
 
-        return try user.update(
+        try user.update(
             email: email.map(Valid.init),
             name: name.map(Valid.init),
             password: password.map(Valid.init).map(hasher.hash)
         )
-    }
-}
 
-extension UserAuthenticating where U: Entity {
-    public func findById(request: Request) throws -> U {
-        let id: Identifier
-
-        do {
-            id = try request.data.get(U.idKey)
-        } catch {
-            throw Abort(.preconditionFailed, reason: "\"id\" is required")
-        }
-
-        guard let user = try U.find(id) else {
-            throw Abort.notFound
-        }
+        try user.save()
 
         return user
     }
 
-    public func logIn(request: Request) throws -> U {
-        return try findById(request: request)
+    public func logIn(request: Request, hasher: HashProtocol) throws -> U {
+        let user = try findByEmail(request: request)
+
+        guard
+            let password = request.data[User.Keys.password]?.string,
+            try hasher.check(password.makeBytes(), matchesHash: user.password.makeBytes()) else {
+                throw Abort.unauthorized
+        }
+        
+        return user
     }
 
     public func logOut(request: Request) throws -> U {
-        return try findById(request: request)
+        let user: U = try request.auth.assertAuthenticated()
+
+        try request.auth.unauthenticate()
+
+        return user
     }
 }
 
