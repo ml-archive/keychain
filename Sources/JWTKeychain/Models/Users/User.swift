@@ -5,7 +5,7 @@ import JWTProvider
 import SMTP
 
 /// Defines basic user that can be authorized.
-public final class User: Model, HasEmail, Timestampable, SoftDeletable {
+public final class User: Model, Timestampable, SoftDeletable {
     struct Keys {
         static let email = "email"
         static let name = "name"
@@ -114,6 +114,21 @@ extension User: PayloadAuthenticatable {
 
         return user
     }
+}
+
+// MARK: - PasswordAuthenticatable
+extension User: PasswordAuthenticatable {
+    // FIXME: this is confusing but fits the way PasswordAuthenticatable is set up
+    public static let usernameKey = Keys.email
+    public static let passwordKey = Keys.password
+
+    public var hashedPassword: String? {
+        return password
+    }
+
+    // TODO: make this configurable
+    public static let passwordHasher = BCryptHasher(cost: 10)
+    public static let passwordVerifier = User.passwordHasher
 }
 
 extension User: JSONRepresentable, NodeRepresentable {
