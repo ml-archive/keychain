@@ -5,30 +5,27 @@ import Vapor
 
 /// Controller for user api requests
 open class UserController<A: UserAuthenticating>: UserControllerType {
-    private let hasher: HashProtocol
     private let mailer: MailerType
-    fileprivate let signer: Signer
     private let userAuthenticator: A
+    fileprivate let signer: Signer
 
     required public init(
-        hasher: HashProtocol,
         mailer: MailerType,
         signer: Signer,
         userAuthenticator: A
     ) {
-        self.hasher = hasher
         self.mailer = mailer
         self.signer = signer
         self.userAuthenticator = userAuthenticator
     }
 
     open func register(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.makeUser(request: request, hasher: hasher)
+        let user = try userAuthenticator.make(request: request)
         return try makeResponse(user: user, responseOptions: .all)
     }
 
     open func logIn(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.logIn(request: request, hasher: hasher)
+        let user = try userAuthenticator.logIn(request: request)
         return try makeResponse(user: user, responseOptions: .all)
     }
 
@@ -49,7 +46,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
 
     open func resetPasswordEmail(request: Request) throws -> ResponseRepresentable {
         do {
-            let user = try userAuthenticator.findByEmail(request: request)
+            let user = try userAuthenticator.find(request: request)
             let accessToken = try makeToken(for: user, expirationDate: 1.hour.fromNow)
             try mailer.sendResetPasswordMail(user: user, accessToken: accessToken, subject: "Reset Password")
         } catch let error as AbortError where error.status == .notFound {
@@ -60,7 +57,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     }
 
     open func update(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.update(request: request, hasher: hasher)
+        let user = try userAuthenticator.update(request: request)
         return try makeResponse(user: user, responseOptions: .user)
     }
 }
