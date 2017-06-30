@@ -1,6 +1,8 @@
 # JWT Keychain
-[![Language](https://img.shields.io/badge/Swift-3-brightgreen.svg)](http://swift.org)
-[![Build Status](https://travis-ci.org/nodes-vapor/jwt-keychain.svg?branch=master)](https://travis-ci.org/nodes-vapor/jwt-keychain)
+[![Swift Version](https://img.shields.io/badge/Swift-3.1-brightgreen.svg)](http://swift.org)
+[![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
+[![Linux Build Status](https://img.shields.io/circleci/project/github/nodes-vapor/jwt-keychain.svg?label=Linux)](https://circleci.com/gh/nodes-vapor/jwt-keychain)
+[![macOS Build Status](https://img.shields.io/travis/nodes-vapor/jwt-keychain.svg?label=macOS)](https://travis-ci.org/nodes-vapor/jwt-keychain)
 [![codebeat badge](https://codebeat.co/badges/52c2f960-625c-4a63-ae63-52a24d747da1)](https://codebeat.co/projects/github-com-nodes-vapor-jwt-keychain)
 [![codecov](https://codecov.io/gh/nodes-vapor/jwt-keychain/branch/master/graph/badge.svg)](https://codecov.io/gh/nodes-vapor/jwt-keychain)
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/nodes-vapor/jwt-keychain)](http://clayallsopp.github.io/readme-score?url=https://github.com/nodes-vapor/jwt-keychain)
@@ -134,6 +136,7 @@ Most of the parameters have default values, so feel free to mix and match as nee
 
 
 ## Customization 
+
 `JWTKeychain` provides protocols for rolling out your own `User` models and controllers.
 
 ### The UserType protocol
@@ -190,6 +193,7 @@ public protocol UserControllerType {
 ## 🏆 Credits
 
 This package is developed and maintained by the Vapor team at [Nodes](https://www.nodesagency.com).
+The package owner for this project is [Siemen](https://github.com/siemensikkema/).
 
 
 ## 📄 License
