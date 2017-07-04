@@ -7,7 +7,6 @@ import XCTest
 @testable import JWTKeychain
 
 final class UserControllerTests: XCTestCase {
-    var hasher: TestHasher!
     var mailer: TestMailer!
     var signer: TestSigner!
     var user: TestUser!
@@ -19,14 +18,13 @@ final class UserControllerTests: XCTestCase {
     }
 
     override func setUp() {
-        hasher = TestHasher()
         mailer = TestMailer()
         signer = TestSigner()
         user = TestUser(email: "a@b.com", token: Token(string: "token"))
         userAuthenticator = TestUserAuthenticator(user: user)
         userController = UserController(
-            hasher: hasher,
             mailer: mailer,
+            now: { Date.init(timeIntervalSince1970: 0) },
             signer: signer,
             userAuthenticator: userAuthenticator
         )
@@ -35,9 +33,9 @@ final class UserControllerTests: XCTestCase {
     func testRegister() throws {
         try checkUserControllerAction(
             userController.register,
-            expectedAction: "makeUser(request:hasher:)",
+            expectedAction: "make(request:)",
             expectedJSONValues: [
-                "token": "token.signed",
+                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjMxNTM2MDAwLCJzdWIiOiIxIn0.dGVzdFNpZ25hdHVyZQ",
                 "user": user
             ]
         )
@@ -48,7 +46,7 @@ final class UserControllerTests: XCTestCase {
             userController.logIn,
             expectedAction: "logIn(request:)",
             expectedJSONValues: [
-                "token": "token.signed",
+                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjMxNTM2MDAwLCJzdWIiOiIxIn0.dGVzdFNpZ25hdHVyZQ",
                 "user": user
             ]
         )
@@ -58,41 +56,33 @@ final class UserControllerTests: XCTestCase {
         try checkUserControllerAction(
             userController.logOut,
             expectedAction: "logOut(request:)",
-            expectedJSONValues: ["success": true]
+            expectedJSONValues: ["status": "ok"]
         )
     }
 
     func testRegenerate() throws {
-        try checkUserControllerAction(
-            userController.regenerate,
-            expectedAction: "findById(request:)",
-            expectedJSONValues: ["token": "token.signed"]
-        )
+        XCTFail("unimplemented")
     }
 
     func testMe() throws {
-        try checkUserControllerAction(
-            userController.me,
-            expectedAction: "findById(request:)",
-            expectedJSONValues: ["user": user]
-        )
+        XCTFail("unimplemented")
     }
 
     func testResetPasswordEmail() throws {
         try checkUserControllerAction(
             userController.resetPasswordEmail,
-            expectedAction: "findByEmail(request:)",
-            expectedJSONValues: ["success": "Instructions were sent to the provided email"]
+            expectedAction: "find(request:)",
+            expectedJSONValues: ["status": "Instructions were sent to the provided email"]
         )
         XCTAssertEqual(mailer.subject, "Reset Password")
-        XCTAssertEqual(mailer.token?.string, "token.signed")
+        XCTAssertEqual(mailer.accessToken?.string, "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ")
         XCTAssertEqual(mailer.user as? TestUser, user)
     }
 
     func testUpdate() throws {
         try checkUserControllerAction(
             userController.update,
-            expectedAction: "update(request:hasher:)",
+            expectedAction: "update(request:)",
             expectedJSONValues: ["user": user]
         )
     }
@@ -116,7 +106,7 @@ extension UserControllerTests {
         file: StaticString = #file,
         line: UInt = #line
     ) throws {
-        let response = try handleRequest(.makeTest(method: .get)).makeResponse()
+        let response =  try handleRequest(.makeTest(method: .get)).makeResponse()
 
         if let action = expectedAction {
             XCTAssertEqual(userAuthenticator.action, action, file: file, line: line)

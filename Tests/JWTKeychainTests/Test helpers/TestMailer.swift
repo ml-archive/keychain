@@ -3,16 +3,16 @@ import Authentication
 
 class TestMailer: MailerType {
     var user: MailerUserType?
-    var token: Token?
+    var accessToken: Token?
     var subject: String?
 
     func sendResetPasswordMail<T>(
         user: T,
-        token: Token,
+        accessToken: Token,
         subject: String
         ) throws where T: MailerUserType {
         self.user = user
-        self.token = token
+        self.accessToken = accessToken
         self.subject = subject
     }
 }

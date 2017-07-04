@@ -7,14 +7,17 @@ import Vapor
 open class UserController<A: UserAuthenticating>: UserControllerType {
     private let mailer: MailerType
     private let userAuthenticator: A
+    fileprivate let now: () -> Date
     fileprivate let signer: Signer
 
     required public init(
         mailer: MailerType,
+        now: @escaping () -> Date = Date.init,
         signer: Signer,
         userAuthenticator: A
     ) {
         self.mailer = mailer
+        self.now = now
         self.signer = signer
         self.userAuthenticator = userAuthenticator
     }
@@ -31,7 +34,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
 
     open func logOut(request: Request) throws -> ResponseRepresentable {
         _ = try userAuthenticator.logOut(request: request)
-        return status("success")
+        return status("ok")
     }
 
     open func regenerate(request: Request) throws -> ResponseRepresentable {
@@ -47,7 +50,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     open func resetPasswordEmail(request: Request) throws -> ResponseRepresentable {
         do {
             let user = try userAuthenticator.find(request: request)
-            let accessToken = try makeToken(for: user, expirationDate: 1.hour.fromNow)
+            let accessToken = try makeToken(for: user, expirationDate: 1.hour.from(now()))
             try mailer.sendResetPasswordMail(user: user, accessToken: accessToken, subject: "Reset Password")
         } catch let error as AbortError where error.status == .notFound {
             // ignore "notFound" errors and pretend the operation succeeded for security reasons
@@ -70,10 +73,10 @@ private extension UserController {
         var response = JSON()
 
         if responseOptions.contains(.access) {
-            try response.set("accessToken", makeToken(for: user, expirationDate: 1.hour.fromNow).string)
+            try response.set("accessToken", makeToken(for: user, expirationDate: 1.hour.from(now())).string)
         }
         if responseOptions.contains(.refresh) {
-            try response.set("refreshToken", makeToken(for: user, expirationDate: 1.year.fromNow).string)
+            try response.set("refreshToken", makeToken(for: user, expirationDate: 1.year.from(now())).string)
         }
         if responseOptions.contains(.user) {
             try response.set("user", user)

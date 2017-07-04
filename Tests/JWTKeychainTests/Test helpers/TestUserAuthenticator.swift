@@ -16,11 +16,7 @@ class TestUserAuthenticator: UserAuthenticating {
         return user
     }
 
-    func findByEmail(request: Request) throws -> U {
-        return handleAction()
-    }
-
-    func findById(request: Request) throws -> U {
+    func find(request: Request) throws -> U {
         return handleAction()
     }
 
@@ -32,11 +28,11 @@ class TestUserAuthenticator: UserAuthenticating {
         return handleAction()
     }
 
-    func makeUser(request: Request, hasher: HashProtocol) throws -> U {
+    func make(request: Request) throws -> U {
         return handleAction()
     }
 
-    func update(request: Request, hasher: HashProtocol) throws -> U {
+    func update(request: Request) throws -> U {
         return handleAction()
     }
 }
