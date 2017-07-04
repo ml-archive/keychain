@@ -7,20 +7,17 @@ public class Mailer: MailerType {
     private let appConfig: AppConfig
     private let keychainConfig: KeychainConfig
     private let mailConfig: MailConfig
-    private let resetPasswordEmailViewPath: String
     private let viewRenderer: ViewRenderer
 
     required public init(
         appConfig: AppConfig,
         keychainConfig: KeychainConfig,
         mailConfig: MailConfig,
-        resetPasswordEmailViewPath: String,
         viewRenderer: ViewRenderer
     ) {
         self.appConfig = appConfig
         self.mailConfig = mailConfig
         self.keychainConfig = keychainConfig
-        self.resetPasswordEmailViewPath = resetPasswordEmailViewPath
         self.viewRenderer = viewRenderer
     }
 
@@ -33,7 +30,7 @@ public class Mailer: MailerType {
         let from = EmailAddress(name: mailConfig.name, address: mailConfig.fromEmail)
 
         // Generate HTML
-        let html = try viewRenderer.make(resetPasswordEmailViewPath,
+        let html = try viewRenderer.make(keychainConfig.resetPasswordEmailViewPath,
             [
                 "name": .string(appConfig.name),
                 "user": user.makeNode(in: nil),

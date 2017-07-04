@@ -1,6 +1,6 @@
 import Vapor
 
-public struct MailConfig {
+public struct MailConfig: ConfigInitializable {
     internal let user: String
     internal let password: String
     internal let fromEmail: String
@@ -9,7 +9,7 @@ public struct MailConfig {
     internal let smtpPort: Int
     internal let smtpScheme: String
 
-    public init(_ config: Config) throws {
+    public init(config: Config) throws {
         user = try config.get("user")
         password = try config.get("password")
         fromEmail = try config.get("fromEmail")
