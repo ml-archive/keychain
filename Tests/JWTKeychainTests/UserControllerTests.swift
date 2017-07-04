@@ -61,11 +61,23 @@ final class UserControllerTests: XCTestCase {
     }
 
     func testRegenerate() throws {
-        XCTFail("unimplemented")
+        try checkUserControllerAction(
+            { request in
+                request.auth.authenticate(user)
+                return try userController.regenerate(request: request)
+            },
+            expectedJSONValues: ["accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ"]
+        )
     }
 
     func testMe() throws {
-        XCTFail("unimplemented")
+        try checkUserControllerAction(
+            { request in
+                request.auth.authenticate(user)
+                return try userController.me(request: request)
+            },
+            expectedJSONValues: ["user": user]
+        )
     }
 
     func testResetPasswordEmail() throws {
