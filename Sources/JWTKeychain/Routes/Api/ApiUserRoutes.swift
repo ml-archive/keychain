@@ -17,7 +17,6 @@ public struct ApiUserRoutes: RouteCollection {
     /// - Parameters:
     ///   - authMiddleware: authentication middleware.
     ///   - userController: controller for handling user routes.
-    /// - Throws: if configuration cannot be created.
     public init(
         apiAccessMiddleware: Middleware,
         refreshMiddleware: Middleware,

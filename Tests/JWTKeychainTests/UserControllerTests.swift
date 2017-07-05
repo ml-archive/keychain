@@ -24,6 +24,7 @@ final class UserControllerTests: XCTestCase {
         userAuthenticator = TestUserAuthenticator(user: user)
         userController = UserController(
             mailer: mailer,
+            // use the same reference date to produce reliable test output
             now: { Date.init(timeIntervalSince1970: 0) },
             signer: signer,
             userAuthenticator: userAuthenticator

@@ -21,7 +21,6 @@ public class Mailer: MailerType {
         self.viewRenderer = viewRenderer
     }
 
-    /// - Throws: if essential configs are not present
     public func sendResetPasswordMail<T: MailerUserType>(
         user: T,
         accessToken: Token,
