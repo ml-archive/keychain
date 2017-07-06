@@ -25,7 +25,7 @@ public final class User: Model, Timestampable, SoftDeletable {
     ///   - email: email of the user
     ///   - password: password of the user (plain)
     public init(
-        email: Valid<Email>,
+        email: Valid<UniqueEmail>,
         name: Valid<Name>?,
         password: HashedPassword
     ) {
@@ -48,7 +48,7 @@ public final class User: Model, Timestampable, SoftDeletable {
     ///   - email: email of the user
     ///   - password: password of the user
     func update(
-        email: Valid<Email>?,
+        email: Valid<UniqueEmail>?,
         name: Valid<Name>?,
         password: HashedPassword?
     ) {

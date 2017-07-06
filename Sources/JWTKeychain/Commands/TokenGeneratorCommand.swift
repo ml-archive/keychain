@@ -42,16 +42,8 @@ public final class TokenGeneratorCommand: Command {
     }
 }
 
-extension TokenGeneratorCommand: ConfigInitializable {
-    public convenience init(config: Config) throws {
-        guard let jwtProvider = config.providers.first(where: {
-            $0 is JWTProvider.Provider
-        }) as? JWTProvider.Provider else {
-            throw TokenGeneratorError.missingJWTProvider
-        }
-
-        let console = try config.resolveConsole()
-        let signer = jwtProvider.signer
-        self.init(console: console, signer: signer)
+extension TokenGeneratorCommand {
+    public convenience init(drop: Droplet) throws {
+        try self.init(console: drop.console, signer: drop.assertSigner())
     }
 }
