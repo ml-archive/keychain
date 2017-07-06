@@ -36,6 +36,7 @@ final class UserControllerTests: XCTestCase {
             userController.register,
             expectedAction: "make(request:)",
             expectedJSONValues: [
+                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
                 "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjMxNTM2MDAwLCJzdWIiOiIxIn0.dGVzdFNpZ25hdHVyZQ",
                 "user": user
             ]
@@ -47,6 +48,7 @@ final class UserControllerTests: XCTestCase {
             userController.logIn,
             expectedAction: "logIn(request:)",
             expectedJSONValues: [
+                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
                 "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjMxNTM2MDAwLCJzdWIiOiIxIn0.dGVzdFNpZ25hdHVyZQ",
                 "user": user
             ]
