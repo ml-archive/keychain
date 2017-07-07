@@ -42,8 +42,8 @@ public final class TokenGeneratorCommand: Command {
     }
 }
 
-extension TokenGeneratorCommand {
-    public convenience init(drop: Droplet) throws {
-        try self.init(console: drop.console, signer: drop.assertSigner())
+extension TokenGeneratorCommand: ConfigInitializable {
+    public convenience init(config: Config) throws {
+        try self.init(console: config.resolveConsole(), signer: config.assertSigner())
     }
 }
