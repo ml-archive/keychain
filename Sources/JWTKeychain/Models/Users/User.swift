@@ -83,7 +83,7 @@ extension User: Preparation {
         try database.create(self) { user in
             user.id()
             user.string(Keys.email)
-            user.string(Keys.name)
+            user.string(Keys.name, optional: true)
             user.string(Keys.password)
         }
 
