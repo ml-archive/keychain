@@ -118,7 +118,6 @@ extension User: PayloadAuthenticatable {
 
 // MARK: - PasswordAuthenticatable
 extension User: PasswordAuthenticatable {
-    // FIXME: this is confusing but fits the way PasswordAuthenticatable is set up
     public static let usernameKey = Keys.email
     public static let passwordKey = Keys.password
 
@@ -128,7 +127,7 @@ extension User: PasswordAuthenticatable {
 
     // TODO: make this configurable
     public static let passwordHasher = BCryptHasher(cost: 10)
-    public static let passwordVerifier = User.passwordHasher
+    public static let passwordVerifier: PasswordVerifier? = User.passwordHasher
 }
 
 extension User: JSONRepresentable, NodeRepresentable {

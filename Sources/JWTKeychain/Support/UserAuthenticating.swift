@@ -36,7 +36,8 @@ extension UserAuthenticating {
     }
 
     public func logIn(request: Request) throws -> U {
-        return try U.authenticate(credentials(from: request))
+        let credentials = try getCredentials(from: request)
+        return try U.authenticate(credentials)
     }
 
     public func logOut(request: Request) throws -> U {
@@ -47,7 +48,7 @@ extension UserAuthenticating {
         return user
     }
 
-    fileprivate func credentials(from request: Request) throws -> Authentication.Password {
+    fileprivate func getCredentials(from request: Request) throws -> Authentication.Password {
         let data = request.data
 
         guard
@@ -71,7 +72,7 @@ public class UserAuthenticator: UserAuthenticating {
     /// - Throws: Abort error when email and/or password are missing or a ValidationError if any of the input is invalid
     /// - Returns: the new user
     public func make(request: Request) throws -> U {
-        let creds = try credentials(from: request)
+        let creds = try getCredentials(from: request)
 
         let name = request.data[U.Keys.name]?.string
 
@@ -101,7 +102,8 @@ public class UserAuthenticator: UserAuthenticating {
             let newPassword = data["newPassword"]?.string,
             let oldPassword = data[U.passwordKey]?.string,
             let hashedPassword = user.hashedPassword,
-            try U.passwordVerifier.verify(password: oldPassword, matches: hashedPassword),
+            let verified = try U.passwordVerifier?.verify(password: oldPassword, matches: hashedPassword),
+            verified,
             newPassword != oldPassword {
 
             password = newPassword
