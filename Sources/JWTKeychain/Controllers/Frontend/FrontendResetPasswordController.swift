@@ -21,17 +21,18 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
         self.viewRenderer = viewRenderer
     }
 
-    open func resetPasswordForm(request: Request, token: String) throws -> View {
+    open func resetPasswordForm(request: Request) throws -> View {
         do {
+            let token = try request.parameters.next(String.self)
             _ = try verifiedJWT(from: token)
+
+            return try viewRenderer.make("ResetPassword/user-form", [
+                "token": token,
+                "resetPasswordFields": ResetPasswordForm(content: request.data)
+                ], for: request)
         } catch {
             throw Abort(.badRequest, metadata: "The provided token is not valid. Try again with a valid token.")
         }
-
-        return try viewRenderer.make("ResetPassword/user-form", [
-            "token": token,
-            "resetPasswordFields": ResetPasswordForm(content: request.data)
-        ], for: request)
     }
 
     private func verifiedJWT(from token: String) throws -> JWT {

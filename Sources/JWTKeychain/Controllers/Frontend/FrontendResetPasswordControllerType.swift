@@ -8,7 +8,7 @@ public protocol FrontendResetPasswordControllerType {
     ///
     /// - Parameter request: current request
     /// - Returns: view
-    func resetPasswordForm(request: Request, token: String) throws -> View
+    func resetPasswordForm(request: Request) throws -> View
 
     /// Validates the reset request and actually changes the password
     ///

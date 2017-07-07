@@ -30,6 +30,7 @@ public struct ApiUserRoutes: RouteCollection {
     public func build(
         _ builder: RouteBuilder
     ) throws {
+        
         // Get the base path group
         let path = builder.grouped("users")
         
