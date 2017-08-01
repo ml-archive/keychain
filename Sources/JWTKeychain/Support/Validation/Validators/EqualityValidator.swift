@@ -5,20 +5,22 @@ public class PasswordConfirmationValidator: Validator {
     public init() {}
 
     public func validate(_ input: PasswordConfirmation) throws {
-        guard let passwordConfirmation = input.passwordConfirmation else {
-            throw error("Password confirmation cannot be empty.")
-        }
-        guard input.password == passwordConfirmation else {
+        guard input.password == input.passwordConfirmation else {
             throw error("Passwords do not match.")
         }
     }
 }
 
 public struct PasswordConfirmation: Validatable {
-    let password: String?
-    let passwordConfirmation: String?
+    let password: String
+    let passwordConfirmation: String
 
-    init(password: String?, passwordConfirmation: String?) {
+    init?(password: String?, passwordConfirmation: String?) {
+        guard
+            let password = password,
+            let passwordConfirmation = passwordConfirmation else {
+                return nil
+        }
         self.password = password
         self.passwordConfirmation = passwordConfirmation
     }
@@ -26,6 +28,6 @@ public struct PasswordConfirmation: Validatable {
 
 extension PasswordConfirmation: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
-        return passwordConfirmation.map { Node.string($0) } ?? .null
+        return .string(passwordConfirmation)
     }
 }

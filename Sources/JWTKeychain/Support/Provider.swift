@@ -14,10 +14,19 @@ public final class Provider: Vapor.Provider {
     public func boot(_ config: Config) throws {}
 
     public func boot(_ drop: Droplet) throws {
-        let stem = try drop.assertStem()
+        if let stem = drop.stem {
+            stem.register(ErrorListTag())
+            stem.register(ValueForFieldTag())
+        }
 
-        stem.register(ErrorListTag())
-        stem.register(ValueForFieldTag())
+        let frontendController = try FrontendResetPasswordController(
+            signer: drop.assertSigner(),
+            viewRenderer: drop.view
+        )
+        let frontendRoutes = FrontendResetPasswordRoutes(
+            resetPasswordController: frontendController
+        )
+        try drop.collection(frontendRoutes)
     }
 
     public func beforeRun(_ drop: Droplet) throws {}

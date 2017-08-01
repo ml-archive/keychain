@@ -8,7 +8,7 @@ import Vapor
 public struct FrontendResetPasswordRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
-    private let controller: FrontendResetPasswordControllerType!
+    private let controller: FrontendResetPasswordControllerType
 
     /// Initializes the user route collection.
     ///

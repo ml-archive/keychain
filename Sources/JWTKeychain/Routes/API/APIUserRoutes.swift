@@ -21,7 +21,7 @@ public struct APIUserRoutes: RouteCollection {
     ///   - userController: controller for handling user routes.
     public init(
         apiAccessMiddleware: Middleware,
-        refreshMiddleware: Middleware?,
+        refreshMiddleware: Middleware? = nil,
         userController: UserControllerType
     ) {
         self.apiAccessMiddleware = apiAccessMiddleware
