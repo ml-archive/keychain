@@ -1,5 +1,6 @@
 import Authentication
 import Flash
+import Forms
 import Foundation
 import HTTP
 import JWT
@@ -22,97 +23,102 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
     }
 
     open func resetPasswordForm(request: Request) throws -> View {
+        let token = try request.parameters.next(String.self)
+
         do {
-            let token = try request.parameters.next(String.self)
             _ = try verifiedJWT(from: token)
-
-            return try viewRenderer.make("ResetPassword/user-form", [
-                "token": token,
-                "resetPasswordFields": ResetPasswordForm(content: request.data)
-                ], for: request)
         } catch {
-            throw Abort(.badRequest, metadata: "The provided token is not valid. Try again with a valid token.")
+            throw Abort(
+                .badRequest,
+                metadata: "The provided token is not valid."
+            )
         }
-    }
 
-    private func verifiedJWT(from token: String) throws -> JWT {
-        let jwt = try JWT(token: token)
+        let fieldSet = try request.fieldSet ??
+            ResetPasswordForm(makeAllFieldsOptional: true).makeFieldSet()
 
-        try jwt.verifySignature(using: signer)
-        try jwt.verifyClaims(claims)
-
-        return jwt
+        return try viewRenderer.make(
+            "ResetPassword/user-form",
+            [
+                "token": .string(token),
+                Node.fieldSetViewDataKey: fieldSet
+            ],
+            for: request)
     }
 
     open func resetPasswordChange(request: Request) throws -> Response {
+        let token = try request.parameters.next(String.self)
 
-        func reload(withMessage message: String) -> Response {
-            return Response(redirect: request.uri.path)
-                .flash(.error, message)
+        // determine path to reset password form relative to current path
+        let formPath = request.uri
+            .deletingLastPathComponent()
+            .appendingPathComponent("form")
+            .appendingPathComponent(token)
+            .path
+
+        // extract values from the request
+        let form: ResetPasswordForm = try request.createForm()
+
+        // prepare common response
+        let redirectToForm = try Response(redirect: formPath)
+            .setFieldSet(form.makeFieldSet())
+
+        // ensure form values are valid
+        guard let password = form.password.value, form.isValid else {
+            return redirectToForm
+                .flash(.error, "Please correct the highlighted fields below.")
+        }
+
+        // verify JWT
+        let jwt: JWT
+
+        do {
+            jwt = try verifiedJWT(from: token)
+        } catch {
+            return redirectToForm.flash(.error, "Invalid token")
+        }
+
+        // load user that the token was made for
+        let user: User
+
+        do {
+            let payload = try User.PayloadType(json: jwt.payload)
+            user = try User.authenticate(payload)
+        } catch {
+            return redirectToForm.flash(.error, "User not found.")
+        }
+
+        // check that the user knows the right email address
+        guard form.email.value == user.email else {
+            return redirectToForm.flash(.error, "Emails do not match.")
         }
 
         do {
-            guard let token = request.data["token"]?.string else {
-                return reload(withMessage: "Token is invalid")
-            }
-
-
-
-
-//            let user = try getUser(from: token)
-
-//            // Validate token
-//            do {
-//                try self.configuration.validateToken(token: decodedToken)
-//            } catch Configuration.Error.invalidClaims {
-//                return Response(redirect: currentPath)
-//                    .flash(.error, "Token is invalid")
-//            }
-//
-//            let jwt = try JWT(token: decodedToken)
-//
-//            guard
-//                let userId = jwt.payload["user"]?.object?["id"]?.int,
-//                let userPasswordHash = jwt.payload["user"]?.object?["password"]?.string,
-//                var user = try User.query().filter("id", userId).first() else {
-//                    return Response(redirect: currentPath)
-//                        .flash(.error, "Token is invalid")
-//            }
-
-//            if user.email != requestData.email {
-//                return Response(redirect: currentPath)
-//                    .flash(.error, "Email did not match")
-//            }
-//
-//            if user.password != userPasswordHash {
-//                return Response(redirect: currentPath)
-//                    .flash(.error, "Password already changed. Cannot use the same token again.")
-//            }
-//
-//            if requestData.password != requestData.passwordConfirmation {
-//                return Response(redirect: currentPath)
-//                    .flash(.error, "Password and password confirmation don't match")
-//            }
-//
-//            user.password = try Hash.make(message: password).makeString()
-//            try user.save()
-//
-//            return Response(redirect: currentPath)
-//                .flash(.success, "Password changed. You can close this page now.")
-//
-//
-//        } catch FormError.validationFailed(let fieldset) {
-//
-//            return Response(redirect: resetPasswordBaseUrl + (request.data["token"]?.string ?? "invalid"))
-//                .flash(.error, "Validation error(s)")
-//                .withFieldset(fieldset)
-//
+            let passwordClaim = try PasswordClaim(user: user)
+            try jwt.verifyClaims([passwordClaim])
         } catch {
-//
-//            return Response(redirect: "/reset-password/form/" + (request.data["token"]?.string ?? "invalid"))
-//                .flash(.error, "Something went wrong")
+            return redirectToForm.flash(.error, "Password already changed." +
+                " Request another password reset to change it again."
+            )
         }
 
-        return Response(redirect: "")
+        try user.update(password: User.passwordHasher.hash(Valid(password)))
+
+        return redirectToForm
+            .flash(.success, "Password changed. You can close this page now.")
+    }
+}
+
+// MARK: Helper
+
+extension FrontendResetPasswordController {
+    fileprivate func verifiedJWT(from token: String) throws -> JWT {
+        let jwt = try JWT(token: token)
+
+        // TODO: reenable
+        //        try jwt.verifyClaims(claims)
+        //        try jwt.verifySignature(using: signer)
+
+        return jwt
     }
 }

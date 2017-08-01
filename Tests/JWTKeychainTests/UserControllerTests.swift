@@ -20,7 +20,11 @@ final class UserControllerTests: XCTestCase {
     override func setUp() {
         mailer = TestMailer()
         signer = TestSigner()
-        user = TestUser(email: "a@b.com", token: Token(string: "token"))
+        user = TestUser(
+            email: "a@b.com",
+            hashedPassword: "hashedpassword",
+            token: Token(string: "token")
+        )
         userAuthenticator = TestUserAuthenticator(user: user)
         userController = UserController(
             mailer: mailer,
@@ -36,8 +40,8 @@ final class UserControllerTests: XCTestCase {
             userController.register,
             expectedAction: "make(request:)",
             expectedJSONValues: [
-                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
-                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjMxNTM2MDAwLCJzdWIiOiIxIn0.dGVzdFNpZ25hdHVyZQ",
+                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ",
+                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzE1MzYwMDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
                 "user": user
             ]
         )
@@ -48,8 +52,8 @@ final class UserControllerTests: XCTestCase {
             userController.logIn,
             expectedAction: "logIn(request:)",
             expectedJSONValues: [
-                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
-                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjMxNTM2MDAwLCJzdWIiOiIxIn0.dGVzdFNpZ25hdHVyZQ",
+                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ",
+                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzE1MzYwMDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
                 "user": user
             ]
         )
@@ -69,7 +73,7 @@ final class UserControllerTests: XCTestCase {
                 request.auth.authenticate(user)
                 return try userController.regenerate(request: request)
             },
-            expectedJSONValues: ["accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ"]
+            expectedJSONValues: ["accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ"]
         )
     }
 
@@ -90,7 +94,7 @@ final class UserControllerTests: XCTestCase {
             expectedJSONValues: ["status": "Instructions were sent to the provided email"]
         )
         XCTAssertEqual(mailer.subject, "Reset Password")
-        XCTAssertEqual(mailer.accessToken?.string, "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJleHAiOjM2MDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ")
+        XCTAssertEqual(mailer.accessToken?.string, "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ")
         XCTAssertEqual(mailer.user as? TestUser, user)
     }
 
@@ -121,7 +125,7 @@ extension UserControllerTests {
         file: StaticString = #file,
         line: UInt = #line
     ) throws {
-        let response =  try handleRequest(.makeTest(method: .get)).makeResponse()
+        let response = try handleRequest(.makeTest(method: .get)).makeResponse()
 
         if let action = expectedAction {
             XCTAssertEqual(userAuthenticator.action, action, file: file, line: line)

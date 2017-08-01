@@ -4,6 +4,7 @@ import JWT
 import JWTProvider
 import SMTP
 
+// TODO: make this open?
 /// Defines basic user that can be authorized.
 public final class User: Model, Timestampable, SoftDeletable {
     struct Keys {
@@ -48,9 +49,9 @@ public final class User: Model, Timestampable, SoftDeletable {
     ///   - email: email of the user
     ///   - password: password of the user
     func update(
-        email: Valid<UniqueEmail>?,
-        name: Valid<Name>?,
-        password: HashedPassword?
+        email: Valid<UniqueEmail>? = nil,
+        name: Valid<Name>? = nil,
+        password: HashedPassword? = nil
     ) {
         if let email = email {
             self.email = email.value
@@ -66,7 +67,7 @@ public final class User: Model, Timestampable, SoftDeletable {
     }
 }
 
-// MARK: - RowRepresentable
+// MARK: RowRepresentable
 extension User {
     public func makeRow() throws -> Row {
         var row = Row()
@@ -77,7 +78,8 @@ extension User {
     }
 }
 
-// MARK: - Preparation
+// MARK: Preparation
+
 extension User: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) { user in
@@ -95,7 +97,8 @@ extension User: Preparation {
     }
 }
 
-// MARK: - PayloadAuthenticatable
+// MARK: PayloadAuthenticatable
+
 extension User: PayloadAuthenticatable {
     public struct UserIdentifier: JSONInitializable {
         let id: Identifier
@@ -116,7 +119,8 @@ extension User: PayloadAuthenticatable {
     }
 }
 
-// MARK: - PasswordAuthenticatable
+// MARK: PasswordAuthenticatable
+
 extension User: PasswordAuthenticatable {
     public static let usernameKey = Keys.email
     public static let passwordKey = Keys.password
@@ -130,7 +134,9 @@ extension User: PasswordAuthenticatable {
     public static let passwordVerifier: PasswordVerifier? = User.passwordHasher
 }
 
-extension User: JSONRepresentable, NodeRepresentable {
+// MARK: JSONRepresentable
+
+extension User: JSONRepresentable {
     public func makeJSON() throws -> JSON {
         var json = JSON()
 
@@ -141,6 +147,12 @@ extension User: JSONRepresentable, NodeRepresentable {
         return json
     }
 }
+
+// MARK: NodeRepresentable
+
+extension User: NodeRepresentable {}
+
+// MARK: EmailAddressRepresentable
 
 extension User: EmailAddressRepresentable {
     public var emailAddress: EmailAddress {

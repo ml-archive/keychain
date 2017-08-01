@@ -5,21 +5,23 @@ import Routing
 import Vapor
 
 /// Defines basic user authorization routes.
-public struct ApiUserRoutes: RouteCollection {
+public struct APIUserRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
     private let apiAccessMiddleware: Middleware
-    private let refreshMiddleware: Middleware
+    private let refreshMiddleware: Middleware?
     private let controller: UserControllerType
 
     /// Initializes the user route collection.
     ///
     /// - Parameters:
-    ///   - authMiddleware: authentication middleware.
+    ///   - apiAccessMiddleware: authentication middleware for API access.
+    ///   - refreshMiddleware: authentication middleware for refresh token
+    ///     endpoint.
     ///   - userController: controller for handling user routes.
     public init(
         apiAccessMiddleware: Middleware,
-        refreshMiddleware: Middleware,
+        refreshMiddleware: Middleware?,
         userController: UserControllerType
     ) {
         self.apiAccessMiddleware = apiAccessMiddleware
@@ -37,7 +39,11 @@ public struct ApiUserRoutes: RouteCollection {
         // Auth routes
         path.post(handler: controller.register)
         path.post("login", handler: controller.logIn)
-        path.post("reset-password", "request", handler: controller.resetPasswordEmail)
+        path.post(
+            "reset-password",
+            "request",
+            handler: controller.resetPasswordEmail
+        )
 
         // Protected routes
         path.group(apiAccessMiddleware) { apiAccess in
@@ -47,8 +53,14 @@ public struct ApiUserRoutes: RouteCollection {
         }
 
         // Refresh access token
-        path.group(refreshMiddleware) { refresh in
-            refresh.patch("token", "regenerate", handler: controller.regenerate)
+        if let refreshMiddleware = refreshMiddleware {
+            path.group(refreshMiddleware) { refresh in
+                refresh.patch(
+                    "token",
+                    "regenerate",
+                    handler: controller.regenerate
+                )
+            }
         }
     }
 }

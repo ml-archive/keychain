@@ -4,6 +4,10 @@ import JWT
 import JWTProvider
 import Vapor
 
+/// Generates a token for a user with a given email that can be used to reset
+/// their password.
+///
+/// - usage: `vapor run --generateToken [email]`
 public final class TokenGeneratorCommand: Command {
     enum TokenGeneratorError: Error {
         case missingEmail
@@ -11,16 +15,26 @@ public final class TokenGeneratorCommand: Command {
         case userNotFound
     }
 
-    public let id = "generator:token"
+    public let id = "generateToken"
     public let help: [String] = [
         "Generates a JWT token by passing in the user's email."
     ]
     public let console: ConsoleProtocol
     public let signer: Signer
-
-    public init(console: ConsoleProtocol, signer: Signer) {
+    private let now: () -> Date
+    
+    internal init(
+        console: ConsoleProtocol,
+        signer: Signer,
+        now: @escaping () -> Date
+    ) {
         self.console = console
         self.signer = signer
+        self.now = now
+    }
+
+    convenience public init(console: ConsoleProtocol, signer: Signer) {
+        self.init(console: console, signer: signer, now: Date.init)
     }
 
     public func run(arguments: [String]) throws {
@@ -30,17 +44,27 @@ public final class TokenGeneratorCommand: Command {
             throw TokenGeneratorError.missingEmail
         }
 
-        guard let user = try User.makeQuery().filter("email", email).first() else {
-            throw TokenGeneratorError.userNotFound
+        guard let user = try User
+            .makeQuery()
+            .filter("email", email)
+            .first() else {
+                throw TokenGeneratorError.userNotFound
         }
 
-        let token = try Token(user: user, expirationDate: 1.hour.fromNow, signer: signer)
+        let token = try Token(
+            user: user,
+            expirationDate: 1.hour.from(now())!,
+            signer: signer
+        )
+        
         console.info("Token generated for user with email \(user.email):")
         console.print(token.string)
 
         console.success("Finished the token generator script")
     }
 }
+
+// MARK: ConfigInitializable
 
 extension TokenGeneratorCommand: ConfigInitializable {
     public convenience init(config: Config) throws {

@@ -1,9 +1,10 @@
 import Authentication
+import Foundation
 import JWT
 import Punctual
 import Vapor
 
-/// Controller for user api requests
+/// Controller for user API requests
 open class UserController<A: UserAuthenticating>: UserControllerType {
     private let mailer: MailerType
     private let userAuthenticator: A
@@ -47,13 +48,19 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
         return try makeResponse(user: user, responseOptions: .user)
     }
 
-    open func resetPasswordEmail(request: Request) throws -> ResponseRepresentable {
+    open func resetPasswordEmail(
+        request: Request
+    ) throws -> ResponseRepresentable {
         do {
             let user = try userAuthenticator.find(request: request)
-            let accessToken = try makeToken(for: user, expirationDate: 1.hour.from(now()))
-            try mailer.sendResetPasswordMail(user: user, accessToken: accessToken, subject: "Reset Password")
+            let accessToken = try makeToken(for: user, expireIn: 1.hour)
+            try mailer.sendResetPasswordMail(
+                user: user,
+                accessToken: accessToken,
+                subject: "Reset Password"
+            )
         } catch let error as AbortError where error.status == .notFound {
-            // ignore "notFound" errors and pretend the operation succeeded for security reasons
+            // ignore "notFound" errors and pretend the operation succeeded
         }
 
         return status("Instructions were sent to the provided email")
@@ -73,10 +80,18 @@ private extension UserController {
         var response = JSON()
 
         if responseOptions.contains(.access) {
-            try response.set("accessToken", makeToken(for: user, expirationDate: 1.hour.from(now())).string)
+            // TODO: make the expiration time configurable
+            try response.set(
+                "accessToken",
+                makeToken(for: user, expireIn: 1.hour).string
+            )
         }
         if responseOptions.contains(.refresh) {
-            try response.set("refreshToken", makeToken(for: user, expirationDate: 1.year.from(now())).string)
+            // TODO: make the expiration time configurable
+            try response.set(
+                "refreshToken",
+                makeToken(for: user, expireIn: 1.year).string
+            )
         }
         if responseOptions.contains(.user) {
             try response.set("user", user)
@@ -85,8 +100,12 @@ private extension UserController {
         return response
     }
 
-    func makeToken(for user: A.U, expirationDate: Date?) throws -> Token {
-        return try Token(user: user, expirationDate: expirationDate, signer: signer)
+    func makeToken(for user: A.U, expireIn: DateComponents) throws -> Token {
+        return try Token(
+            user: user,
+            expirationDate: expireIn.from(now())!,
+            signer: signer
+        )
     }
 
     func status(_ status: String) -> ResponseRepresentable {

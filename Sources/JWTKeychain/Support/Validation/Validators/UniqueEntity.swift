@@ -2,7 +2,6 @@ import Fluent
 import Validation
 import Vapor
 
-// TODO: add extra options for filtering
 public final class UniqueEntity<T: Entity>: Validator {
     let fieldName: String
 

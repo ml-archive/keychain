@@ -8,10 +8,12 @@ import Vapor
 final class TestUser {
     let email: String
     let token: Token
+    let hashedPassword: String?
     let storage = Storage()
 
-    init(email: String, token: Token) {
+    init(email: String, hashedPassword: String?, token: Token) {
         self.email = email
+        self.hashedPassword = hashedPassword
         self.token = token
         self.id = 1
     }
@@ -45,7 +47,11 @@ extension TestUser: NodeRepresentable {
 
 extension TestUser: PasswordAuthenticatable {
     static func authenticate(_ creds: Authentication.Password) throws -> TestUser {
-        return TestUser(email: creds.username, token: Token.init(string: "token"))
+        return TestUser(
+            email: creds.username,
+            hashedPassword: creds.password,
+            token: Token(string: "token")
+        )
     }
 }
 
@@ -55,6 +61,10 @@ extension TestUser: Entity {
     }
 
     convenience init(row: Row) throws {
-        self.init(email: "email", token: Token(string: "token"))
+        self.init(
+            email: "email",
+            hashedPassword: "hashedpassword",
+            token: Token(string: "token")
+        )
     }
 }

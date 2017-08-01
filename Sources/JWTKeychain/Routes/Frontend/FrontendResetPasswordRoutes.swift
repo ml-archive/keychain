@@ -13,12 +13,8 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
     /// Initializes the user route collection.
     ///
     /// - Parameters:
-    ///   - drop: the droplet reference.
-    ///   - configuration: configuration for JWT.
-    ///     Defaults to `Configuration`.
     ///   - resetPasswordController: controller for handling user reset password
     ///     routes.
-    ///     Defaults to `FrontendResetPasswordControllerType`.
     public init(
         resetPasswordController: FrontendResetPasswordControllerType
     ) {
@@ -30,14 +26,19 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
     ) throws {
 
         // Get the base path group
-        let path = builder.grouped("users")
+        let path = builder.grouped("users", "reset-password")
 
         path.group(FlashMiddleware()) { routes in
-            // Get the base path group
-            routes.group("reset-password") { routes in
-                routes.get("form", String.parameter, handler: controller.resetPasswordForm)
-                routes.post("change", handler: controller.resetPasswordChange)
-            }
+            routes.get(
+                "form",
+                String.parameter,
+                handler: controller.resetPasswordForm
+            )
+            routes.post(
+                "change",
+                String.parameter,
+                handler: controller.resetPasswordChange
+            )
         }
     }
 }

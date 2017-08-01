@@ -26,15 +26,21 @@ public class Mailer: MailerType {
         accessToken: Token,
         subject: String
     ) throws {
-        let from = EmailAddress(name: mailConfig.name, address: mailConfig.fromEmail)
+        let from = EmailAddress(
+            name: mailConfig.name,
+            address: mailConfig.fromEmail
+        )
 
         // Generate HTML
-        let html = try viewRenderer.make(keychainConfig.resetPasswordEmailViewPath,
+        let html = try viewRenderer.make(
+            keychainConfig.resetPasswordEmailViewPath,
             [
                 "name": .string(appConfig.name),
                 "user": user.makeNode(in: nil),
                 "token": .string(accessToken.string),
-                "expire": .number(.double(keychainConfig.resetPasswordTokenExpirationTime)),
+                "expire": .number(.double(
+                    keychainConfig.resetPasswordTokenExpirationTime
+                    )),
                 "url": .string(appConfig.url)
             ]
             ).data.makeString()
