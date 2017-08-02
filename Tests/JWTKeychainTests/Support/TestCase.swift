@@ -4,9 +4,10 @@ import Testing
 import Vapor
 import XCTest
 
+//sourcery:excludeFromLinuxMain
 class TestCase: XCTestCase {
     let drop = try! Droplet.testable()
-    
+
     override func setUp() {
         Testing.onFail = XCTFail
     }
@@ -19,7 +20,7 @@ extension TestCase {
         var payload = JSON()
         payload["nodes:pwd"] = .string(password)
         payload["sub"] = .string("1")
-        
+
         let jwt = try JWT(
             headers: JSON(),
             payload: payload,
