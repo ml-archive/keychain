@@ -1,21 +1,8 @@
-import HTTP
-import JWT
-import Testing
-import Vapor
 import XCTest
-@testable import JWTKeychain
 
-final class JWTKeychainTests: TestCase {
-    let drop = try! Droplet.testable()
-    
+class ResetPasswordFormTests: TestCase {
     func testResetPasswordForm() throws {
-        let jwt = try JWT(
-            headers: JSON(),
-            payload: JSON(),
-            signer: drop.assertSigner()
-        )
-        let token = try jwt.createToken()
-        
+        let token = try createToken()
         try drop
             .testResponse(to: .get, at: "/users/reset-password/form/\(token)")
             .assertStatus(is: .ok)

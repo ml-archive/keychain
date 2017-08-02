@@ -1,4 +1,5 @@
 import Forms
+import Sugar
 import Validation
 import Vapor
 

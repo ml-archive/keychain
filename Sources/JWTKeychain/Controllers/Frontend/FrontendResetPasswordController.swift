@@ -52,6 +52,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
         // determine path to reset password form relative to current path
         let formPath = request.uri
             .deletingLastPathComponent()
+            .deletingLastPathComponent()
             .appendingPathComponent("form")
             .appendingPathComponent(token)
             .path
@@ -75,7 +76,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
         do {
             jwt = try verifiedJWT(from: token)
         } catch {
-            return redirectToForm.flash(.error, "Invalid token")
+            return redirectToForm.flash(.error, "Invalid token.")
         }
 
         // load user that the token was made for

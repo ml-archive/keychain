@@ -1,3 +1,4 @@
+import Sugar
 import Validation
 
 public protocol AutoValidatable: Validatable {

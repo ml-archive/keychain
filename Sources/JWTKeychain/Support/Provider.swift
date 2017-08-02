@@ -11,14 +11,28 @@ public final class Provider: Vapor.Provider {
         self.init()
     }
 
-    public func boot(_ config: Config) throws {}
+    public func boot(_ config: Config) throws {
+        config.preparations += [User.self]
+    }
 
     public func boot(_ drop: Droplet) throws {
-        if let stem = drop.stem {
-            stem.register(ErrorListTag())
-            stem.register(ValueForFieldTag())
-        }
+        registerTags(drop)
+        try setUpFrontendRoutes(drop)
+    }
 
+    public func beforeRun(_ drop: Droplet) throws {}
+}
+
+// MARK: Helper
+extension Provider {
+    fileprivate func registerTags(_ drop: Droplet) {
+        guard let stem = drop.stem else { return }
+
+        stem.register(ErrorListTag())
+        stem.register(ValueForFieldTag())
+    }
+    
+    fileprivate func setUpFrontendRoutes(_ drop: Droplet) throws {
         let frontendController = try FrontendResetPasswordController(
             signer: drop.assertSigner(),
             viewRenderer: drop.view
@@ -28,6 +42,4 @@ public final class Provider: Vapor.Provider {
         )
         try drop.collection(frontendRoutes)
     }
-
-    public func beforeRun(_ drop: Droplet) throws {}
 }
