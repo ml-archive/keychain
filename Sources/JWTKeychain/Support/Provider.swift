@@ -33,7 +33,7 @@ extension Provider {
     }
     
     fileprivate func setUpFrontendRoutes(_ drop: Droplet) throws {
-        let frontendController = try FrontendResetPasswordController(
+        let frontendController = try FrontendResetPasswordController<User>(
             signer: drop.assertSigner(),
             viewRenderer: drop.view
         )

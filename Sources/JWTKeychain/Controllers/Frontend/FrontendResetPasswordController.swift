@@ -1,15 +1,32 @@
 import Authentication
 import Flash
+import Fluent
 import Forms
 import Foundation
 import HTTP
 import JWT
+import JWTProvider
+import SMTP
 import Vapor
 
+public typealias PasswordResettableUser = PayloadAuthenticatable & Entity &
+    PasswordAuthenticatable & EmailAddressRepresentable & PasswordUpdateable
+
+public protocol PasswordUpdateable {
+    func updatePassword(to: String) throws
+}
+
+extension User: PasswordUpdateable {
+    public func updatePassword(to password: String) throws {
+        try update(password: User.passwordHasher.hash(Valid(password)))
+    }
+}
+
 /// Controller for reset password requests
-open class FrontendResetPasswordController: FrontendResetPasswordControllerType {
-    private let claims: [Claim]
-    private let signer: Signer
+open class FrontendResetPasswordController<U: PasswordResettableUser>:
+    FrontendResetPasswordControllerType {
+    fileprivate let claims: [Claim]
+    fileprivate let signer: Signer
     private let viewRenderer: ViewRenderer
 
     required public init(
@@ -80,20 +97,22 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
         }
 
         // load user that the token was made for
-        let user: User
+        let user: U
 
         do {
-            let payload = try User.PayloadType(json: jwt.payload)
-            user = try User.authenticate(payload)
+            let payload = try U.PayloadType(json: jwt.payload)
+            user = try U.authenticate(payload)
         } catch {
             return redirectToForm.flash(.error, "User not found.")
         }
 
         // check that the user knows the right email address
-        guard form.email.value == user.email else {
+        guard form.email.value == user.emailAddress.address else {
             return redirectToForm.flash(.error, "Emails do not match.")
         }
-
+ 
+        // check that the password hash is still the same as when the token
+        // was issued
         do {
             let passwordClaim = try PasswordClaim(user: user)
             try jwt.verifyClaims([passwordClaim])
@@ -103,7 +122,8 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
             )
         }
 
-        try user.update(password: User.passwordHasher.hash(Valid(password)))
+        try user.updatePassword(to: password)
+        try user.save()
 
         return redirectToForm
             .flash(.success, "Password changed. You can close this page now.")
@@ -116,9 +136,8 @@ extension FrontendResetPasswordController {
     fileprivate func verifiedJWT(from token: String) throws -> JWT {
         let jwt = try JWT(token: token)
 
-        // TODO: reenable
-        //        try jwt.verifyClaims(claims)
-        //        try jwt.verifySignature(using: signer)
+//        try jwt.verifyClaims(claims)
+//        try jwt.verifySignature(using: signer)
 
         return jwt
     }

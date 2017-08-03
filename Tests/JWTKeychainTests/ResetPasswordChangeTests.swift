@@ -29,7 +29,7 @@ final class ResetPasswordChangeTests: TestCase {
     func testInvalidPassword() throws {
         let fieldSet = try changePassword(
             password: "short",
-            passworConfirmation: "short")
+            passwordConfirmation: "short")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
             .fieldSet
         
@@ -38,7 +38,7 @@ final class ResetPasswordChangeTests: TestCase {
     }
     
     func testDifferentPasswords() throws {
-        let fieldSet = try changePassword(passworConfirmation: "different")
+        let fieldSet = try changePassword(passwordConfirmation: "different")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
             .fieldSet
         
@@ -62,13 +62,19 @@ final class ResetPasswordChangeTests: TestCase {
     }
     
     func testExistingUser() throws {
-        try createUser()
+        let user = try createUser()
+        let oldPassword = user.password
+        
         try changePassword(
-            token: createToken(password: strongPassword))
+            token: createToken(password: strongPassword),
+            password: "N3wp@ssword",
+            passwordConfirmation: "N3wp@ssword")
             .assertFlashType(
                 is: .success,
                 withMessage: "Password changed. You can close this page now."
         )
+        
+        XCTAssertNotEqual(try User.find(1)?.password, oldPassword)
     }
 }
 
@@ -81,7 +87,8 @@ private let validEmail = "a@b.com"
 // MARK: Helper
 
 extension ResetPasswordChangeTests {
-    func createUser() throws {
+    @discardableResult
+    func createUser() throws -> User {
         let hasher = TestHasher()
         
         let user = try User(
@@ -90,13 +97,14 @@ extension ResetPasswordChangeTests {
             password: hasher.hash(Valid(strongPassword))
         )
         try user.save()
+        return user
     }
     
     func changePassword(
         token: String? = nil,
         email: String? = validEmail,
         password: String? = strongPassword,
-        passworConfirmation: String? = strongPassword
+        passwordConfirmation: String? = strongPassword
     ) throws -> Response {
         let token: String = token ?? self.token
         let request = Request.makeTest(
@@ -106,7 +114,7 @@ extension ResetPasswordChangeTests {
         var body = JSON()
         try body.set("email", email)
         try body.set("password", password)
-        try body.set("passwordConfirmation", passworConfirmation)
+        try body.set("passwordConfirmation", passwordConfirmation)
         request.json = body
         
         let formPath = "/users/reset-password/form/\(token)"
