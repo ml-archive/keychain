@@ -136,8 +136,8 @@ extension FrontendResetPasswordController {
     fileprivate func verifiedJWT(from token: String) throws -> JWT {
         let jwt = try JWT(token: token)
 
-//        try jwt.verifyClaims(claims)
-//        try jwt.verifySignature(using: signer)
+        try jwt.verifyClaims(claims)
+        try jwt.verifySignature(using: signer)
 
         return jwt
     }

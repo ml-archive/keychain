@@ -20,9 +20,9 @@ extension TestCase {
         var payload = JSON()
         payload["nodes:pwd"] = .string(password)
         payload["sub"] = .string("1")
+        payload["exp"] = .number(.int(Int(1.hour.fromNow!.timeIntervalSince1970)))
 
         let jwt = try JWT(
-            headers: JSON(),
             payload: payload,
             signer: drop.assertSigner()
         )
