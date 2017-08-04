@@ -4,7 +4,6 @@ import JWT
 import JWTProvider
 import SMTP
 
-// TODO: make this open?
 /// Defines basic user that can be authorized.
 public final class User: Model, Timestampable, SoftDeletable {
     struct Keys {
