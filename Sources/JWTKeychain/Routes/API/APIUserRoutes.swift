@@ -16,8 +16,8 @@ public struct APIUserRoutes: RouteCollection {
     ///
     /// - Parameters:
     ///   - apiAccessMiddleware: authentication middleware for API access.
-    ///   - refreshMiddleware: authentication middleware for refresh token
-    ///     endpoint.
+    ///   - refreshMiddleware: optional authentication middleware for refresh
+    ///     token endpoint.
     ///   - userController: controller for handling user routes.
     public init(
         apiAccessMiddleware: Middleware,
