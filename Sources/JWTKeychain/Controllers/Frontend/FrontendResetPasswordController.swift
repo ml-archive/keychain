@@ -56,11 +56,12 @@ open class FrontendResetPasswordController<U: PasswordResettableUser>:
 
         return try viewRenderer.make(
             "ResetPassword/user-form",
-            [
-                "token": .string(token),
-                Node.fieldSetViewDataKey: fieldSet
-            ],
-            for: request)
+            ViewData(
+                fieldSet: fieldSet,
+                request: request,
+                other: ViewData(["token": .string(token)])
+            )
+        )
     }
 
     open func resetPasswordChange(request: Request) throws -> Response {
