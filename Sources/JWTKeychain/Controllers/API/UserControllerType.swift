@@ -52,3 +52,11 @@ public protocol UserControllerType {
     /// - Returns: success or failure message
     func update(request: Request) throws -> ResponseRepresentable
 }
+
+extension UserControllerType {
+    
+    // Provide a default implementation for cases without refresh tokens.
+    func regenerate(_: Request) throws -> ResponseRepresentable {
+        fatalError("Not implemented.")
+    }
+}
