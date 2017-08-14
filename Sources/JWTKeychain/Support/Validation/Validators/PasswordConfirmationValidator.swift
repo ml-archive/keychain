@@ -12,10 +12,10 @@ public class PasswordConfirmationValidator: Validator {
 }
 
 public struct PasswordConfirmation: Validatable {
-    let password: String
-    let passwordConfirmation: String
+    fileprivate let password: String
+    fileprivate let passwordConfirmation: String
 
-    init?(password: String?, passwordConfirmation: String?) {
+    public init?(password: String?, passwordConfirmation: String?) {
         guard
             let password = password,
             let passwordConfirmation = passwordConfirmation else {

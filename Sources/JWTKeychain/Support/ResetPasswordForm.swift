@@ -22,18 +22,21 @@ public struct ResetPasswordForm {
         makeAllFieldsOptional: Bool = false
     ) {
         self.email = FormField(
+            key: Keys.email,
             label: "Email",
             value: email,
             validator: EmailValidator(),
             isOptional: makeAllFieldsOptional
         )
         self.password = FormField(
+            key: Keys.password,
             label: "Password",
             value: password,
             validator: StrongPassword(),
             isOptional: makeAllFieldsOptional
         )
         self.passwordConfirmation = FormField(
+            key: Keys.passwordConfirmation,
             label: "Confirm Password",
             value: PasswordConfirmation(
                 password: password,
@@ -60,14 +63,7 @@ extension ResetPasswordForm: JSONInitializable {
 // MARK: Form
 
 extension ResetPasswordForm: Form {
-    public var fieldSetEntries: [FieldSetEntry] {
-        return [
-            email.makeFieldSetEntry(
-                withKey: Keys.email),
-            password.makeFieldSetEntry(
-                withKey: Keys.password),
-            passwordConfirmation.makeFieldSetEntry(
-                withKey: Keys.passwordConfirmation)
-        ]
+    public var fields: [FieldSetEntryRepresentable] {
+        return [email, password, passwordConfirmation]
     }
 }
