@@ -35,7 +35,6 @@ public class Mailer: MailerType {
         let html = try viewRenderer.make(
             keychainConfig.resetPasswordEmailViewPath,
             [
-                "name": .string(appConfig.name),
                 "user": user.makeNode(in: nil),
                 "token": .string(accessToken.string),
                 "expire": .number(.double(
@@ -43,7 +42,7 @@ public class Mailer: MailerType {
                     )),
                 "url": .string(appConfig.url)
             ]
-            ).data.makeString()
+        ).data.makeString()
 
         let email = SMTP.Email(
             from: from,
