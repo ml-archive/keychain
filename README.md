@@ -144,9 +144,7 @@ drop.collection(
 
 Most of the parameters have default values, so feel free to mix and match as needed.
 
-
 ## Customization 
-`JWTKeychain` provides protocols for rolling out your own `User` models and controllers.
 
 ### UserController
 If you wish to modify the behavior of the `UserController` you can subclass it and override any function you wish. If you want to create your own UserController from scratch you can conform to the 'UserControllerType` protocol.

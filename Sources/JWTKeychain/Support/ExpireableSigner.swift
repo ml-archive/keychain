@@ -6,9 +6,9 @@ import JWT
 import JWTProvider
 
 public struct ExpireableSigner {
-    private let expirationPeriod: DateComponents
-    internal let signer: Signer // TODO: this should not have to be internal
-    private let now: () -> Date
+    fileprivate let expirationPeriod: DateComponents
+    fileprivate let signer: Signer
+    fileprivate let now: () -> Date
     
     init(
         now: @escaping () -> Date = Date.init, // injectable for control over dates during testing
@@ -20,16 +20,38 @@ public struct ExpireableSigner {
         }
         self.signer = signer
         self.now = now
-        expirationPeriod = signerParameters.secondsToExpire.seconds
+        expirationPeriod = signerParameters.expireIn
     }
-    
-    public func generateToken<E: Entity>(
+}
+
+public protocol TokenGenerator {
+    func generateToken<E>(
+        for: E
+    ) throws -> Token where E: PasswordAuthenticatable, E: Entity
+}
+
+extension ExpireableSigner: TokenGenerator {
+    public func generateToken<E>(
         for user: E
-        ) throws -> Token where E: PasswordAuthenticatable {
+    ) throws -> Token where E: PasswordAuthenticatable, E: Entity {
         return try Token(
             user: user,
             expirationDate: expirationPeriod.from(now())!,
             signer: signer
         )
+    }
+}
+
+extension ExpireableSigner: Signer {
+    public var name: String {
+        return signer.name
+    }
+    
+    public func sign(message: Bytes) throws -> Bytes {
+        return try signer.sign(message: message)
+    }
+    
+    public func verify(signature: Bytes, message: Bytes) throws {
+        return try signer.verify(signature: signature, message: message)
     }
 }

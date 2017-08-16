@@ -5,15 +5,15 @@ import Vapor
 open class UserController<A: UserAuthenticating>: UserControllerType {
     private let passwordResetMailer: PasswordResetMailerType
     private let userAuthenticator: A
-    fileprivate let apiAccessTokenGenerator: ExpireableSigner
-    fileprivate let refreshTokenGenerator: ExpireableSigner
-    fileprivate let resetPasswordTokenGenerator: ExpireableSigner
+    fileprivate let apiAccessTokenGenerator: TokenGenerator
+    fileprivate let refreshTokenGenerator: TokenGenerator
+    fileprivate let resetPasswordTokenGenerator: TokenGenerator
 
     required public init(
         passwordResetMailer: PasswordResetMailerType,
-        apiAccessTokenGenerator: ExpireableSigner,
-        refreshTokenGenerator: ExpireableSigner,
-        resetPasswordTokenGenerator: ExpireableSigner,
+        apiAccessTokenGenerator: TokenGenerator,
+        refreshTokenGenerator: TokenGenerator,
+        resetPasswordTokenGenerator: TokenGenerator,
         userAuthenticator: A
     ) {
         self.passwordResetMailer = passwordResetMailer

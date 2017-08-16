@@ -1,4 +1,5 @@
 import Authentication
+import Fluent
 import JWT
 import SMTP
 import Testing
@@ -6,20 +7,34 @@ import Vapor
 import XCTest
 @testable import JWTKeychain
 
+struct TestTokenGenerator {
+    let token: String
+}
+
+extension TestTokenGenerator: TokenGenerator {
+    func generateToken<E>(
+        for _: E
+    ) throws -> Token where E : PasswordAuthenticatable, E: Entity {
+        return Token(string: token)
+    }
+}
+
 final class UserControllerTests: XCTestCase {
-    var mailer: TestMailer!
-    var signer: TestSigner!
+    var mailer: TestPaswordResetMailer!
     var user: TestUser!
     var userAuthenticator: TestUserAuthenticator!
     var userController: UserController<TestUserAuthenticator>!
 
     override class func setUp() {
+        super.setUp()
         Testing.onFail = XCTFail
     }
 
     override func setUp() {
-        mailer = TestMailer()
-        signer = TestSigner()
+        super.setUp()
+        
+        mailer = TestPaswordResetMailer()
+
         user = TestUser(
             email: "a@b.com",
             hashedPassword: "hashedpassword",
@@ -27,10 +42,10 @@ final class UserControllerTests: XCTestCase {
         )
         userAuthenticator = TestUserAuthenticator(user: user)
         userController = UserController(
-            mailer: mailer,
-            // use the same reference date to produce reliable test output
-            now: { Date.init(timeIntervalSince1970: 0) },
-            signer: signer,
+            passwordResetMailer: mailer,
+            apiAccessTokenGenerator: TestTokenGenerator(token: "access"),
+            refreshTokenGenerator: TestTokenGenerator(token: "refresh"),
+            resetPasswordTokenGenerator: TestTokenGenerator(token: "reset"),
             userAuthenticator: userAuthenticator
         )
     }
@@ -40,8 +55,8 @@ final class UserControllerTests: XCTestCase {
             userController.register,
             expectedAction: "make(request:)",
             expectedJSONValues: [
-                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ",
-                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzE1MzYwMDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
+                "accessToken": "access",
+                "refreshToken": "refresh",
                 "user": user
             ]
         )
@@ -52,8 +67,8 @@ final class UserControllerTests: XCTestCase {
             userController.logIn,
             expectedAction: "logIn(request:)",
             expectedJSONValues: [
-                "accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ",
-                "refreshToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzE1MzYwMDAsInN1YiI6IjEifQ.dGVzdFNpZ25hdHVyZQ",
+                "accessToken": "access",
+                "refreshToken": "refresh",
                 "user": user
             ]
         )
@@ -73,7 +88,7 @@ final class UserControllerTests: XCTestCase {
                 request.auth.authenticate(user)
                 return try userController.regenerate(request: request)
             },
-            expectedJSONValues: ["accessToken": "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ"]
+            expectedJSONValues: ["accessToken": "access"]
         )
     }
 
@@ -93,9 +108,9 @@ final class UserControllerTests: XCTestCase {
             expectedAction: "find(request:)",
             expectedJSONValues: ["status": "Instructions were sent to the provided email"]
         )
-        XCTAssertEqual(mailer.subject, "Reset Password")
-        XCTAssertEqual(mailer.accessToken?.string, "eyJhbGciOiJUZXN0U2lnbmVyIiwidHlwIjoiSldUIn0.eyJub2Rlczpwd2QiOiJoYXNoZWRwYXNzd29yZCIsImV4cCI6MzYwMCwic3ViIjoiMSJ9.dGVzdFNpZ25hdHVyZQ")
-        XCTAssertEqual(mailer.user as? TestUser, user)
+        XCTAssertEqual(mailer.capturedSubject, "Reset Password")
+        XCTAssertEqual(mailer.capturedResetToken?.string, "reset")
+        XCTAssertEqual(mailer.capturedUser as? TestUser, user)
     }
 
     func testUpdate() throws {
@@ -105,16 +120,6 @@ final class UserControllerTests: XCTestCase {
             expectedJSONValues: ["user": user]
         )
     }
-
-    static var allTests = [
-        ("testRegister", testRegister),
-        ("testLogIn", testLogIn),
-        ("testLogOut", testLogOut),
-        ("testRegenerate", testRegenerate),
-        ("testMe", testMe),
-        ("testResetPasswordEmail", testResetPasswordEmail),
-        ("testUpdate", testUpdate)
-    ]
 }
 
 extension UserControllerTests {

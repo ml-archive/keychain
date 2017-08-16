@@ -47,11 +47,11 @@ public final class Provider: Vapor.Provider {
         self.emailViewPath = emailViewPath ?? "Emails/resetPassword"
         self.fromEmailAddress = fromEmailAddress
         self.apiAccess = apiAccess ??
-            SignerParameters(kid: "access", secondsToExpire: 1.hour.second!)
+            SignerParameters(kid: "access", expireIn: 1.hour)
         self.refreshToken = refreshToken ??
-            SignerParameters(kid: "refresh", secondsToExpire: 1.year.second!)
+            SignerParameters(kid: "refresh", expireIn: 1.year)
         self.resetPassword = resetPassword ??
-            SignerParameters(kid: "reset", secondsToExpire: 1.hour.second!)
+            SignerParameters(kid: "reset", expireIn: 1.hour)
     }
 
     public convenience init(config: Config) throws {
@@ -101,12 +101,16 @@ public final class Provider: Vapor.Provider {
     public func boot(_ config: Config) throws {
         config.preparations += [User.self]
         
+        try config.addProvider(JWTProvider.Provider.self)
+        
         mailer = try config.resolveMail()
     }
 
     public func boot(_ drop: Droplet) throws {
-        try registerTags(drop.assertStem())
         try registerRoutes(drop)
+        if let stem = drop.stem {
+            registerTags(stem)
+        }
     }
 
     public func beforeRun(_ drop: Droplet) throws {}
@@ -125,7 +129,7 @@ extension Provider {
         let passwordResetMailer = PasswordResetMailer(
             baseURL: baseURL,
             emailViewPath: emailViewPath,
-            expirationPeriodInSeconds: resetPassword.secondsToExpire,
+            expirationPeriod: resetPassword.expireIn,
             fromEmailAddress: fromEmailAddress,
             mailer: mailer,
             viewRenderer: viewRenderer)
@@ -191,12 +195,12 @@ extension Provider {
         )
         
         let apiAccessMiddleware = PayloadAuthenticationMiddleware<User>(
-            apiAccessTokenGenerator.signer,
+            apiAccessTokenGenerator,
             [ExpirationTimeClaim()]
         )
         
         let refreshMiddleware = PayloadAuthenticationMiddleware<User>(
-            refreshTokenGenerator.signer,
+            refreshTokenGenerator,
             [ExpirationTimeClaim()]
         )
         

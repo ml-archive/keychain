@@ -8,7 +8,8 @@ import XCTest
 class TestCase: XCTestCase {
     let drop = try! Droplet.testable()
 
-    override func setUp() {
+    override class func setUp() {
+        super.setUp()
         Testing.onFail = XCTFail
     }
 }
@@ -16,7 +17,10 @@ class TestCase: XCTestCase {
 // MARK: Helper
 
 extension TestCase {
-    func createToken(password: String = "hashedpassword") throws -> String {
+    func createToken(
+        password: String = "hashedpassword",
+        kid: String = "reset"
+    ) throws -> String {
         var payload = JSON()
         payload["nodes:pwd"] = .string(password)
         payload["sub"] = .string("1")
@@ -24,7 +28,7 @@ extension TestCase {
 
         let jwt = try JWT(
             payload: payload,
-            signer: drop.assertSigner()
+            signer: drop.assertSigner(kid: kid)
         )
         return try jwt.createToken()
     }

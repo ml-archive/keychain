@@ -1,8 +1,9 @@
 import Configs
+import Foundation
 
 public struct SignerParameters {
-    let kid: String
-    let secondsToExpire: Int
+    internal let kid: String
+    internal let expireIn: DateComponents
     
     public init?(config: Config) {
         guard
@@ -11,11 +12,11 @@ public struct SignerParameters {
                 return nil
         }
         
-        self.init(kid: kid, secondsToExpire: secondsToExpire)
+        self.init(kid: kid, expireIn: secondsToExpire.seconds)
     }
     
-    public init(kid: String, secondsToExpire: Int) {
+    public init(kid: String, expireIn: DateComponents) {
         self.kid = kid
-        self.secondsToExpire = secondsToExpire
+        self.expireIn = expireIn
     }
 }
