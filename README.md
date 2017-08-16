@@ -8,16 +8,11 @@
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/nodes-vapor/jwt-keychain)](http://clayallsopp.github.io/readme-score?url=https://github.com/nodes-vapor/jwt-keychain)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nodes-vapor/jwt-keychain/master/LICENSE)
 
-
-This package aims to provide developers with an easy way to scaffhold their API using a JWT Keychain.
-
-**ATTENTION:** This is a very raw experiment that needs to be tested and validated.
-
+This package aims to provide developers with an easy way to scaffold their API using a JWT Keychain.
 
 ## Demo project
 
 https://github.com/nodes-vapor/jwt-keychain-demo
-
 
 ## 📦 Installation
 
@@ -26,54 +21,85 @@ Update your `Package.swift` file.
 .Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
 ```
 
-Add Vapor forms as provider in `main.swift`
-```swift
-import VaporForms
-try drop.addProvider(VaporForms.Provider.self)
-```
-Create config `jwt.json` with:
+## Getting started 🚀
 
-signer[HS256, HS384, HS512] + secondsToExpire + signatureKey
+### Configuration
 
-or
+Create config `jwt.json` (for more information, see [JWTProvider](https://github.com/vapor/jwt-provider).
 
-signer[ES256, ES384, ES512, RS256, RS384, RS512] + secondsToExpire + signatureKey + publicKey
-
-Create config `jwt.json`
 ```json
 {
-    "signer": "HS256",
-    "secondsToExpire": 3600,
-    "signatureKey": "our-little-secret",
-    "resetPasswordEmail": "path/to/email/iew",
-    "secondsToExpireResetPassword": 3600
+	"signers": [
+		{
+			"type": "rsa",
+			"kid": "access",
+			"algorithm: "rs256",
+			"key": "yourkeyhere"
+		},
+		{
+			"type": "rsa",
+			"kid": "refresh",
+			"algorithm: "rs256",
+			"key": "yourkeyhere"
+		},
+		{
+			"type": "rsa",
+			"kid": "reset",
+			"algorithm: "rs256",
+			"key": "yourkeyhere"
+		}
+	]
 }
 ```
 
-Create config `mail.json`
+Create config `jwt-keychain.json`.
+
 ```json
 {
-    "smtpHost": "TODO",
-    "smtpPort": "TODO",
-    "user": "TODO",
-    "password": "TODO",
-    "fromEmail": "TODO@todo.com",
+	"apiAccess": {
+		"kid": "access",
+		"secondsToExpire": 3600,
+	},
+	"refreshToken": {
+		"kid": "refresh",
+		"secondsToExpire": 31536000
+	},
+	"resetPassword": {
+		"kid": "reset",
+		"secondsToExpire": 3600,
+		"fromName": "Name of Sender",
+		"fromAddress": "sender@email.com",
+		"pathToEmail": "Emails/resetPassword",
+		"pathToView": "Views/resetPassword"
+	}
 }
-
 ```
 
-Make sure name is setup in `app.json`
+The `kid` values should correspond to values in `jwt.json`. The above values are the defaults used when no configuration is supplied; only `resetPassword.fromName` and `resetPassword.fromAddress`.
+
+JWTKeychainProvider uses the default mailer as configured in `mail.json` for sending password reset emails.
+
+Make sure url is set up in `app.json`. This will be used to generate the link in the password reset email.
+
 ```json
 {
-    "name": "TODO"
+    "url": "https://example.com"
 }
-
 ```
+
+### Token Generator Command
+In order to generate password reset tokens for users add the following to `droplet.json`'s `commands`: `"keychain:generate_token"`. Then you can create a token like so: 
+
+```drop --run keychain:generate_token user@email.com```
+
+### Resources
 
 Copy package resources
-`/Packages/JWTKeyChainX.Y.Z/Resource/Views to /Resource/Views`
+`/Packages/JWTKeyChainX.Y.Z/Resources/Views to /Resource/Views`
 
-See https://github.com/vapor/vapor-jwt to know more about signing
+See https://github.com/vapor/vapor-jwt to know more about signing.
+
+### Usage
 
 Import the module whenever needed:
 
@@ -81,24 +107,8 @@ Import the module whenever needed:
 import JWTKeychain
 ```
 
-
-## Getting started 🚀
-
-### Minimal setup
-
-Register the basic user routes
-
 ```swift
-let configuration = try JWTKeychain.Configuration(drop: drop)
-
-drop.collection(
-    try ApiUserRoutes<User>(
-        drop: drop,
-        mailer: Mailer(configuration: configuration, drop: drop)
-    )
-    
-    try FrontendResetPasswordRoutes(drop: drop)
-)
+try config.addProvider(AdminPanelProvider.Provider.self)
 ```
 
 That's it! Now, you'll have the following routes out-of-the-box:
@@ -136,59 +146,12 @@ Most of the parameters have default values, so feel free to mix and match as nee
 
 
 ## Customization 
-
 `JWTKeychain` provides protocols for rolling out your own `User` models and controllers.
 
-### The UserType protocol
-```swift
-public protocol UserType: Auth.User, Model {
-    associatedtype Validator: Form
-    
-    var name: String? { get set }
-    var email: String { get set }
-    var password: String { get set }
-    
-    // optional
-    var createdAt: Date? { get set }
-    // optional
-    var updatedAt: Date? { get set }
-    // optional
-    var deletedAt: Date? { get set }
-    
-    init(validated: Validator)
-    
-    // optional
-    func makeJSON(token: String) throws -> JSON
-    // optional
-    func makeJWTNode() throws -> Node
-}
-```
-`Validator` is a typealias for the `Form` you wish to instantiate and validate the incoming request with. The fields `createdAt`, `updatedAt`, and `deletedAt` and the functions `makeJSON(token: String)` and `func makeJWTNode()` are all optional and have a default implementations.
+### UserController
+If you wish to modify the behavior of the `UserController` you can subclass it and override any function you wish. If you want to create your own UserController from scratch you can conform to the 'UserControllerType` protocol.
 
-### The UserControllerType protocol
-If you wish to modify the behavior of the `BasicUserController` you can simply extend it and override any function you wish. If you're wanting to create your own UserController from scratch you can conform to the following protocol:
-```swift
-public protocol UserControllerType {
-    init(configuration: ConfigurationType, drop: Droplet, mailer: MailerType)
-
-    func register(request: Request) throws -> ResponseRepresentable
-
-    func login(request: Request) throws -> ResponseRepresentable
-
-    func logout(request: Request) throws -> ResponseRepresentable
-
-    func regenerate(request: Request) throws -> ResponseRepresentable
-
-    func me(request: Request) throws -> ResponseRepresentable
-    
-    func resetPasswordEmail(request: Request) throws -> ResponseRepresentable
-
-    func resetPasswordForm(request: Request, token: String) throws -> View
-
-    func resetPasswordChange(request: Request) throws -> Response
-}
-```
-
+### PasswordResetMailer
 
 ## 🏆 Credits
 

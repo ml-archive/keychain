@@ -15,26 +15,19 @@ public final class TokenGeneratorCommand: Command {
         case userNotFound
     }
 
-    public let id = "generateToken"
+    public let id = "keychain:generate_token"
     public let help: [String] = [
         "Generates a JWT token by passing in the user's email."
     ]
     public let console: ConsoleProtocol
-    public let signer: Signer
-    private let now: () -> Date
+    public let tokenGenerator: ExpireableSigner
     
     internal init(
         console: ConsoleProtocol,
-        signer: Signer,
-        now: @escaping () -> Date
+        tokenGenerator: ExpireableSigner
     ) {
         self.console = console
-        self.signer = signer
-        self.now = now
-    }
-
-    convenience public init(console: ConsoleProtocol, signer: Signer) {
-        self.init(console: console, signer: signer, now: Date.init)
+        self.tokenGenerator = tokenGenerator
     }
 
     public func run(arguments: [String]) throws {
@@ -51,31 +44,11 @@ public final class TokenGeneratorCommand: Command {
                 throw TokenGeneratorError.userNotFound
         }
 
-        let token = try Token(
-            user: user,
-            expirationDate: 1.hour.from(now())!,
-            signer: signer
-        )
+        let token = try tokenGenerator.generateToken(for: user)
         
         console.info("Token generated for user with email \(user.email):")
         console.print(token.string)
 
         console.success("Finished the token generator script")
-    }
-}
-
-// MARK: ConfigInitializable
-
-extension TokenGeneratorCommand: ConfigInitializable {
-    public convenience init(config: Config) throws {
-        guard let jwtProvider = config.providers.first(where: {
-            $0 is JWTProvider.Provider
-        }) as? JWTProvider.Provider else {
-            throw TokenGeneratorError.missingJWTProvider
-        }
-
-        let console = try config.resolveConsole()
-        let signer = jwtProvider.signer
-        self.init(console: console, signer: signer)
     }
 }
