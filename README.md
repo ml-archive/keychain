@@ -29,23 +29,23 @@ Create config `jwt.json` (for more information, see [JWTProvider](https://github
 
 ```json
 {
-	"signers": [
+	"signers": {
 		"access": {
 			"type": "rsa",
-			"algorithm: "rs256",
+			"algorithm": "rs256",
 			"key": "yourkeyhere"
 		},
 		"refresh": {
 			"type": "rsa",
-			"algorithm: "rs256",
+			"algorithm": "rs256",
 			"key": "yourkeyhere"
 		},
 		"reset": {
 			"type": "rsa",
-			"algorithm: "rs256",
+			"algorithm": "rs256",
 			"key": "yourkeyhere"
 		}
-	]
+	}
 }
 ```
 
