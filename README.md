@@ -30,21 +30,18 @@ Create config `jwt.json` (for more information, see [JWTProvider](https://github
 ```json
 {
 	"signers": [
-		{
+		"access": {
 			"type": "rsa",
-			"kid": "access",
 			"algorithm: "rs256",
 			"key": "yourkeyhere"
 		},
-		{
+		"refresh": {
 			"type": "rsa",
-			"kid": "refresh",
 			"algorithm: "rs256",
 			"key": "yourkeyhere"
 		},
-		{
+		"reset": {
 			"type": "rsa",
-			"kid": "reset",
 			"algorithm: "rs256",
 			"key": "yourkeyhere"
 		}
