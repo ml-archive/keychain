@@ -5,9 +5,9 @@ import VaporForms
 /// Handles the validation of storing a User
 public class StoreRequest: Form {
     
-    let name: String
-    let email: String
-    let password: String
+    public let name: String
+    public let email: String
+    public let password: String
     
     public static let fieldset = Fieldset([
         "name": StringField(String.MinimumLengthValidator(characters: 2)),
