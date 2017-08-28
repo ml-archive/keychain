@@ -31,18 +31,18 @@ Create config `jwt.json` (for more information, see [JWTProvider](https://github
 {
 	"signers": {
 		"access": {
-			"type": "rsa",
-			"algorithm": "rs256",
+			"type": "hmac",
+			"algorithm": "hs256",
 			"key": "yourkeyhere"
 		},
 		"refresh": {
-			"type": "rsa",
-			"algorithm": "rs256",
+			"type": "hmac",
+			"algorithm": "hs256",
 			"key": "yourkeyhere"
 		},
 		"reset": {
-			"type": "rsa",
-			"algorithm": "rs256",
+			"type": "hmac",
+			"algorithm": "hs256",
 			"key": "yourkeyhere"
 		}
 	}
@@ -91,10 +91,10 @@ In order to generate password reset tokens for users add the following to `dropl
 
 ### Resources
 
-Copy package resources
-`/Packages/JWTKeyChainX.Y.Z/Resources/Views to /Resource/Views`
+Copy package resources:
+`JWTKeyChain/Resources/Views` to `/Resource/Views`.
 
-See https://github.com/vapor/vapor-jwt to know more about signing.
+See `https://github.com/vapor/vapor-jwt` to learn more about signing.
 
 ### Usage
 
@@ -105,7 +105,7 @@ import JWTKeychain
 ```
 
 ```swift
-try config.addProvider(AdminPanelProvider.Provider.self)
+try config.addProvider(JWTKeychain.Provider.self)
 ```
 
 That's it! Now, you'll have the following routes out-of-the-box:
