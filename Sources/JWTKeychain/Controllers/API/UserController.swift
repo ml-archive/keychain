@@ -6,13 +6,13 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     private let passwordResetMailer: PasswordResetMailerType
     private let userAuthenticator: A
     fileprivate let apiAccessTokenGenerator: TokenGenerator
-    fileprivate let refreshTokenGenerator: TokenGenerator
+    fileprivate let refreshTokenGenerator: TokenGenerator?
     fileprivate let resetPasswordTokenGenerator: TokenGenerator
 
     required public init(
         passwordResetMailer: PasswordResetMailerType,
         apiAccessTokenGenerator: TokenGenerator,
-        refreshTokenGenerator: TokenGenerator,
+        refreshTokenGenerator: TokenGenerator?,
         resetPasswordTokenGenerator: TokenGenerator,
         userAuthenticator: A
     ) {
@@ -114,14 +114,14 @@ private extension UserController {
         var response = JSON()
 
         if responseOptions.contains(.access) {
-            // TODO: make the expiration time configurable
             try response.set(
                 "accessToken",
                 apiAccessTokenGenerator.generateToken(for: user).string
             )
         }
-        if responseOptions.contains(.refresh) {
-            // TODO: make the expiration time configurable
+        if responseOptions.contains(.refresh),
+            let refreshTokenGenerator = refreshTokenGenerator
+        {
             try response.set(
                 "refreshToken",
                 refreshTokenGenerator.generateToken(for: user).string

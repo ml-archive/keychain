@@ -72,7 +72,9 @@ Create config `jwt-keychain.json`.
 }
 ```
 
-The `kid` values should correspond to values in `jwt.json`. The above values are the defaults used when no configuration is supplied; only `resetPassword.fromName` and `resetPassword.fromAddress`.
+The `kid` values should correspond to values in `jwt.json`. The above values for `apiAccess` and `resetPassword` are the defaults used when no configuration is supplied; only `resetPassword.fromName` and `resetPassword.fromAddress` are required.
+
+Usage of a refresh token is optional. You can opt out of using the refresh token by removing the `refreshToken` key.
 
 JWTKeychainProvider uses the default mailer as configured in `mail.json` for sending password reset emails.
 

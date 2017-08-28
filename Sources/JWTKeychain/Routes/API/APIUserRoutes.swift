@@ -53,14 +53,13 @@ public struct APIUserRoutes: RouteCollection {
         }
 
         // Refresh access token
-        if let refreshMiddleware = refreshMiddleware {
-            path.group(refreshMiddleware) { refresh in
-                refresh.patch(
-                    "token",
-                    "regenerate",
-                    handler: controller.regenerate
-                )
-            }
+        let refreshMiddleware = self.refreshMiddleware ?? apiAccessMiddleware
+        path.group(refreshMiddleware) { refresh in
+            refresh.patch(
+                "token",
+                "regenerate",
+                handler: controller.regenerate
+            )
         }
     }
 }

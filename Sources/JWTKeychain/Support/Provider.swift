@@ -21,7 +21,7 @@ public final class Provider: Vapor.Provider {
     fileprivate let fromEmailAddress: EmailAddress
 
     fileprivate let apiAccess: SignerParameters
-    fileprivate let refreshToken: SignerParameters
+    fileprivate let refreshToken: SignerParameters?
     fileprivate let resetPassword: SignerParameters
 
     /**
@@ -48,8 +48,7 @@ public final class Provider: Vapor.Provider {
         self.fromEmailAddress = fromEmailAddress
         self.apiAccess = apiAccess ??
             SignerParameters(kid: "access", expireIn: 1.hour)
-        self.refreshToken = refreshToken ??
-            SignerParameters(kid: "refresh", expireIn: 1.year)
+        self.refreshToken = refreshToken
         self.resetPassword = resetPassword ??
             SignerParameters(kid: "reset", expireIn: 1.hour)
     }
@@ -173,11 +172,16 @@ extension Provider {
             signerParameters: apiAccess,
             signerMap: signerMap
         )
-        
-        let refreshTokenGenerator = try ExpireableSigner(
-            signerParameters: refreshToken,
-            signerMap: signerMap
-        )
+
+        let refreshTokenGenerator: ExpireableSigner?
+        if let refreshToken = refreshToken {
+            refreshTokenGenerator = try ExpireableSigner(
+                signerParameters: refreshToken,
+                signerMap: signerMap
+            )
+        } else {
+            refreshTokenGenerator = nil
+        }
         
         let resetPasswordTokenGenerator = try ExpireableSigner(
             signerParameters: resetPassword,
@@ -198,11 +202,17 @@ extension Provider {
             apiAccessTokenGenerator,
             [ExpirationTimeClaim()]
         )
-        
-        let refreshMiddleware = PayloadAuthenticationMiddleware<User>(
-            refreshTokenGenerator,
-            [ExpirationTimeClaim()]
-        )
+
+        let refreshMiddleware: Middleware?
+
+        if let refreshTokenGenerator = refreshTokenGenerator {
+            refreshMiddleware = PayloadAuthenticationMiddleware<User>(
+                refreshTokenGenerator,
+                [ExpirationTimeClaim()]
+            )
+        } else {
+            refreshMiddleware = nil
+        }
         
         return APIUserRoutes(
             apiAccessMiddleware: apiAccessMiddleware,
