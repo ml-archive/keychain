@@ -13,8 +13,6 @@ import Vapor
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "jwt-keychain-provider"
     
-    fileprivate var mailer: MailProtocol!
-    
     fileprivate let baseURL: String
     fileprivate let emailViewPath: String
     
@@ -101,8 +99,6 @@ public final class Provider: Vapor.Provider {
         config.preparations += [User.self]
         
         try config.addProvider(JWTProvider.Provider.self)
-        
-        mailer = try config.resolveMail()
     }
 
     public func boot(_ drop: Droplet) throws {
@@ -125,6 +121,8 @@ extension Provider {
             signerMap: signerMap,
             viewRenderer: viewRenderer
         )
+
+        let mailer = try drop.config.resolveMail()
         let passwordResetMailer = PasswordResetMailer(
             baseURL: baseURL,
             emailViewPath: emailViewPath,
