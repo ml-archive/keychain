@@ -108,8 +108,9 @@ open class FrontendResetPasswordController<U: PasswordResettableUser>:
         }
 
         // check that the user knows the right email address
-        guard form.email.value == user.emailAddress.address else {
-            return redirectToForm.flash(.error, "Emails do not match.")
+        guard form.email.value?.lowercased() ==
+            user.emailAddress.address.lowercased() else {
+                return redirectToForm.flash(.error, "Emails do not match.")
         }
  
         // check that the password hash is still the same as when the token
