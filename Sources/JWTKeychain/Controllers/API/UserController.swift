@@ -128,7 +128,13 @@ private extension UserController {
             )
         }
         if responseOptions.contains(.user) {
-            try response.set("user", user)
+            if responseOptions == [.user] {
+                // make an exception when only user is to be returned
+                // -> return user as root level object
+                return try user.makeJSON()
+            } else {
+                try response.set("user", user)
+            }
         }
 
         return response

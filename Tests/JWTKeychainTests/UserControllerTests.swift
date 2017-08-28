@@ -98,7 +98,7 @@ final class UserControllerTests: XCTestCase {
                 request.auth.authenticate(user)
                 return try userController.me(request: request)
             },
-            expectedJSONValues: ["user": user]
+            expectedJSONValues: ["email": "a@b.com"]
         )
     }
 
@@ -117,7 +117,7 @@ final class UserControllerTests: XCTestCase {
         try checkUserControllerAction(
             userController.update,
             expectedAction: "update(request:)",
-            expectedJSONValues: ["user": user]
+            expectedJSONValues: ["email": "a@b.com"]
         )
     }
 }
