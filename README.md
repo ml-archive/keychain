@@ -92,13 +92,13 @@ In order to generate password reset tokens for users add the following to `dropl
 ### Resources
 
 Copy package resources:
-`JWTKeyChain/Resources/Views` to `/Resource/Views`.
+`JWTKeychain/Resources/Views` to `/Resource/Views`.
 
 See `https://github.com/vapor/vapor-jwt` to learn more about signing.
 
 ### Usage
 
-Import the module whenever needed:
+Add the provider (preferrably in `Config+Setup.swift`):
 
 ```swift
 import JWTKeychain
