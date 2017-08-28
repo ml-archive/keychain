@@ -11,11 +11,3 @@ public protocol UserControllerType {
     func resetPasswordEmail(request: Request) throws -> ResponseRepresentable
     func update(request: Request) throws -> ResponseRepresentable
 }
-
-extension UserControllerType {
-    
-    // Provide a default implementation for scenarios without refresh tokens.
-    func regenerate(_: Request) throws -> ResponseRepresentable {
-        fatalError("Not implemented.")
-    }
-}
