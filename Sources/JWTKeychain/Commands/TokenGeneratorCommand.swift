@@ -1,42 +1,54 @@
-import Vapor
+import Authentication
 import Console
-import Auth
+import JWT
+import JWTProvider
+import Vapor
 
+/// Generates a token for a user with a given email that can be used to reset
+/// their password.
+///
+/// - usage: `vapor run --generateToken [email]`
 public final class TokenGeneratorCommand: Command {
     enum TokenGeneratorError: Error {
-        case wrongArguments
+        case missingEmail
+        case missingJWTProvider
+        case userNotFound
     }
 
-    public let id = "generator:token"
+    public let id = "keychain:generate_token"
     public let help: [String] = [
         "Generates a JWT token by passing in the user's email."
     ]
     public let console: ConsoleProtocol
-    public let drop: Droplet
-    public let configuration: ConfigurationType
-    public init(drop: Droplet, configuration: ConfigurationType) {
-        self.drop = drop
-        self.console = drop.console
-        self.configuration = configuration
+    public let tokenGenerator: ExpireableSigner
+    
+    internal init(
+        console: ConsoleProtocol,
+        tokenGenerator: ExpireableSigner
+    ) {
+        self.console = console
+        self.tokenGenerator = tokenGenerator
     }
+
     public func run(arguments: [String]) throws {
         console.info("Started the token generator")
 
-        // BUG FIX WHILE WAITING FOR VAPOR UPDATE
-        User.database = drop.database
-
-        guard
-            arguments.count == 1,
-            let user = try User.query().filter("email", arguments[0]).first()
-        else {
-            print("Bad arguments or user not found with email \(arguments[0])")
-            return
+        guard let email = arguments.first else {
+            throw TokenGeneratorError.missingEmail
         }
 
-        let token = try configuration.generateToken(user: user)
-        print("Token generated for user with email \(user.email):")
-        print(token)
+        guard let user = try User
+            .makeQuery()
+            .filter("email", email)
+            .first() else {
+                throw TokenGeneratorError.userNotFound
+        }
 
-        console.info("Finished the token generator script")
+        let token = try tokenGenerator.generateToken(for: user)
+        
+        console.info("Token generated for user with email \(user.email):")
+        console.print(token.string)
+
+        console.success("Finished the token generator script")
     }
 }

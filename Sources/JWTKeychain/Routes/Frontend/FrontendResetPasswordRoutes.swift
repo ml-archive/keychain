@@ -1,54 +1,44 @@
-import Vapor
-import Auth
-import Routing
-import HTTP
+import Authentication
 import Flash
-import Sugar
+import HTTP
+import Routing
+import Vapor
 
 /// Defines basic reset password routes.
 public struct FrontendResetPasswordRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
-    private let drop: Droplet
-    private let configuration: ConfigurationType!
-    private let controller: FrontendResetPasswordControllerType!
-    
+    private let controller: FrontendResetPasswordControllerType
+
     /// Initializes the user route collection.
     ///
     /// - Parameters:
-    ///   - drop: the droplet reference.
-    ///   - configuration: configuration for JWT.
-    ///     Defaults to `Configuration`.
     ///   - resetPasswordController: controller for handling user reset password
     ///     routes.
-    ///     Defaults to `FrontendResetPasswordControllerType`.
-    /// - Throws: if configuration cannot be created.
     public init(
-        drop: Droplet,
-        configuration: ConfigurationType? = nil,
-        resetPasswordController: FrontendResetPasswordControllerType? = nil
-        ) throws {
-        
-        self.drop = drop
-        let config = try configuration ?? Configuration(drop: drop)
-        self.configuration = config
-        self.controller = resetPasswordController ?? FrontendResetPasswordController(drop: drop, configuration: config)
-        
+        resetPasswordController: FrontendResetPasswordControllerType
+    ) {
+        self.controller = resetPasswordController
     }
     
-    public func build<Builder: RouteBuilder>(
-        _ builder: Builder
-        ) where Builder.Value == Responder {
-        
-        // Get the base path group
-        let path = builder.grouped("users")
+    public func build(
+        _ builder: RouteBuilder
+    ) throws {
 
-        path.group(FlashMiddleware(), FieldsetMiddleware()) { routes in
-            // Get the base path group
-            routes.group("reset-password") { routes in
-                routes.get("form", String.self, handler: controller.resetPasswordForm)
-                routes.post("change", handler: controller.resetPasswordChange)
-            }
+        // Get the base path group
+        let path = builder.grouped("users", "reset-password")
+
+        path.group(FlashMiddleware()) { routes in
+            routes.get(
+                "form",
+                String.parameter,
+                handler: controller.resetPasswordForm
+            )
+            routes.post(
+                "change",
+                String.parameter,
+                handler: controller.resetPasswordChange
+            )
         }
     }
 }
