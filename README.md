@@ -76,7 +76,7 @@ The `kid` values should correspond to values in `jwt.json`. The above values for
 
 Usage of a refresh token is optional. You can opt out of using the refresh token by removing the `refreshToken` key.
 
-JWTKeychainProvider uses the default mailer as configured in `mail.json` for sending password reset emails.
+`JWTKeychainProvider` uses the default mailer as configured in `mail.json` for sending password reset emails.
 
 Make sure url is set up in `app.json`. This will be used to generate the link in the password reset email.
 
