@@ -73,7 +73,7 @@ open class FrontendResetPasswordController: FrontendResetPasswordControllerType 
                         .flash(.error, "Token is invalid")
             }
 
-            if user.email != requestData.email {
+            if user.email.lowercased() != requestData.email.lowercased() {
                 return Response(redirect: resetPasswordBaseUrl + requestData.token)
                     .flash(.error, "Email did not match")
             }
