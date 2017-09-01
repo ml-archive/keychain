@@ -86,7 +86,7 @@ public final class Provider: Vapor.Provider {
         let resetPasswordConfig = keychainConfig["resetPassword"]
         
         self.init(
-            baseURL:  baseURL,
+            baseURL: baseURL,
             emailViewPath: resetPasswordConfig?["pathToEmail"]?.string,
             fromEmailAddress: EmailAddress(name: fromName, address: fromAddress),
             apiAccess: apiAccessConfig.flatMap(SignerParameters.init),
@@ -103,12 +103,13 @@ public final class Provider: Vapor.Provider {
 
     public func boot(_ drop: Droplet) throws {
         try registerRoutes(drop)
+    }
+
+    public func beforeRun(_ drop: Droplet) throws {
         if let stem = drop.stem {
             registerTags(stem)
         }
     }
-
-    public func beforeRun(_ drop: Droplet) throws {}
 }
 
 // MARK: Helper

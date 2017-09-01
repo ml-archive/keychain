@@ -39,9 +39,7 @@ public struct APIUserRoutes: RouteCollection {
         // Auth routes
         path.post(handler: controller.register)
         path.post("login", handler: controller.logIn)
-        path.post(
-            "reset-password",
-            "request",
+        path.post("reset-password", "request",
             handler: controller.resetPasswordEmail
         )
 

@@ -76,9 +76,10 @@ The `kid` values should correspond to values in `jwt.json`. The above values for
 
 Usage of a refresh token is optional. You can opt out of using the refresh token by removing the `refreshToken` key.
 
-`JWTKeychainProvider` uses the default mailer as configured in `mail.json` for sending password reset emails.
+JWTKeychainProvider uses the default mailer as configured in `mail.json` or `mailgun.json`
+ for sending password reset emails.
 
-Make sure url is set up in `app.json`. This will be used to generate the link in the password reset email.
+Make sure a value for the key `url` is provided in `app.json`. This will be used to generate the link in the password reset email.
 
 ```json
 {
@@ -86,28 +87,30 @@ Make sure url is set up in `app.json`. This will be used to generate the link in
 }
 ```
 
-### Token Generator Command
-In order to generate password reset tokens for users add the following to `droplet.json`'s `commands`: `"keychain:generate_token"`. Then you can create a token like so: 
+JWTKeychain uses Leaf to render the password reset email and form. Make sure Leaf is set up by adding `"view": "leaf"` to `droplet.json` and add the LeafProvider:
 
-```drop --run keychain:generate_token user@email.com```
+```swift
+try addProvider(LeafProvider.Provider.self)
+```
 
 ### Resources
 
 Copy package resources:
+
 `JWTKeychain/Resources/Views` to `/Resource/Views`.
 
 See `https://github.com/vapor/vapor-jwt` to learn more about signing.
 
 ### Usage
 
-Add the provider (preferrably in `Config+Setup.swift`):
+Add the provider (preferably in `setupProviders()` in `Config+Setup.swift`):
 
 ```swift
 import JWTKeychain
 ```
 
 ```swift
-try config.addProvider(JWTKeychain.Provider.self)
+try addProvider(JWTKeychain.Provider.self)
 ```
 
 That's it! Now, you'll have the following routes out-of-the-box:
@@ -118,6 +121,11 @@ That's it! Now, you'll have the following routes out-of-the-box:
 - Token regenerate: `PATCH /users/token/regenerate`
 - Me: `GET /users/me`
 - Reset password: `POST /users/reset-password/request`
+
+### Token Generator Command
+In order to generate password reset tokens for users add the following to `droplet.json`'s `commands`: `"keychain:generate_token"`. Then you can create a token like so:
+
+> `drop --run keychain:generate_token user@email.com`
 
 ### Customized setup
 
@@ -146,7 +154,7 @@ Most of the parameters have default values, so feel free to mix and match as nee
 ## Tokens
 There are three types of tokens used by JWTKeychain: refresh tokens, API access tokens, and password reset tokens.
 
-Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string). 
+Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string).
 
 ### Refresh Tokens
 
@@ -167,14 +175,14 @@ API Access tokens give access to the following endpoints:
 * GET `/users/logout`
 * PATCH `/users/update`
 
-as well as the endpoints 
+as well as the endpoints
 
 Whenever an access token is expired a new one can be generated using a request to `/users/regenerate`.
 
 ### Password Reset Tokens
 
 
-## Customization 
+## Customization
 
 ### UserController
 If you wish to modify the behavior of the `UserController` you can subclass it and override any function you wish. If you want to create your own UserController from scratch you can conform to the 'UserControllerType` protocol.

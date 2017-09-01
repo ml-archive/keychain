@@ -45,7 +45,7 @@ public class PasswordResetMailer: PasswordResetMailerType {
             emailViewPath,
             ViewData(
                 node: [
-                    "user": user.makeNode(in: nil),
+                    "user": user.makeNode(in: jsonContext),
                     "token": resetToken.string,
                     "expire": expirationPeriod.minute ?? 0,
                     "url": baseURL

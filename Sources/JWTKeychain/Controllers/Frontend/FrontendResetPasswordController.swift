@@ -55,7 +55,7 @@ open class FrontendResetPasswordController<U: PasswordResettableUser>:
             ResetPasswordForm(makeAllFieldsOptional: true).makeFieldSet()
 
         return try viewRenderer.make(
-            "ResetPassword/user-form",
+            "ResetPassword/resetPassword",
             ViewData(
                 fieldSet: fieldSet,
                 request: request,
