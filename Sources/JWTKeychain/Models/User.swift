@@ -47,7 +47,7 @@ public final class User: Model, Timestampable, SoftDeletable {
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user
-    func update(
+    public func update(
         email: Valid<UniqueEmail>? = nil,
         name: Valid<Name>? = nil,
         password: HashedPassword? = nil
@@ -128,9 +128,7 @@ extension User: PasswordAuthenticatable {
         return password
     }
 
-    // TODO: make this configurable
-    public static let passwordHasher = BCryptHasher(cost: 10)
-    public static let passwordVerifier: PasswordVerifier? = User.passwordHasher
+    public static let passwordVerifier: PasswordVerifier? = bCryptHasher
 }
 
 // MARK: JSONRepresentable
@@ -157,4 +155,19 @@ extension User: EmailAddressRepresentable {
     public var emailAddress: EmailAddress {
         return EmailAddress(name: name, address: email)
     }
+}
+
+// MARK: P
+
+extension User: P {
+    // TODO: make this configurable
+    fileprivate static let bCryptHasher = BCryptHasher(cost: 10)
+
+    public static let passwordHasher: HashProtocol = bCryptHasher
+}
+
+// MARK: JWTKeychainAuthenticatable
+
+extension User: JWTKeychainAuthenticatable {
+
 }

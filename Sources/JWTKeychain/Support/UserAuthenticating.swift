@@ -4,37 +4,34 @@ import SMTP
 import Vapor
 import protocol JWT.Storable
 
-public protocol UserAuthenticating {
-    associatedtype U: PasswordAuthenticatable, EmailAddressRepresentable,
-        Entity, JSONRepresentable, NodeRepresentable
-
-    func find(request: Request) throws -> U
-    func logIn(request: Request) throws -> U
-    func logOut(request: Request) throws -> U
-    func make(request: Request) throws -> U
-    func update(request: Request) throws -> U
+public protocol JWTKeychainAuthenticatable {
+    static func find(request: Request) throws -> Self
+    static func logIn(request: Request) throws -> Self
+    static func logOut(request: Request) throws -> Self
+    static func make(request: Request) throws -> Self
+    static func update(request: Request) throws -> Self
 }
 
-extension UserAuthenticating {
+extension JWTKeychainAuthenticatable where Self: EmailAddressRepresentable & PasswordAuthenticatable & Entity {
 
     /// Find user by U.usernameKey (e.g. "email") and fetches from database.
     /// - Parameter request: request that should contain a value for the key
     ///   equal to U.usernameKey
     /// - Throws: Abort error when usernameKey key is not present, or user could
     ///   not be found
-    public func find(request: Request) throws -> U {
+    public static func find(request: Request) throws -> Self {
         let email: String
 
         do {
-            email = try request.data.get(U.usernameKey)
+            email = try request.data.get(usernameKey)
         } catch {
             throw Abort(
                 .preconditionFailed,
-                reason: "The field \"\(U.usernameKey)\" is required"
+                reason: "The field \"\(usernameKey)\" is required"
             )
         }
 
-        guard let user = try U.makeQuery().filter(U.usernameKey, email).first()
+        guard let user = try makeQuery().filter(usernameKey, email).first()
             else {
                 throw Abort.notFound
         }
@@ -42,27 +39,27 @@ extension UserAuthenticating {
         return user
     }
 
-    public func logIn(request: Request) throws -> U {
+    public static func logIn(request: Request) throws -> Self {
         let credentials = try getCredentials(from: request)
-        return try U.authenticate(credentials)
+        return try authenticate(credentials)
     }
 
-    public func logOut(request: Request) throws -> U {
-        let user: U = try request.auth.assertAuthenticated()
+    public static func logOut(request: Request) throws -> Self {
+        let user: Self = try request.auth.assertAuthenticated()
 
         try request.auth.unauthenticate()
 
         return user
     }
 
-    fileprivate func getCredentials(
+    public static func getCredentials(
         from request: Request
     ) throws -> Authentication.Password {
         let data = request.data
 
         guard
-            let password = data[U.passwordKey]?.string,
-            let username = data[U.usernameKey]?.string else {
+            let password = data[passwordKey]?.string,
+            let username = data[usernameKey]?.string else {
                 throw Abort.unauthorized
         }
 
@@ -70,10 +67,13 @@ extension UserAuthenticating {
     }
 }
 
-public class UserAuthenticator: UserAuthenticating {
-    public typealias U = User
+public protocol P {
+    static var passwordHasher: HashProtocol { get }
+    init(email: Valid<UniqueEmail>, name: Valid<Name>?, password: HashedPassword) throws
+    func update(email: Valid<UniqueEmail>?, name: Valid<Name>?, password: HashedPassword?) throws
+}
 
-    public init() {}
+extension JWTKeychainAuthenticatable where Self: EmailAddressRepresentable & PasswordAuthenticatable & Entity & P {
 
     /// Creates a new user from the values in the request.
     /// - Parameters:
@@ -82,18 +82,16 @@ public class UserAuthenticator: UserAuthenticating {
     /// - Throws: Abort error when email and/or password are missing or a
     ///   ValidationError if any of the input is invalid
     /// - Returns: the new user
-    public func make(request: Request) throws -> U {
+    public static func make(request: Request) throws -> Self {
         let creds = try getCredentials(from: request)
 
-        let name = request.data[U.Keys.name]?.string
+        let name = request.data[usernameKey]?.string
 
-        let user = try U(
+        let user = try Self(
             email: Valid(creds.username),
             name: name.map(Valid.init),
-            password: U.passwordHasher.hash(Valid(creds.password))
+            password: passwordHasher.hash(Valid(creds.password))
         )
-
-        try user.save()
 
         return user
     }
@@ -105,16 +103,16 @@ public class UserAuthenticator: UserAuthenticating {
     ///     "newPassword" in case of a password change.
     /// - Throws: when password does not match or user could not be saved
     /// - Returns: the updated user
-    public func update(request: Request) throws -> U {
+    public static func update(request: Request) throws -> Self {
         let data = request.data
-        let user: U = try request.auth.assertAuthenticated()
+        let user: Self = try request.auth.assertAuthenticated()
 
         let password: String?
         if
             let newPassword = data["newPassword"]?.string,
-            let oldPassword = data[U.passwordKey]?.string,
+            let oldPassword = data[passwordKey]?.string,
             let hashedPassword = user.hashedPassword,
-            let verified = try U.passwordVerifier?.verify(
+            let verified = try passwordVerifier?.verify(
                 password: oldPassword,
                 matches: hashedPassword
             ),
@@ -126,13 +124,13 @@ public class UserAuthenticator: UserAuthenticating {
             password = nil
         }
 
-        let username = data[U.usernameKey]?.string
-        let name = data[U.Keys.name]?.string
+        let username = data[usernameKey]?.string
+        let name = data[usernameKey]?.string
 
         try user.update(
             email: username.map(Valid.init),
             name: name.map(Valid.init),
-            password: password.map(Valid.init).map(U.passwordHasher.hash)
+            password: password.map(Valid.init).map(passwordHasher.hash)
         )
 
         try user.save()

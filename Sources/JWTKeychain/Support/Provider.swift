@@ -1,4 +1,6 @@
+import Authentication
 import Core
+import Fluent
 import JWT
 import JWTProvider
 import Leaf
@@ -6,12 +8,24 @@ import LeafProvider
 import SMTP
 import Vapor
 
+public typealias JWTKeychainUser =
+    EmailAddressRepresentable &
+    Entity &
+    JSONRepresentable &
+    JWTKeychainAuthenticatable &
+    NodeRepresentable &
+    PasswordAuthenticatable &
+    PayloadAuthenticatable &
+    Preparation
+
 /// Provider that sets up:
 /// - User API routes
 /// - Frontend password reset routes
 /// - Password Reset Mailer
-public final class Provider: Vapor.Provider {
-    public static let repositoryName = "jwt-keychain-provider"
+public final class Provider<U: JWTKeychainUser>: Vapor.Provider {
+    public static var repositoryName: String {
+        return "jwt-keychain-provider"
+    }
     
     fileprivate let baseURL: String
     fileprivate let emailViewPath: String
@@ -96,7 +110,7 @@ public final class Provider: Vapor.Provider {
     }
 
     public func boot(_ config: Config) throws {
-        config.preparations += [User.self]
+        config.preparations += [U.self]
         
         try config.addProvider(JWTProvider.Provider.self)
     }
@@ -187,17 +201,14 @@ extension Provider {
             signerMap: signerMap
         )
         
-        let userAuthenticator = UserAuthenticator()
-
-        let controller = UserController(
+        let controller = UserController<U>(
             passwordResetMailer: passwordResetMailer,
             apiAccessTokenGenerator: apiAccessTokenGenerator,
             refreshTokenGenerator: refreshTokenGenerator,
-            resetPasswordTokenGenerator: resetPasswordTokenGenerator,
-            userAuthenticator: userAuthenticator
+            resetPasswordTokenGenerator: resetPasswordTokenGenerator
         )
         
-        let apiAccessMiddleware = PayloadAuthenticationMiddleware<User>(
+        let apiAccessMiddleware = PayloadAuthenticationMiddleware<U>(
             apiAccessTokenGenerator,
             [ExpirationTimeClaim()]
         )
@@ -205,7 +216,7 @@ extension Provider {
         let refreshMiddleware: Middleware?
 
         if let refreshTokenGenerator = refreshTokenGenerator {
-            refreshMiddleware = PayloadAuthenticationMiddleware<User>(
+            refreshMiddleware = PayloadAuthenticationMiddleware<U>(
                 refreshTokenGenerator,
                 [ExpirationTimeClaim()]
             )

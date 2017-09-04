@@ -2,9 +2,8 @@ import Foundation
 import Vapor
 
 /// Controller for user API requests
-open class UserController<A: UserAuthenticating>: UserControllerType {
+open class UserController<U: JWTKeychainUser>: UserControllerType {
     private let passwordResetMailer: PasswordResetMailerType
-    private let userAuthenticator: A
     fileprivate let apiAccessTokenGenerator: TokenGenerator
     fileprivate let refreshTokenGenerator: TokenGenerator?
     fileprivate let resetPasswordTokenGenerator: TokenGenerator
@@ -13,14 +12,12 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
         passwordResetMailer: PasswordResetMailerType,
         apiAccessTokenGenerator: TokenGenerator,
         refreshTokenGenerator: TokenGenerator?,
-        resetPasswordTokenGenerator: TokenGenerator,
-        userAuthenticator: A
+        resetPasswordTokenGenerator: TokenGenerator
     ) {
         self.passwordResetMailer = passwordResetMailer
         self.apiAccessTokenGenerator = apiAccessTokenGenerator
         self.refreshTokenGenerator = refreshTokenGenerator
         self.resetPasswordTokenGenerator = resetPasswordTokenGenerator
-        self.userAuthenticator = userAuthenticator
     }
 
     /// Registers a user and created an instance in the database.
@@ -28,7 +25,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     /// - Parameter request: current request.
     /// - Returns: JSON response with User data.
     open func register(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.make(request: request)
+        let user = try U.make(request: request)
         return try makeResponse(user: user, responseOptions: .all)
     }
 
@@ -38,7 +35,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     /// - Returns: JSON response with User data.
     /// - Throws: on invalid data or wrong credentials.
     open func logIn(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.logIn(request: request)
+        let user = try U.logIn(request: request)
         return try makeResponse(user: user, responseOptions: .all)
     }
 
@@ -48,7 +45,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     /// - Returns: JSON success response.
     /// - Throws: if not able to find token.
     open func logOut(request: Request) throws -> ResponseRepresentable {
-        _ = try userAuthenticator.logOut(request: request)
+        _ = try U.logOut(request: request)
         return status("ok")
     }
 
@@ -58,7 +55,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     /// - Returns: JSON with token.
     /// - Throws: if not able to generate token.
     open func regenerate(request: Request) throws -> ResponseRepresentable {
-        let user: A.U = try request.auth.assertAuthenticated()
+        let user: U = try request.auth.assertAuthenticated()
         return try makeResponse(user: user, responseOptions: .access)
     }
 
@@ -68,7 +65,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     /// - Returns: JSON response with User data.
     /// - Throws: on no user found.
     open func me(request: Request) throws -> ResponseRepresentable {
-        let user: A.U = try request.auth.assertAuthenticated()
+        let user: U = try request.auth.assertAuthenticated()
         return try makeResponse(user: user, responseOptions: .user)
     }
 
@@ -80,7 +77,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
         request: Request
     ) throws -> ResponseRepresentable {
         do {
-            let user = try userAuthenticator.find(request: request)
+            let user = try U.find(request: request)
             let token = try resetPasswordTokenGenerator.generateToken(for: user)
             try passwordResetMailer.sendResetPasswordMail(
                 user: user,
@@ -99,7 +96,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
     /// - Parameter request: current request.
     /// - Returns: success or failure message
     open func update(request: Request) throws -> ResponseRepresentable {
-        let user = try userAuthenticator.update(request: request)
+        let user = try U.update(request: request)
         return try makeResponse(user: user, responseOptions: .user)
     }
 }
@@ -108,7 +105,7 @@ open class UserController<A: UserAuthenticating>: UserControllerType {
 
 private extension UserController {
     func makeResponse(
-        user: A.U,
+        user: U,
         responseOptions: ResponseOptions
     ) throws -> ResponseRepresentable {
         var response = JSON()
