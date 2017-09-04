@@ -7,7 +7,7 @@ class ResetPasswordFormTests: TestCase {
             .testResponse(to: .get, at: "/users/reset-password/form/\(token)")
             .assertStatus(is: .ok)
         
-        XCTAssertEqual(drop.capturedViewPath, "ResetPassword/user-form")
+        XCTAssertEqual(drop.capturedViewPath, "ResetPassword/resetPassword")
         XCTAssertEqual(drop.capturedViewData?["token"]?.string, token)
         XCTAssertNotNil(drop.capturedViewData?["request"])
         
