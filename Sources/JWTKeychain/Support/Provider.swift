@@ -228,6 +228,9 @@ extension Provider {
             [ExpirationTimeClaim()]
         )
 
+        // Expose API Access Middleware for public usage
+        Middlewares.secured.append(apiAccessMiddleware)
+
         let refreshMiddleware: Middleware?
 
         if let refreshTokenGenerator = refreshTokenGenerator {
