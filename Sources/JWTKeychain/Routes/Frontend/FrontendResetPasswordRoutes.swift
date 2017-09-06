@@ -1,5 +1,6 @@
 import Authentication
 import Flash
+import Forms
 import HTTP
 import Routing
 import Vapor
@@ -28,7 +29,7 @@ public struct FrontendResetPasswordRoutes: RouteCollection {
         // Get the base path group
         let path = builder.grouped("users", "reset-password")
 
-        path.group(FlashMiddleware()) { routes in
+        path.group(FlashMiddleware(), FieldSetMiddleware()) { routes in
             routes.get(
                 "form",
                 String.parameter,
