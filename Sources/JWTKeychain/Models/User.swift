@@ -41,7 +41,8 @@ public final class User: Model, Timestampable, SoftDeletable {
         password = try row.get(Keys.password)
     }
 
-    /// Updates the User with name, email and password. Only updates non-nil parameters.
+    /// Updates the User with name, email and password.
+    /// Only updates non-nil parameters.
     ///
     /// - Parameters:
     ///   - name: name of the user
@@ -66,33 +67,60 @@ public final class User: Model, Timestampable, SoftDeletable {
     }
 }
 
-// MARK: RowRepresentable
-extension User {
-    public func makeRow() throws -> Row {
-        var row = Row()
-        try row.set(Keys.email, email)
-        try row.set(Keys.name, name)
-        try row.set(Keys.password, password)
-        return row
+// MARK: EmailAddressRepresentable
+
+extension User: EmailAddressRepresentable {
+    public var emailAddress: EmailAddress {
+        return EmailAddress(name: name, address: email)
     }
 }
 
-// MARK: Preparation
+// MARK: JSONRepresentable
 
-extension User: Preparation {
-    public static func prepare(_ database: Database) throws {
-        try database.create(self) { user in
-            user.id()
-            user.string(Keys.email)
-            user.string(Keys.name, optional: true)
-            user.string(Keys.password)
-        }
+extension User: JSONRepresentable {
+    public func makeJSON() throws -> JSON {
+        var json = JSON()
 
-        try database.index("email", for: User.self)
+        try json.set(idKey, id)
+        try json.set(Keys.name, name)
+        try json.set(Keys.email, email)
+
+        return json
+    }
+}
+
+// MARK: JWTKeychainAuthenticatable
+
+extension User: JWTKeychainAuthenticatable {
+
+}
+
+// MARK: NodeRepresentable
+
+extension User: NodeRepresentable {
+
+}
+
+// MARK: PasswordAuthenticatable
+
+extension User: PasswordAuthenticatable {
+    public static let usernameKey = Keys.email
+    public static let passwordKey = Keys.password
+
+    public var hashedPassword: String? {
+        return password
     }
 
-    public static func revert(_ database: Database) throws {
-        try database.delete(self)
+    public static var passwordVerifier: PasswordVerifier? {
+        return Provider<User>.hasher
+    }
+}
+
+// MARK: PasswordUpdateable
+
+extension User: PasswordUpdateable {
+    public func updatePassword(to password: String) throws {
+        update(password: try Provider<User>.hasher.hash(Valid(password)))
     }
 }
 
@@ -118,56 +146,97 @@ extension User: PayloadAuthenticatable {
     }
 }
 
-// MARK: PasswordAuthenticatable
+// MARK: Preparation
 
-extension User: PasswordAuthenticatable {
-    public static let usernameKey = Keys.email
-    public static let passwordKey = Keys.password
+extension User: Preparation {
+    public static func prepare(_ database: Database) throws {
+        try database.create(self) { user in
+            user.id()
+            user.string(Keys.email)
+            user.string(Keys.name, optional: true)
+            user.string(Keys.password)
+        }
 
-    public var hashedPassword: String? {
-        return password
+        try database.index("email", for: User.self)
     }
 
-    public static let passwordVerifier: PasswordVerifier? = bCryptHasher
-}
-
-// MARK: JSONRepresentable
-
-extension User: JSONRepresentable {
-    public func makeJSON() throws -> JSON {
-        var json = JSON()
-
-        try json.set(idKey, id)
-        try json.set(Keys.name, name)
-        try json.set(Keys.email, email)
-
-        return json
+    public static func revert(_ database: Database) throws {
+        try database.delete(self)
     }
 }
 
-// MARK: NodeRepresentable
+// MARK: RequestInitializable
 
-extension User: NodeRepresentable {}
+extension User: RequestInitializable {
+    
+    /// Creates a new user from the values in the request.
+    /// - Parameters:
+    ///   - request: request with values for the keys "email", U.passwordKey
+    ///     and optionally "name".
+    /// - Throws: Abort error when email and/or password are missing or a
+    ///   ValidationError if any of the input is invalid
+    /// - Returns: the new user
+    public convenience init(request: Request) throws {
+        let creds = try User.getCredentials(from: request)
 
-// MARK: EmailAddressRepresentable
+        let name = request.data[Keys.name]?.string
 
-extension User: EmailAddressRepresentable {
-    public var emailAddress: EmailAddress {
-        return EmailAddress(name: name, address: email)
+        try self.init(
+            email: Valid(creds.username),
+            name: name.map(Valid.init),
+            password: Provider<User>.hasher.hash(Valid(creds.password))
+        )
     }
 }
 
-// MARK: P
+// MARK: RequestUpdateable
 
-extension User: P {
-    // TODO: make this configurable
-    fileprivate static let bCryptHasher = BCryptHasher(cost: 10)
+extension User: RequestUpdateable {
 
-    public static let passwordHasher: HashProtocol = bCryptHasher
+    /// Updates an existing user with the values from the request.
+    /// - Parameters:
+    ///   - request: request that optionally contains values for the keys
+    ///     "email, "name", and both "password" + "newPassword" in case of a
+    ///     password change.
+    /// - Throws: when password does not match or user could not be saved
+    /// - Returns: the updated user
+    public func update(request: Request) throws {
+        let data = request.data
+        let password: String?
+        if
+            let newPassword = data["newPassword"]?.string,
+            let oldPassword = data[User.passwordKey]?.string,
+            let hashedPassword = hashedPassword,
+            let verified = try User.passwordVerifier?.verify(
+                password: oldPassword,
+                matches: hashedPassword
+            ),
+            verified,
+            newPassword != oldPassword
+        {
+            password = newPassword
+        } else {
+            password = nil
+        }
+
+        let email = data[Keys.email]?.string
+        let name = data[Keys.name]?.string
+
+        try update(
+            email: email.map(Valid.init),
+            name: name.map(Valid.init),
+            password: password.map(Valid.init).map(Provider<User>.hasher.hash)
+        )
+    }
 }
 
-// MARK: JWTKeychainAuthenticatable
-
-extension User: JWTKeychainAuthenticatable {
-
+// MARK: RowRepresentable
+extension User {
+    public func makeRow() throws -> Row {
+        var row = Row()
+        try row.set(Keys.email, email)
+        try row.set(Keys.name, name)
+        try row.set(Keys.password, password)
+        return row
+    }
 }

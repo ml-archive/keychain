@@ -15,14 +15,23 @@ public typealias JWTKeychainUser =
     JWTKeychainAuthenticatable &
     NodeRepresentable &
     PasswordAuthenticatable &
+    PasswordUpdateable &
     PayloadAuthenticatable &
     Preparation
+
+// TODO: make cost configurable
+private let _hasher = BCryptHasher()
 
 /// Provider that sets up:
 /// - User API routes
 /// - Frontend password reset routes
 /// - Password Reset Mailer
 public final class Provider<U: JWTKeychainUser>: Vapor.Provider {
+
+    public static var hasher: BCryptHasher {
+        return _hasher
+    }
+
     public static var repositoryName: String {
         return "jwt-keychain-provider"
     }
@@ -38,7 +47,8 @@ public final class Provider<U: JWTKeychainUser>: Vapor.Provider {
 
     /**
      - parameter baseURL: base URL of the app; used for password reset link.
-     - parameter emailViewPath: path to view used to render password reset email html.
+     - parameter emailViewPath: path to view used to render password reset email
+                 html.
      - parameter fromEmailAddress: sender
      - parameter apiAccess: signer parameters for API access routes.
          Defaults to "kid": "access" and a 1 hour expiration period
@@ -79,20 +89,22 @@ public final class Provider<U: JWTKeychainUser>: Vapor.Provider {
             throw ConfigError.missingFile(keychainConfigFile)
         }
         
-        guard let fromName = keychainConfig["resetPassword", "fromName"]?.string else {
-            throw ConfigError.missing(
-                key: ["resetPassword", "fromName"],
-                file: keychainConfigFile,
-                desiredType: String.self
-            )
+        guard let fromName = keychainConfig["resetPassword", "fromName"]?
+            .string else {
+                throw ConfigError.missing(
+                    key: ["resetPassword", "fromName"],
+                    file: keychainConfigFile,
+                    desiredType: String.self
+                )
         }
         
-        guard let fromAddress = keychainConfig["resetPassword", "fromAddress"]?.string else {
-            throw ConfigError.missing(
-                key: ["resetPassword", "fromAddress"],
-                file: keychainConfigFile,
-                desiredType: String.self
-            )
+        guard let fromAddress = keychainConfig["resetPassword", "fromAddress"]?
+            .string else {
+                throw ConfigError.missing(
+                    key: ["resetPassword", "fromAddress"],
+                    file: keychainConfigFile,
+                    desiredType: String.self
+                )
         }
         
         let apiAccessConfig = keychainConfig["apiAccess"]
@@ -102,7 +114,10 @@ public final class Provider<U: JWTKeychainUser>: Vapor.Provider {
         self.init(
             baseURL: baseURL,
             emailViewPath: resetPasswordConfig?["pathToEmail"]?.string,
-            fromEmailAddress: EmailAddress(name: fromName, address: fromAddress),
+            fromEmailAddress: EmailAddress(
+                name: fromName,
+                address: fromAddress
+            ),
             apiAccess: apiAccessConfig.flatMap(SignerParameters.init),
             refreshToken: refreshTokenConfig.flatMap(SignerParameters.init),
             resetPassword: resetPasswordConfig.flatMap(SignerParameters.init)
@@ -167,7 +182,7 @@ extension Provider {
             throw JWTKeychainError.missingSigner(kid: resetPassword.kid)
         }
         
-        let controller = FrontendResetPasswordController<User>(
+        let controller = FrontendResetPasswordController<U>(
             signer: signer,
             viewRenderer: viewRenderer
         )

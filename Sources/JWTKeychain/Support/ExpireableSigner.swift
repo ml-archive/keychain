@@ -11,7 +11,8 @@ public struct ExpireableSigner {
     fileprivate let now: () -> Date
     
     init(
-        now: @escaping () -> Date = Date.init, // injectable for control over dates during testing
+        // injectable for control over dates during testing
+        now: @escaping () -> Date = Date.init,
         signerParameters: SignerParameters,
         signerMap: SignerMap
     ) throws {

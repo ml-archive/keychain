@@ -9,18 +9,12 @@ import JWTProvider
 import SMTP
 import Vapor
 
-public typealias PasswordResettableUser = PayloadAuthenticatable & Entity &
-    PasswordAuthenticatable & EmailAddressRepresentable & PasswordUpdateable
-
-public protocol PasswordUpdateable {
-    func updatePassword(to: String) throws
-}
-
-extension User: PasswordUpdateable {
-    public func updatePassword(to password: String) throws {
-        try update(password: User.passwordHasher.hash(Valid(password)))
-    }
-}
+public typealias PasswordResettableUser =
+    EmailAddressRepresentable &
+    Entity &
+    PasswordAuthenticatable &
+    PasswordUpdateable &
+    PayloadAuthenticatable
 
 /// Controller for reset password requests
 open class FrontendResetPasswordController<U: PasswordResettableUser>:
