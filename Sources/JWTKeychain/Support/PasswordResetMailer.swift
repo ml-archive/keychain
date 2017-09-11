@@ -19,7 +19,7 @@ public class PasswordResetMailer: PasswordResetMailerType {
         viewRenderer: ViewRenderer
     ) {
         self.baseURL = settings.baseURL
-        self.emailViewPath = settings.emailViewPath
+        self.emailViewPath = settings.pathToEmailView
         self.expireIn = settings.resetPassword.expireIn
         self.fromEmailAddress = settings.fromEmailAddress
         self.mailer = mailer

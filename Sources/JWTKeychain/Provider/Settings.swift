@@ -16,6 +16,8 @@ public struct Settings {
     public let refreshToken: SignerParameters?
     public let resetPassword: SignerParameters
 
+    public let bCryptCost: UInt?
+
     /// Initializes the Settings object.
     ///
     /// - Parameters:
@@ -48,11 +50,9 @@ public struct Settings {
         self.fromEmailAddress = fromEmailAddress
         self.apiPathPrefix = apiPathPrefix ?? ""
         self.frontendPathPrefix = frontendPathPrefix ?? ""
-        self.apiAccess = apiAccess ??
-            SignerParameters(kid: "access", expireIn: 1.hour)
+        self.apiAccess = apiAccess ?? SignerParameters(kid: "access")
         self.refreshToken = refreshToken
-        self.resetPassword = resetPassword ??
-            SignerParameters(kid: "reset", expireIn: 1.hour)
+        self.resetPassword = resetPassword ?? SignerParameters(kid: "reset")
     }
 }
 
@@ -71,22 +71,20 @@ extension Settings: ConfigInitializable {
             throw ConfigError.missingFile(keychainConfigFile)
         }
 
-        guard let fromName = keychainConfig["fromName"]?
-            .string else {
-                throw ConfigError.missing(
-                    key: ["resetPassword", "fromName"],
-                    file: keychainConfigFile,
-                    desiredType: String.self
-                )
+        guard let fromName = keychainConfig["fromName"]?.string else {
+            throw ConfigError.missing(
+                key: ["fromName"],
+                file: keychainConfigFile,
+                desiredType: String.self
+            )
         }
 
-        guard let fromAddress = keychainConfig["fromAddress"]?
-            .string else {
-                throw ConfigError.missing(
-                    key: ["resetPassword", "fromAddress"],
-                    file: keychainConfigFile,
-                    desiredType: String.self
-                )
+        guard let fromAddress = keychainConfig["fromAddress"]?.string else {
+            throw ConfigError.missing(
+                key: ["fromAddress"],
+                file: keychainConfigFile,
+                desiredType: String.self
+            )
         }
 
         let apiAccessConfig = keychainConfig["apiAccess"]
@@ -101,8 +99,8 @@ extension Settings: ConfigInitializable {
                 name: fromName,
                 address: fromAddress
             ),
-            apiPathPrefix: keychainConfig["pathToEmailView"]?.string,
-            frontendPathPrefix: keychainConfig["pathToFormView"]?.string,
+            apiPathPrefix: keychainConfig["apiPathPrefix"]?.string,
+            frontendPathPrefix: keychainConfig["frontendPathPrefix"]?.string,
             apiAccess: apiAccessConfig.flatMap(SignerParameters.init),
             refreshToken: refreshTokenConfig.flatMap(SignerParameters.init),
             resetPassword: resetPasswordConfig.flatMap(SignerParameters.init)
