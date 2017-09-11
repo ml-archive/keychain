@@ -20,7 +20,7 @@ public final class User: Model, Timestampable, SoftDeletable {
 
     /// Initializes the User with name, email and password (plain).
     ///
-    /// - Parameters:
+    /// - parameters:
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user (plain)
@@ -44,7 +44,7 @@ public final class User: Model, Timestampable, SoftDeletable {
     /// Updates the User with name, email and password.
     /// Only updates non-nil parameters.
     ///
-    /// - Parameters:
+    /// - parameters:
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user
@@ -170,7 +170,7 @@ extension User: Preparation {
 extension User: RequestInitializable {
     
     /// Creates a new user from the values in the request.
-    /// - Parameters:
+    /// - parameters:
     ///   - request: request with values for the keys "email", U.passwordKey
     ///     and optionally "name".
     /// - Throws: Abort error when email and/or password are missing or a
@@ -194,7 +194,7 @@ extension User: RequestInitializable {
 extension User: RequestUpdateable {
 
     /// Updates an existing user with the values from the request.
-    /// - Parameters:
+    /// - parameters:
     ///   - request: request that optionally contains values for the keys
     ///     "email, "name", and both "password" + "newPassword" in case of a
     ///     password change.

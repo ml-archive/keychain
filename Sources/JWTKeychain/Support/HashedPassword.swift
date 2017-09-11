@@ -3,7 +3,7 @@ import Vapor
 extension HashProtocol {
     
     /// Create a HashedPassword from a validated password
-    /// - Parameter password: a validated password
+    /// - parameter password: a validated password
     /// - Throws: when password hashing fails
     /// - Returns: an instance of a HashedPassword
     func hash(_ password: Valid<Password>) throws -> HashedPassword {

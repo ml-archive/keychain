@@ -16,7 +16,7 @@ extension JWTKeychainAuthenticatable where Self:
     EmailAddressRepresentable & PasswordAuthenticatable & Entity {
 
     /// Find user by U.usernameKey (e.g. "email") and fetches from database.
-    /// - Parameter request: request that should contain a value for the key
+    /// - parameter request: request that should contain a value for the key
     ///   equal to U.usernameKey
     /// - Throws: Abort error when usernameKey key is not present, or user could
     ///   not be found

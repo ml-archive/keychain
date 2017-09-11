@@ -5,31 +5,31 @@ import Routing
 import Vapor
 
 /// Defines basic user authorization routes.
-public struct APIUserRoutes: RouteCollection {
+internal struct APIUserRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
     private let apiAccessMiddleware: Middleware
     private let refreshMiddleware: Middleware?
-    private let controller: UserControllerType
+    private let controller: APIUserController
 
     /// Initializes the user route collection.
     ///
-    /// - Parameters:
+    /// - parameters:
     ///   - apiAccessMiddleware: authentication middleware for API access.
     ///   - refreshMiddleware: optional authentication middleware for refresh
     ///     token endpoint.
     ///   - userController: controller for handling user routes.
-    public init(
+    internal init(
         apiAccessMiddleware: Middleware,
         refreshMiddleware: Middleware? = nil,
-        userController: UserControllerType
+        controller: APIUserController
     ) {
         self.apiAccessMiddleware = apiAccessMiddleware
         self.refreshMiddleware = refreshMiddleware
-        self.controller = userController
+        self.controller = controller
     }
 
-    public func build(
+    internal func build(
         _ builder: RouteBuilder
     ) throws {
         

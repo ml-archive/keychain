@@ -6,23 +6,22 @@ import Routing
 import Vapor
 
 /// Defines basic reset password routes.
-public struct FrontendResetPasswordRoutes: RouteCollection {
-    public typealias Wrapped = Responder
+internal struct FrontendResetPasswordRoutes: RouteCollection {
+    internal typealias Wrapped = Responder
     
-    private let controller: FrontendResetPasswordControllerType
+    private let controller: FrontendUserController
 
     /// Initializes the user route collection.
     ///
-    /// - Parameters:
-    ///   - resetPasswordController: controller for handling user reset password
-    ///     routes.
-    public init(
-        resetPasswordController: FrontendResetPasswordControllerType
+    /// - parameters resetPasswordController: controller for handling user reset
+    ///   password routes.
+    internal init(
+        controller: FrontendUserController
     ) {
-        self.controller = resetPasswordController
+        self.controller = controller
     }
     
-    public func build(
+    internal func build(
         _ builder: RouteBuilder
     ) throws {
 
