@@ -19,8 +19,7 @@ public typealias JWTKeychainUser =
     PayloadAuthenticatable &
     Preparation
 
-// TODO: make cost configurable or use global bcrypt?
-private let _hasher = BCryptHasher()
+private var _bCryptHasher = BCryptHasher()
 
 /// Provider that sets up:
 /// - User API routes
@@ -28,8 +27,8 @@ private let _hasher = BCryptHasher()
 /// - Password Reset Mailer
 public final class Provider<U: JWTKeychainUser> {
 
-    public static var hasher: BCryptHasher {
-        return _hasher
+    public static var bCryptHasher: BCryptHasher {
+        return _bCryptHasher
     }
 
     let settings: Settings
@@ -45,6 +44,10 @@ public final class Provider<U: JWTKeychainUser> {
         self.apiDelegate = apiDelegate
         self.frontendDelegate = frontendDelegate
         self.settings = settings
+
+        if let bCryptCost = settings.bCryptCost {
+            _bCryptHasher = BCryptHasher(cost: bCryptCost)
+        }
     }
 }
 

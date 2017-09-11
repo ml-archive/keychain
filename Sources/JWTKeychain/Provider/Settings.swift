@@ -42,7 +42,8 @@ public struct Settings {
         frontendPathPrefix: String?,
         apiAccess: SignerParameters?,
         refreshToken: SignerParameters?,
-        resetPassword: SignerParameters?
+        resetPassword: SignerParameters?,
+        bCryptCost: UInt?
     ) {
         self.baseURL = baseURL
         self.pathToEmailView = pathToEmailView ?? "Emails/resetPassword"
@@ -53,6 +54,7 @@ public struct Settings {
         self.apiAccess = apiAccess ?? SignerParameters(kid: "access")
         self.refreshToken = refreshToken
         self.resetPassword = resetPassword ?? SignerParameters(kid: "reset")
+        self.bCryptCost = bCryptCost
     }
 }
 
@@ -103,7 +105,8 @@ extension Settings: ConfigInitializable {
             frontendPathPrefix: keychainConfig["frontendPathPrefix"]?.string,
             apiAccess: apiAccessConfig.flatMap(SignerParameters.init),
             refreshToken: refreshTokenConfig.flatMap(SignerParameters.init),
-            resetPassword: resetPasswordConfig.flatMap(SignerParameters.init)
+            resetPassword: resetPasswordConfig.flatMap(SignerParameters.init),
+            bCryptCost: keychainConfig["bCryptCost"]?.uint
         )
     }
 }

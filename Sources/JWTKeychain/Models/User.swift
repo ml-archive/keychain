@@ -112,7 +112,7 @@ extension User: PasswordAuthenticatable {
     }
 
     public static var passwordVerifier: PasswordVerifier? {
-        return Provider<User>.hasher
+        return Provider<User>.bCryptHasher
     }
 }
 
@@ -120,7 +120,7 @@ extension User: PasswordAuthenticatable {
 
 extension User: PasswordUpdateable {
     public func updatePassword(to password: String) throws {
-        update(password: try Provider<User>.hasher.hash(Valid(password)))
+        update(password: try Provider<User>.bCryptHasher.hash(Valid(password)))
     }
 }
 
@@ -184,7 +184,7 @@ extension User: RequestInitializable {
         try self.init(
             email: Valid(creds.username),
             name: name.map(Valid.init),
-            password: Provider<User>.hasher.hash(Valid(creds.password))
+            password: Provider<User>.bCryptHasher.hash(Valid(creds.password))
         )
     }
 }
@@ -225,7 +225,9 @@ extension User: RequestUpdateable {
         try update(
             email: email.map(Valid.init),
             name: name.map(Valid.init),
-            password: password.map(Valid.init).map(Provider<User>.hasher.hash)
+            password: password
+                .map(Valid.init) // validate
+                .map(Provider<User>.bCryptHasher.hash) // hash
         )
     }
 }
