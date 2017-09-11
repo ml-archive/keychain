@@ -1,6 +1,8 @@
 import Authentication
 import Core
+import Flash
 import Fluent
+import Forms
 import JWT
 import JWTProvider
 import Leaf
@@ -34,15 +36,21 @@ public final class Provider<U: JWTKeychainUser> {
     let settings: Settings
 
     fileprivate let apiDelegate: APIUserControllerDelegateType
+    fileprivate let apiMiddleware: [Middleware]
     fileprivate let frontendDelegate: FrontendUserControllerDelegateType
+    fileprivate let frontendMiddleware: [Middleware]
 
     public init(
-        apiDelegate: APIUserControllerDelegateType,
-        frontendDelegate: FrontendUserControllerDelegateType,
+        apiDelegate: APIUserControllerDelegateType = APIUserControllerDelegate<U>(),
+        apiMiddleware: [Middleware] = [],
+        frontendDelegate: FrontendUserControllerDelegateType = FrontendUserControllerDelegate<U>(),
+        frontendMiddleware: [Middleware] = [FlashMiddleware(), FieldSetMiddleware()],
         settings: Settings
     ) {
         self.apiDelegate = apiDelegate
+        self.apiMiddleware = apiMiddleware
         self.frontendDelegate = frontendDelegate
+        self.frontendMiddleware = frontendMiddleware
         self.settings = settings
 
         if let bCryptCost = settings.bCryptCost {
@@ -79,11 +87,7 @@ extension Provider: Vapor.Provider {
 
 extension Provider: ConfigInitializable {
     public convenience init(config: Config) throws {
-        try self.init(
-            apiDelegate: APIUserControllerDelegate<U>(),
-            frontendDelegate: FrontendUserControllerDelegate<U>(),
-            settings: Settings(config: config)
-        )
+        try self.init(settings: Settings(config: config))
     }
 }
 
@@ -135,6 +139,7 @@ extension Provider {
         
         return FrontendResetPasswordRoutes(
             controller: controller,
+            middleware: frontendMiddleware,
             pathPrefix: settings.frontendPathPrefix
         )
     }
@@ -176,6 +181,7 @@ extension Provider {
         return APIUserRoutes(
             apiAccessMiddleware: apiAccessMiddleware,
             refreshMiddleware: refreshMiddleware,
+            commonMiddleware: apiMiddleware,
             controller: controller,
             pathPrefix: settings.apiPathPrefix
         )

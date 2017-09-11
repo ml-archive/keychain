@@ -1,6 +1,4 @@
 import Authentication
-import Flash
-import Forms
 import HTTP
 import Routing
 import Vapor
@@ -10,17 +8,22 @@ internal struct FrontendResetPasswordRoutes: RouteCollection {
     internal typealias Wrapped = Responder
     
     private let controller: FrontendUserController
+    private let middleware: [Middleware]
     private let pathPrefix: String
 
     /// Initializes the user route collection.
     ///
-    /// - parameters resetPasswordController: controller for handling user reset
-    ///   password routes.
+    /// - parameters
+    ///   - controller: controller for handling user reset password routes.
+    ///   - middleware: middleware to add to all routes
+    ///   - pathPrefix: path to prefix before all routes
     internal init(
         controller: FrontendUserController,
+        middleware: [Middleware],
         pathPrefix: String
     ) {
         self.controller = controller
+        self.middleware = middleware
         self.pathPrefix = pathPrefix
     }
     
@@ -29,19 +32,19 @@ internal struct FrontendResetPasswordRoutes: RouteCollection {
     ) throws {
 
         // Get the base path group
-        let path = builder.grouped(pathPrefix, "users", "reset-password")
+        let path = builder
+            .grouped(middleware)
+            .grouped(pathPrefix, "users", "reset-password")
 
-        path.group(FlashMiddleware(), FieldSetMiddleware()) { routes in
-            routes.get(
-                "form",
-                String.parameter,
-                handler: controller.resetPasswordForm
-            )
-            routes.post(
-                "change",
-                String.parameter,
-                handler: controller.resetPasswordChange
-            )
-        }
+        path.get(
+            "form",
+            String.parameter,
+            handler: controller.resetPasswordForm
+        )
+        path.post(
+            "change",
+            String.parameter,
+            handler: controller.resetPasswordChange
+        )
     }
 }
