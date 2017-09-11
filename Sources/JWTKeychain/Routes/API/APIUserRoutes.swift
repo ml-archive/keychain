@@ -14,7 +14,7 @@ internal struct APIUserRoutes: RouteCollection {
 
     /// Initializes the user route collection.
     ///
-    /// - parameters:
+    /// - Parameters:
     ///   - apiAccessMiddleware: authentication middleware for API access.
     ///   - refreshMiddleware: optional authentication middleware for refresh
     ///     token endpoint.

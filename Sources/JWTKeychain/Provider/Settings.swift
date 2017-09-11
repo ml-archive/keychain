@@ -3,39 +3,51 @@ import Vapor
 
 public struct Settings {
     public let baseURL: String
-    public let emailViewPath: String
+
+    public let pathToEmailView: String
+    public let pathToFormView: String
 
     public let fromEmailAddress: EmailAddress
+
+    public let apiPathPrefix: String
+    public let frontendPathPrefix: String
 
     public let apiAccess: SignerParameters
     public let refreshToken: SignerParameters?
     public let resetPassword: SignerParameters
 
-    /**
-     - parameter baseURL: base URL of the app; used for password reset link.
-     - parameter emailViewPath: path to view used to render password reset email
-     html.
-     - parameter fromEmailAddress: sender
-     - parameter apiPathPrefix: path prefix for api routes
-     - parameter frontendPathPrefix: path prefix for frontend routes
-     - parameter apiAccess: signer parameters for API access routes.
-     Defaults to "kid": "access" and a 1 hour expiration period
-     - parameter refreshToken: signer parameters for refresh token route.
-     Defaults to "kid": "refresh" and a 1 year expiration period.
-     - parameter resetPassword: signer parameters for reset password link.
-     Defaults to "kid": "reset" and a 1 hour expiration period.
-     */
+    /// Initializes the Settings object.
+    ///
+    /// - Parameters:
+    ///   - baseURL: base URL of the app; used for password reset link
+    ///   - pathToEmailView: path to view for rendering password reset email
+    ///   - pathToFormView: path to view used to render password reset form
+    ///   - fromEmailAddress: sender
+    ///   - apiPathPrefix: path prefix for api routes
+    ///   - frontendPathPrefix: path prefix for frontend routes
+    ///   - apiAccess: signer parameters for API access routes.
+    ///     Defaults to "kid": "access" and a 1 hour expiration period.
+    ///   - refreshToken: signer parameters for refresh token route.
+    ///     Defaults to "kid": "refresh" and a 1 year expiration period.
+    ///   - resetPassword: signer parameters for reset password link.
+    ///     Defaults to "kid": "reset" and a 1 hour expiration period.
     public init(
         baseURL: String,
-        emailViewPath: String?,
+        pathToEmailView: String?,
+        pathToFormView: String?,
         fromEmailAddress: EmailAddress,
+        apiPathPrefix: String?,
+        frontendPathPrefix: String?,
         apiAccess: SignerParameters?,
         refreshToken: SignerParameters?,
         resetPassword: SignerParameters?
     ) {
         self.baseURL = baseURL
-        self.emailViewPath = emailViewPath ?? "Emails/resetPassword"
+        self.pathToEmailView = pathToEmailView ?? "Emails/resetPassword"
+        self.pathToFormView = pathToFormView ?? "Views/resetPassword"
         self.fromEmailAddress = fromEmailAddress
+        self.apiPathPrefix = apiPathPrefix ?? ""
+        self.frontendPathPrefix = frontendPathPrefix ?? ""
         self.apiAccess = apiAccess ??
             SignerParameters(kid: "access", expireIn: 1.hour)
         self.refreshToken = refreshToken
@@ -59,7 +71,7 @@ extension Settings: ConfigInitializable {
             throw ConfigError.missingFile(keychainConfigFile)
         }
 
-        guard let fromName = keychainConfig["resetPassword", "fromName"]?
+        guard let fromName = keychainConfig["fromName"]?
             .string else {
                 throw ConfigError.missing(
                     key: ["resetPassword", "fromName"],
@@ -68,7 +80,7 @@ extension Settings: ConfigInitializable {
                 )
         }
 
-        guard let fromAddress = keychainConfig["resetPassword", "fromAddress"]?
+        guard let fromAddress = keychainConfig["fromAddress"]?
             .string else {
                 throw ConfigError.missing(
                     key: ["resetPassword", "fromAddress"],
@@ -83,11 +95,14 @@ extension Settings: ConfigInitializable {
 
         self.init(
             baseURL: baseURL,
-            emailViewPath: resetPasswordConfig?["pathToEmail"]?.string,
+            pathToEmailView: resetPasswordConfig?["pathToEmailView"]?.string,
+            pathToFormView: resetPasswordConfig?["pathToFormView"]?.string,
             fromEmailAddress: EmailAddress(
                 name: fromName,
                 address: fromAddress
             ),
+            apiPathPrefix: keychainConfig["pathToEmailView"]?.string,
+            frontendPathPrefix: keychainConfig["pathToFormView"]?.string,
             apiAccess: apiAccessConfig.flatMap(SignerParameters.init),
             refreshToken: refreshTokenConfig.flatMap(SignerParameters.init),
             resetPassword: resetPasswordConfig.flatMap(SignerParameters.init)

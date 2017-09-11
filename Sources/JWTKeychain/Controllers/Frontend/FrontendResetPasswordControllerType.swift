@@ -29,9 +29,10 @@ extension FrontendUserControllerDelegateType {
 
     /// Shows the form where the user can reset the password
     ///
-    /// - parameter request: current request
-    /// - parameter token: jwt token string
-    /// - parameter viewRenderer: view renderer to use
+    /// - Parameters
+    ///   - request: current request
+    ///   - token: jwt token string
+    ///   - viewRenderer: view renderer to use
     ///
     /// - Returns: response (view or redirect)
     public func resetPasswordForm(
@@ -55,10 +56,11 @@ extension FrontendUserControllerDelegateType {
 
     /// Redirects to formPath with a default flash error message
     ///
-    /// - parameter request: current request
-    /// - parameter token: raw jwt token as string
-    /// - parameter jwtError: error causing the JWT to be invalid
-    /// - parameter formPath: path of reset password form (for redirect)
+    /// - Parameters
+    ///   - request: current request
+    ///   - token: raw jwt token as string
+    ///   - jwtError: error causing the JWT to be invalid
+    ///   - formPath: path of reset password form (for redirect)
     ///
     /// - Returns: a redirect response
     public func handleInvalidJWT(

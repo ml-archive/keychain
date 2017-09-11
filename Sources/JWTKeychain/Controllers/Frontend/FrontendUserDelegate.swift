@@ -21,7 +21,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
 {
     /// Validates the reset request and actually changes the password
     ///
-    /// - parameter request: current request
+    /// - Parameter request: current request
     /// - Returns: success or error response
     /// - Throws: if something goes wrong
     open func resetPasswordChange(
