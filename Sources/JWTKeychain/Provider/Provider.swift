@@ -134,7 +134,8 @@ extension Provider {
         )
         
         return FrontendResetPasswordRoutes(
-            controller: controller
+            controller: controller,
+            pathPrefix: settings.frontendPathPrefix
         )
     }
     
@@ -175,7 +176,8 @@ extension Provider {
         return APIUserRoutes(
             apiAccessMiddleware: apiAccessMiddleware,
             refreshMiddleware: refreshMiddleware,
-            controller: controller
+            controller: controller,
+            pathPrefix: settings.apiPathPrefix
         )
     }
 }

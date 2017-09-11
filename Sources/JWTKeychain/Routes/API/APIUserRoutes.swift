@@ -11,6 +11,7 @@ internal struct APIUserRoutes: RouteCollection {
     private let apiAccessMiddleware: Middleware
     private let refreshMiddleware: Middleware?
     private let controller: APIUserController
+    private let pathPrefix: String
 
     /// Initializes the user route collection.
     ///
@@ -21,12 +22,14 @@ internal struct APIUserRoutes: RouteCollection {
     ///   - userController: controller for handling user routes.
     internal init(
         apiAccessMiddleware: Middleware,
-        refreshMiddleware: Middleware? = nil,
-        controller: APIUserController
+        refreshMiddleware: Middleware?,
+        controller: APIUserController,
+        pathPrefix: String
     ) {
         self.apiAccessMiddleware = apiAccessMiddleware
         self.refreshMiddleware = refreshMiddleware
         self.controller = controller
+        self.pathPrefix = pathPrefix
     }
 
     internal func build(
@@ -34,7 +37,7 @@ internal struct APIUserRoutes: RouteCollection {
     ) throws {
         
         // Get the base path group
-        let path = builder.grouped("users")
+        let path = builder.grouped(pathPrefix, "users")
         
         // Auth routes
         path.post(handler: controller.register)

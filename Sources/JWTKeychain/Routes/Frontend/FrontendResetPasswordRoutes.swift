@@ -10,15 +10,18 @@ internal struct FrontendResetPasswordRoutes: RouteCollection {
     internal typealias Wrapped = Responder
     
     private let controller: FrontendUserController
+    private let pathPrefix: String
 
     /// Initializes the user route collection.
     ///
     /// - parameters resetPasswordController: controller for handling user reset
     ///   password routes.
     internal init(
-        controller: FrontendUserController
+        controller: FrontendUserController,
+        pathPrefix: String
     ) {
         self.controller = controller
+        self.pathPrefix = pathPrefix
     }
     
     internal func build(
@@ -26,7 +29,7 @@ internal struct FrontendResetPasswordRoutes: RouteCollection {
     ) throws {
 
         // Get the base path group
-        let path = builder.grouped("users", "reset-password")
+        let path = builder.grouped(pathPrefix, "users", "reset-password")
 
         path.group(FlashMiddleware(), FieldSetMiddleware()) { routes in
             routes.get(
