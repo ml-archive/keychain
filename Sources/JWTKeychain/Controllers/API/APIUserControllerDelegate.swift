@@ -47,6 +47,8 @@ extension TokenGenerators {
 open class APIUserControllerDelegate<U: JWTKeychainUser>:
     APIUserControllerDelegateType
 {
+    public init() {}
+
     open func register(
         request: Request,
         tokenGenerators: TokenGenerators
