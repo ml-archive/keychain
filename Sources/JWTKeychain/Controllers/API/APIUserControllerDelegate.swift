@@ -11,11 +11,7 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user = try U.make(request: request)
-        return try makeResponse(
-            responseOptions: .all,
-            tokenGenerators: tokenGenerators,
-            user: user
-        )
+        return try tokenGenerators.makeResponse(for: user, withOptions: .all)
     }
 
     open func logIn(
@@ -23,11 +19,7 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user = try U.logIn(request: request)
-        return try makeResponse(
-            responseOptions: .all,
-            tokenGenerators: tokenGenerators,
-            user: user
-        )
+        return try tokenGenerators.makeResponse(for: user, withOptions: .all)
     }
 
     open func logOut(
@@ -43,11 +35,7 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user: U = try request.auth.assertAuthenticated()
-        return try makeResponse(
-            responseOptions: .access,
-            tokenGenerators: tokenGenerators,
-            user: user
-        )
+        return try tokenGenerators.makeResponse(for: user, withOptions: .access)
     }
 
     open func me(
@@ -55,11 +43,7 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user: U = try request.auth.assertAuthenticated()
-        return try makeResponse(
-            responseOptions: .user,
-            tokenGenerators: tokenGenerators,
-            user: user
-        )
+        return try tokenGenerators.makeResponse(for: user, withOptions: .user)
     }
 
     open func resetPasswordEmail(
@@ -89,67 +73,12 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user = try U.update(request: request)
-        return try makeResponse(
-            responseOptions: .user,
-            tokenGenerators: tokenGenerators,
-            user: user
-        )
+        return try tokenGenerators.makeResponse(for: user, withOptions: .user)
     }
 }
 
-// MARK: Helper
-
-private extension APIUserControllerDelegate {
-    func makeResponse(
-        responseOptions: ResponseOptions,
-        tokenGenerators: TokenGenerators,
-        user: U
-    ) throws -> ResponseRepresentable {
-        var response = JSON()
-
-        if responseOptions.contains(.access) {
-            try response.set(
-                "accessToken",
-                tokenGenerators
-                    .apiAccessTokenGenerator
-                    .generateToken(for: user)
-                    .string
-            )
-        }
-        if
-            responseOptions.contains(.refresh),
-            let refreshTokenGenerator = tokenGenerators.refreshTokenGenerator
-        {
-            try response.set(
-                "refreshToken",
-                refreshTokenGenerator.generateToken(for: user).string
-            )
-        }
-        if responseOptions.contains(.user) {
-            if responseOptions == [.user] {
-                // make an exception when only user is to be returned
-                // -> return user as root level object
-                return try user.makeJSON()
-            } else {
-                try response.set("user", user)
-            }
-        }
-
-        return response
-    }
-
+extension APIUserControllerDelegate {
     func status(_ status: String) -> ResponseRepresentable {
         return JSON(["status": .string(status)])
     }
 }
-
-private struct ResponseOptions: OptionSet {
-    let rawValue: Int
-
-    static let access = ResponseOptions(rawValue: 1 << 0)
-    static let refresh = ResponseOptions(rawValue: 1 << 1)
-    static let user = ResponseOptions(rawValue: 1 << 2)
-
-    static let all: ResponseOptions = [.access, .refresh, .user]
-}
-
