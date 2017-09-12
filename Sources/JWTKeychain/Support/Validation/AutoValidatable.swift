@@ -8,7 +8,7 @@ public protocol AutoValidatable: Validatable {
 }
 
 public final class Valid<T: AutoValidatable> {
-    init(_ value: T.V.Input) throws {
+    public init(_ value: T.V.Input) throws {
         try value.validated(by: T.validator)
         self.value = value
     }
