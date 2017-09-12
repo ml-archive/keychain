@@ -5,12 +5,14 @@ import Routing
 import Vapor
 
 /// Defines basic user authorization routes.
-public struct APIUserRoutes: RouteCollection {
+internal struct APIUserRoutes: RouteCollection {
     public typealias Wrapped = Responder
     
     private let apiAccessMiddleware: Middleware
     private let refreshMiddleware: Middleware?
-    private let controller: UserControllerType
+    private let commonMiddleware: [Middleware]
+    private let controller: APIUserController
+    private let pathPrefix: String
 
     /// Initializes the user route collection.
     ///
@@ -19,22 +21,28 @@ public struct APIUserRoutes: RouteCollection {
     ///   - refreshMiddleware: optional authentication middleware for refresh
     ///     token endpoint.
     ///   - userController: controller for handling user routes.
-    public init(
+    internal init(
         apiAccessMiddleware: Middleware,
-        refreshMiddleware: Middleware? = nil,
-        userController: UserControllerType
+        refreshMiddleware: Middleware?,
+        commonMiddleware: [Middleware],
+        controller: APIUserController,
+        pathPrefix: String
     ) {
         self.apiAccessMiddleware = apiAccessMiddleware
         self.refreshMiddleware = refreshMiddleware
-        self.controller = userController
+        self.commonMiddleware = commonMiddleware
+        self.controller = controller
+        self.pathPrefix = pathPrefix
     }
 
-    public func build(
+    internal func build(
         _ builder: RouteBuilder
     ) throws {
         
         // Get the base path group
-        let path = builder.grouped("users")
+        let path = builder
+            .grouped(commonMiddleware)
+            .grouped(pathPrefix, "users")
         
         // Auth routes
         path.post(handler: controller.register)

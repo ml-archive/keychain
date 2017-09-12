@@ -1,45 +1,50 @@
 import Authentication
-import Flash
-import Forms
 import HTTP
 import Routing
 import Vapor
 
 /// Defines basic reset password routes.
-public struct FrontendResetPasswordRoutes: RouteCollection {
-    public typealias Wrapped = Responder
+internal struct FrontendResetPasswordRoutes: RouteCollection {
+    internal typealias Wrapped = Responder
     
-    private let controller: FrontendResetPasswordControllerType
+    private let controller: FrontendUserController
+    private let middleware: [Middleware]
+    private let pathPrefix: String
 
     /// Initializes the user route collection.
     ///
-    /// - Parameters:
-    ///   - resetPasswordController: controller for handling user reset password
-    ///     routes.
-    public init(
-        resetPasswordController: FrontendResetPasswordControllerType
+    /// - parameters
+    ///   - controller: controller for handling user reset password routes.
+    ///   - middleware: middleware to add to all routes
+    ///   - pathPrefix: path to prefix before all routes
+    internal init(
+        controller: FrontendUserController,
+        middleware: [Middleware],
+        pathPrefix: String
     ) {
-        self.controller = resetPasswordController
+        self.controller = controller
+        self.middleware = middleware
+        self.pathPrefix = pathPrefix
     }
     
-    public func build(
+    internal func build(
         _ builder: RouteBuilder
     ) throws {
 
         // Get the base path group
-        let path = builder.grouped("users", "reset-password")
+        let path = builder
+            .grouped(middleware)
+            .grouped(pathPrefix, "users", "reset-password")
 
-        path.group(FlashMiddleware(), FieldSetMiddleware()) { routes in
-            routes.get(
-                "form",
-                String.parameter,
-                handler: controller.resetPasswordForm
-            )
-            routes.post(
-                "change",
-                String.parameter,
-                handler: controller.resetPasswordChange
-            )
-        }
+        path.get(
+            "form",
+            String.parameter,
+            handler: controller.resetPasswordForm
+        )
+        path.post(
+            "change",
+            String.parameter,
+            handler: controller.resetPasswordChange
+        )
     }
 }

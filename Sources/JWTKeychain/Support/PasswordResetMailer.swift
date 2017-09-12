@@ -8,30 +8,27 @@ import Vapor
 public class PasswordResetMailer: PasswordResetMailerType {
     private let baseURL: String
     private let emailViewPath: String
-    private let expirationPeriod: DateComponents
+    private let expireIn: DateComponents
     private let fromEmailAddress: EmailAddress
     private let mailer: MailProtocol
     private let viewRenderer: ViewRenderer
 
     required public init(
-        baseURL: String,
-        emailViewPath: String,
-        expirationPeriod: DateComponents,
-        fromEmailAddress: EmailAddress,
+        settings: Settings,
         mailer: MailProtocol,
         viewRenderer: ViewRenderer
     ) {
-        self.baseURL = baseURL
-        self.emailViewPath = emailViewPath
-        self.expirationPeriod = expirationPeriod
-        self.fromEmailAddress = fromEmailAddress
+        self.baseURL = settings.baseURL
+        self.emailViewPath = settings.pathToEmailView
+        self.expireIn = settings.resetPassword.expireIn
+        self.fromEmailAddress = settings.fromEmailAddress
         self.mailer = mailer
         self.viewRenderer = viewRenderer
     }
 
     /// Sends an email to the user with the password reset URL
     ///
-    /// - Parameters:
+    /// - parameters:
     ///   - user: user that is resetting the password
     ///   - resetToken: JWT that the user can be use to reset their password
     ///   - subject: subject of the email
@@ -47,7 +44,7 @@ public class PasswordResetMailer: PasswordResetMailerType {
                 node: [
                     "user": user.makeNode(in: jsonContext),
                     "token": resetToken.string,
-                    "expire": expirationPeriod.minute ?? 0,
+                    "expire": expireIn.minute ?? 0,
                     "url": baseURL
                 ]
             )

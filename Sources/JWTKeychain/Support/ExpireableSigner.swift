@@ -7,8 +7,8 @@ import JWTProvider
 
 public struct ExpireableSigner {
     fileprivate let expirationPeriod: DateComponents
-    fileprivate let signer: Signer
     fileprivate let now: () -> Date
+    fileprivate let signer: Signer
     
     init(
         // injectable for control over dates during testing

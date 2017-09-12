@@ -20,7 +20,7 @@ public final class User: Model, Timestampable, SoftDeletable {
 
     /// Initializes the User with name, email and password (plain).
     ///
-    /// - Parameters:
+    /// - parameters:
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user (plain)
@@ -44,7 +44,7 @@ public final class User: Model, Timestampable, SoftDeletable {
     /// Updates the User with name, email and password.
     /// Only updates non-nil parameters.
     ///
-    /// - Parameters:
+    /// - parameters:
     ///   - name: name of the user
     ///   - email: email of the user
     ///   - password: password of the user
@@ -122,7 +122,7 @@ extension User: PasswordAuthenticatable {
     }
 
     public static var passwordVerifier: PasswordVerifier? {
-        return Provider<User>.hasher
+        return Provider<User>.bCryptHasher
     }
 }
 
@@ -130,7 +130,7 @@ extension User: PasswordAuthenticatable {
 
 extension User: PasswordUpdateable {
     public func updatePassword(to password: String) throws {
-        update(password: try Provider<User>.hasher.hash(Valid(password)))
+        update(password: try Provider<User>.bCryptHasher.hash(Valid(password)))
     }
 }
 
@@ -180,7 +180,7 @@ extension User: Preparation {
 extension User: RequestInitializable {
     
     /// Creates a new user from the values in the request.
-    /// - Parameters:
+    /// - parameters:
     ///   - request: request with values for the keys "email", U.passwordKey
     ///     and optionally "name".
     /// - Throws: Abort error when email and/or password are missing or a
@@ -194,7 +194,7 @@ extension User: RequestInitializable {
         try self.init(
             email: Valid(creds.username),
             name: name.map(Valid.init),
-            password: Provider<User>.hasher.hash(Valid(creds.password))
+            password: Provider<User>.bCryptHasher.hash(Valid(creds.password))
         )
     }
 }
@@ -204,7 +204,7 @@ extension User: RequestInitializable {
 extension User: RequestUpdateable {
 
     /// Updates an existing user with the values from the request.
-    /// - Parameters:
+    /// - parameters:
     ///   - request: request that optionally contains values for the keys
     ///     "email, "name", and both "password" + "newPassword" in case of a
     ///     password change.
@@ -235,7 +235,9 @@ extension User: RequestUpdateable {
         try update(
             email: email.map(Valid.init),
             name: name.map(Valid.init),
-            password: password.map(Valid.init).map(Provider<User>.hasher.hash)
+            password: password
+                .map(Valid.init) // validate
+                .map(Provider<User>.bCryptHasher.hash) // hash
         )
     }
 }
