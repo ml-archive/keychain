@@ -23,20 +23,15 @@ extension ResetPasswordFormTests {
   ]
 }
 
-extension UserControllerTests {
+extension SettingsTests {
   static var allTests = [
-    ("testRegister", testRegister),
-    ("testLogIn", testLogIn),
-    ("testLogOut", testLogOut),
-    ("testRegenerate", testRegenerate),
-    ("testMe", testMe),
-    ("testResetPasswordEmail", testResetPasswordEmail),
-    ("testUpdate", testUpdate),
+    ("testCreatingSettingsFromConfig", testCreatingSettingsFromConfig),
+    ("testCreatingSettingsFromMinimalConfig", testCreatingSettingsFromMinimalConfig),
   ]
 }
 
 XCTMain([
   testCase(ResetPasswordChangeTests.allTests),
   testCase(ResetPasswordFormTests.allTests),
-  testCase(UserControllerTests.allTests),
+  testCase(SettingsTests.allTests),
 ])

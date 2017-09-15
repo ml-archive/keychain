@@ -95,8 +95,8 @@ extension Settings: ConfigInitializable {
 
         self.init(
             baseURL: baseURL,
-            pathToEmailView: resetPasswordConfig?["pathToEmailView"]?.string,
-            pathToFormView: resetPasswordConfig?["pathToFormView"]?.string,
+            pathToEmailView: keychainConfig["pathToEmailView"]?.string,
+            pathToFormView: keychainConfig["pathToFormView"]?.string,
             fromEmailAddress: EmailAddress(
                 name: fromName,
                 address: fromAddress
