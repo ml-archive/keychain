@@ -187,7 +187,3 @@ extension Provider {
         )
     }
 }
-
-enum JWTKeychainError: Error {
-    case missingSigner(kid: String)
-}
