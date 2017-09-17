@@ -8,15 +8,15 @@ public struct TokenGenerators {
 }
 
 extension TokenGenerators {
-    public var apiAccessTokenGenerator: ExpireableSigner {
+    public var apiAccessTokenGenerator: TokenGenerator {
         return apiAccess
     }
 
-    public var refreshTokenGenerator: ExpireableSigner? {
+    public var refreshTokenGenerator: TokenGenerator? {
         return refresh
     }
 
-    public var resetPasswordTokenGenerator: ExpireableSigner {
+    public var resetPasswordTokenGenerator: TokenGenerator {
         return resetPassword
     }
 }
