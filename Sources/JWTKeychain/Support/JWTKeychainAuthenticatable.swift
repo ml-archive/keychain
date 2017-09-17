@@ -77,10 +77,6 @@ extension JWTKeychainAuthenticatable where Self: RequestInitializable & Entity {
     }
 }
 
-public protocol RequestUpdateable {
-    func update(request: Request) throws
-}
-
 extension JWTKeychainAuthenticatable where Self:
     RequestUpdateable & Entity & Authenticatable {
     

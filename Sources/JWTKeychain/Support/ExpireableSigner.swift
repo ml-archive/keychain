@@ -25,11 +25,23 @@ public struct ExpireableSigner {
     }
 }
 
-public protocol TokenGenerator {
-    func generateToken<E>(
-        for: E
-    ) throws -> Token where E: PasswordAuthenticatable, E: Entity
+// MARK: Signer
+
+extension ExpireableSigner: Signer {
+    public var name: String {
+        return signer.name
+    }
+
+    public func sign(message: Bytes) throws -> Bytes {
+        return try signer.sign(message: message)
+    }
+
+    public func verify(signature: Bytes, message: Bytes) throws {
+        return try signer.verify(signature: signature, message: message)
+    }
 }
+
+// MARK: TokenGenerator
 
 extension ExpireableSigner: TokenGenerator {
     public func generateToken<E>(
@@ -40,19 +52,5 @@ extension ExpireableSigner: TokenGenerator {
             expirationDate: expirationPeriod.from(now())!,
             signer: signer
         )
-    }
-}
-
-extension ExpireableSigner: Signer {
-    public var name: String {
-        return signer.name
-    }
-    
-    public func sign(message: Bytes) throws -> Bytes {
-        return try signer.sign(message: message)
-    }
-    
-    public func verify(signature: Bytes, message: Bytes) throws {
-        return try signer.verify(signature: signature, message: message)
     }
 }
