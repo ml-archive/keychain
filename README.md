@@ -79,11 +79,13 @@ Create config `jwt-keychain.json`.
 }
 ```
 
-The `kid` (key ID) values should correspond to values in `jwt.json`. The above values for `apiAccess` and `resetPassword` are the defaults used when no configuration is supplied; only `fromName` and `fromAddress` are required.
+The `kid` (key ID) values should correspond to values in `jwt.json`. The above values for `apiAccess` and `resetPassword` are the defaults used when no configuration is supplied.
 
 Usage of a refresh token is optional. You can opt out of using the refresh token by removing the `refreshToken` key.
 
 The cost for the BCrypt hasher can be configured using `bCryptCost`. This is separate from the default hasher used by the droplet. A cost of 6 is the default. A higher cost is more secure but adds significant response time to your requests (eg. a value of 10 can mean response times of several seconds).
+
+The only required fields are `fromName` and `fromAddress`. They determine the name and email address that recipients of password reset emails will see.
 
 JWTKeychainProvider uses the default mailer as configured in `mail.json` or `mailgun.json`
  for sending password reset emails.
