@@ -55,7 +55,7 @@ internal struct APIUserRoutes: RouteCollection {
         path.group(apiAccessMiddleware) { apiAccess in
             apiAccess.get("logout", handler: controller.logOut)
             apiAccess.get("me", handler: controller.me)
-            apiAccess.patch("update", handler: controller.update)
+            apiAccess.patch("me", handler: controller.update)
         }
 
         // Refresh access token
