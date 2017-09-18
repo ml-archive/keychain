@@ -9,7 +9,7 @@ import Vapor
 ///
 /// - usage: `vapor run --generateToken [email]`
 public final class TokenGeneratorCommand: Command {
-    enum TokenGeneratorError: Error {
+    internal enum TokenGeneratorError: Error {
         case missingEmail
         case missingJWTProvider
         case userNotFound

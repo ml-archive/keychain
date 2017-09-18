@@ -13,7 +13,7 @@ public class PasswordResetMailer: PasswordResetMailerType {
     private let mailer: MailProtocol
     private let viewRenderer: ViewRenderer
 
-    required public init(
+    public init(
         settings: Settings,
         mailer: MailProtocol,
         viewRenderer: ViewRenderer

@@ -22,7 +22,7 @@ extension TokenGenerators {
 }
 
 extension TokenGenerators {
-    init(settings: Settings, signerMap: SignerMap) throws {
+    public init(settings: Settings, signerMap: SignerMap) throws {
         apiAccess = try ExpireableSigner(
             signerParameters: settings.apiAccess,
             signerMap: signerMap

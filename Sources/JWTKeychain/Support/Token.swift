@@ -4,7 +4,7 @@ import JWT
 import Vapor
 
 extension Token {
-    init<E: Entity>(
+    public init<E: Entity>(
         user: E,
         expirationDate: Date,
         signer: Signer

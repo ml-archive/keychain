@@ -33,7 +33,7 @@ public final class Provider<U: JWTKeychainUser> {
         return _bCryptHasher
     }
 
-    let settings: Settings
+    fileprivate let settings: Settings
 
     fileprivate let apiDelegate: APIUserControllerDelegateType
     fileprivate let apiMiddleware: [Middleware]

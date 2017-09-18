@@ -7,7 +7,7 @@ final internal class APIUserController {
     private let passwordResetMailer: PasswordResetMailerType
     private let tokenGenerators: TokenGenerators
 
-    init(
+    internal init(
         delegate: APIUserControllerDelegateType,
         passwordResetMailer: PasswordResetMailerType,
         tokenGenerators: TokenGenerators
