@@ -6,10 +6,10 @@ import SMTP
 
 /// Defines basic user that can be authorized.
 public final class User: Model, Timestampable, SoftDeletable {
-    struct Keys {
-        static let email = "email"
-        static let name = "name"
-        static let password = "password"
+    public enum Keys {
+        public static let email = "email"
+        public static let name = "name"
+        public static let password = "password"
     }
 
     public let storage = Storage()
