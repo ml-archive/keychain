@@ -9,7 +9,7 @@ import JWTProvider
 import SMTP
 import Vapor
 
-public protocol PasswordResetInfoType: FieldSetRepresentable {
+public protocol PasswordResetInfoType: FieldsetRepresentable {
     var email: String? { get }
     var password: String? { get }
     var isValid: Bool { get }
@@ -53,16 +53,16 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         verifiedJWT jwt: JWT,
         viewRenderer: ViewRenderer
     ) throws -> ResponseRepresentable {
-        let fieldSet = try request.fieldSet ??
+        let fieldset = try request.fieldset ??
             U.extractPasswordResetInfo(
                 from: request,
                 isOptional: true
-            ).makeFieldSet(in: nil)
+            ).makeFieldset(in: nil)
 
         return try viewRenderer.make(
             pathToFormView,
             ViewData(
-                fieldSet: fieldSet,
+                fieldset: fieldset,
                 request: request,
                 other: ViewData(["token": .string(token)])
             )
@@ -87,7 +87,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
 
         // prepare common response
         let redirectToForm = try Response(redirect: formPath)
-            .setFieldSet(passwordResetInfo.makeFieldSet(in: nil))
+            .setFieldset(passwordResetInfo.makeFieldset(in: nil))
 
         // ensure form values are valid
         guard

@@ -47,7 +47,7 @@ public final class Provider<U: JWTKeychainUser> {
         apiDelegate: APIUserControllerDelegateType? = nil,
         apiMiddleware: [Middleware] = [],
         frontendDelegate: FrontendUserControllerDelegateType? = nil,
-        frontendMiddleware: [Middleware] = [FlashMiddleware(), FieldSetMiddleware()],
+        frontendMiddleware: [Middleware] = [FlashMiddleware(), FieldsetMiddleware()],
         settings: Settings
     ) {
         self.apiDelegate = apiDelegate ?? APIUserControllerDelegate<U>()
