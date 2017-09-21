@@ -1,5 +1,4 @@
 import Authentication
-import Forms
 import Foundation
 import SMTP
 import Transport
@@ -7,22 +6,22 @@ import Vapor
 
 public class PasswordResetMailer: PasswordResetMailerType {
     private let baseURL: String
-    private let emailViewPath: String
     private let expireIn: DateComponents
     private let fromEmailAddress: EmailAddress
     private let mailer: MailProtocol
+    private let pathToEmailView: String
     private let viewRenderer: ViewRenderer
 
     public init(
-        settings: Settings,
         mailer: MailProtocol,
+        settings: Settings,
         viewRenderer: ViewRenderer
     ) {
         self.baseURL = settings.baseURL
-        self.emailViewPath = settings.pathToEmailView
         self.expireIn = settings.resetPassword.expireIn
         self.fromEmailAddress = settings.fromEmailAddress
         self.mailer = mailer
+        self.pathToEmailView = settings.pathToEmailView
         self.viewRenderer = viewRenderer
     }
 
@@ -39,7 +38,7 @@ public class PasswordResetMailer: PasswordResetMailerType {
         subject: String
     ) throws {
         let html = try viewRenderer.make(
-            emailViewPath,
+            pathToEmailView,
             ViewData(
                 node: [
                     "user": user.makeNode(in: jsonContext),

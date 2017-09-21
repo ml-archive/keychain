@@ -1,7 +1,7 @@
 import Authentication
 import Core
 import Flash
-import Fluent
+import FluentProvider
 import Forms
 import JWT
 import JWTProvider
@@ -17,21 +17,24 @@ public typealias JWTKeychainUser =
     JWTKeychainAuthenticatable &
     NodeRepresentable &
     PasswordAuthenticatable &
+    PasswordResettable &
     PasswordUpdateable &
     PayloadAuthenticatable &
     Preparation
 
 private var _bCryptHasher = BCryptHasher()
 
+extension PasswordAuthenticatable {
+    public static var bCryptHasher: BCryptHasher {
+        return _bCryptHasher
+    }
+}
+
 /// Provider that sets up:
 /// - User API routes
 /// - Frontend password reset routes
 /// - Password Reset Mailer
 public final class Provider<U: JWTKeychainUser> {
-
-    public static var bCryptHasher: BCryptHasher {
-        return _bCryptHasher
-    }
 
     fileprivate let settings: Settings
 
@@ -41,15 +44,18 @@ public final class Provider<U: JWTKeychainUser> {
     fileprivate let frontendMiddleware: [Middleware]
 
     public init(
-        apiDelegate: APIUserControllerDelegateType = APIUserControllerDelegate<U>(),
+        apiDelegate: APIUserControllerDelegateType? = nil,
         apiMiddleware: [Middleware] = [],
-        frontendDelegate: FrontendUserControllerDelegateType = FrontendUserControllerDelegate<U>(),
+        frontendDelegate: FrontendUserControllerDelegateType? = nil,
         frontendMiddleware: [Middleware] = [FlashMiddleware(), FieldSetMiddleware()],
         settings: Settings
     ) {
-        self.apiDelegate = apiDelegate
+        self.apiDelegate = apiDelegate ?? APIUserControllerDelegate<U>()
         self.apiMiddleware = apiMiddleware
-        self.frontendDelegate = frontendDelegate
+        self.frontendDelegate = frontendDelegate ??
+            FrontendUserControllerDelegate<U>(
+                settings: settings
+        )
         self.frontendMiddleware = frontendMiddleware
         self.settings = settings
 
@@ -68,7 +74,7 @@ extension Provider: Vapor.Provider {
 
     public func boot(_ config: Config) throws {
         config.preparations += [U.self]
-        
+
         try config.addProvider(JWTProvider.Provider.self)
     }
 
@@ -105,8 +111,8 @@ extension Provider {
 
         let mailer = try drop.config.resolveMail()
         let passwordResetMailer = PasswordResetMailer(
-            settings: settings,
             mailer: mailer,
+            settings: settings,
             viewRenderer: viewRenderer)
         let userRoutes = try createUserRoutes(
             passwordResetMailer: passwordResetMailer,
