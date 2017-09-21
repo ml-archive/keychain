@@ -46,8 +46,8 @@ public struct Settings {
         bCryptCost: UInt?
     ) {
         self.baseURL = baseURL
-        self.pathToEmailView = pathToEmailView ?? "Emails/resetPassword"
-        self.pathToFormView = pathToFormView ?? "Views/resetPassword"
+        self.pathToEmailView = pathToEmailView ?? "JWTKeychain/Emails/resetPassword"
+        self.pathToFormView = pathToFormView ?? "JWTKeychain/Views/resetPassword"
         self.fromEmailAddress = fromEmailAddress
         self.apiPathPrefix = apiPathPrefix ?? ""
         self.frontendPathPrefix = frontendPathPrefix ?? ""
