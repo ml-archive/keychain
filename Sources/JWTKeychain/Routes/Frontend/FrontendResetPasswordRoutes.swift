@@ -34,7 +34,7 @@ internal struct FrontendResetPasswordRoutes: RouteCollection {
         // Get the base path group
         let path = builder
             .grouped(middleware)
-            .grouped(pathPrefix, "users", "reset-password")
+            .grouped(pathPrefix)
 
         path.get(
             "form",

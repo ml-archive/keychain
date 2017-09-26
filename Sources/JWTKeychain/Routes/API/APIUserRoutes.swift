@@ -42,7 +42,7 @@ internal struct APIUserRoutes: RouteCollection {
         // Get the base path group
         let path = builder
             .grouped(commonMiddleware)
-            .grouped(pathPrefix, "users")
+            .grouped(pathPrefix)
         
         // Auth routes
         path.post(handler: controller.register)

@@ -72,8 +72,8 @@ Create config `jwt-keychain.json`.
 	"pathToEmailView": "JWTKeychain/Emails/resetPassword",
 	"pathToFormView": "JWTKeychain/Views/resetPassword",
 
-	"apiPathPrefix": "",
-	"frontendPathPrefix": "",
+	"apiPathPrefix": "api/users",
+	"frontendPathPrefix": "users/reset-password",
 
 	"bCryptCost": 6
 }
