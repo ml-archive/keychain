@@ -11,6 +11,7 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user = try U.make(request: request)
+        try user.save()
         return try tokenGenerators.makeResponse(for: user, withOptions: .all)
     }
 
@@ -73,6 +74,7 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable {
         let user = try U.update(request: request)
+        try user.save()
         return try tokenGenerators.makeResponse(for: user, withOptions: .user)
     }
 }
