@@ -18,31 +18,31 @@ final class ResetPasswordChangeTests: TestCase {
     }
     
     func testInvalidEmail() throws {
-        let fieldSet = try changePassword(email: "invalid")
+        let fielddet = try changePassword(email: "invalid")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
-            .fieldSet
+            .fieldset
         
-        let error = fieldSet?["email"]?["errors"]?.array?.first?.string
+        let error = fielddet?["email"]?["errors"]?.array?.first?.string
         XCTAssertEqual(error, "invalid is not a valid email")
     }
     
     func testInvalidPassword() throws {
-        let fieldSet = try changePassword(
+        let fielddet = try changePassword(
             password: "short",
             passwordConfirmation: "short")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
-            .fieldSet
+            .fieldset
         
-        let error = fieldSet?["password"]?["errors"]?.array?.first?.string
+        let error = fielddet?["password"]?["errors"]?.array?.first?.string
         XCTAssertEqual(error, "Not strong password")
     }
     
     func testDifferentPasswords() throws {
-        let fieldSet = try changePassword(passwordConfirmation: "different")
+        let fielddet = try changePassword(passwordConfirmation: "different")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
-            .fieldSet
+            .fieldset
         
-        let error = fieldSet?["passwordConfirmation"]?["errors"]?.array?.first?
+        let error = fielddet?["passwordConfirmation"]?["errors"]?.array?.first?
             .string
         XCTAssertEqual(error, "Passwords do not match.")
     }

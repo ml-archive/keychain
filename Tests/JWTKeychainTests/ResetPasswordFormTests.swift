@@ -11,11 +11,11 @@ class ResetPasswordFormTests: TestCase {
         XCTAssertEqual(drop.capturedViewData?["token"]?.string, token)
         XCTAssertNotNil(drop.capturedViewData?["request"])
         
-        let fieldSet = drop.capturedViewData?["fieldset"]
-        XCTAssertEqual(fieldSet?["email"], ["label": "Email"])
-        XCTAssertEqual(fieldSet?["password"], ["label": "Password"])
+        let fielddet = drop.capturedViewData?["fieldset"]
+        XCTAssertEqual(fielddet?["email"], ["label": "Email"])
+        XCTAssertEqual(fielddet?["password"], ["label": "Password"])
         XCTAssertEqual(
-            fieldSet?["passwordConfirmation"],
+            fielddet?["passwordConfirmation"],
             ["label": "Confirm Password"]
         )
     }
