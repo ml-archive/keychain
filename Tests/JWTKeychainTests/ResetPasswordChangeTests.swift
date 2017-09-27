@@ -63,7 +63,7 @@ final class ResetPasswordChangeTests: TestCase {
     
     func testExistingUser() throws {
         let user = try createUser()
-        let oldPassword = user.password
+        let oldPassword = user.hashedPassword
         
         try changePassword(
             token: createToken(password: strongPassword),
@@ -74,7 +74,7 @@ final class ResetPasswordChangeTests: TestCase {
                 withMessage: "Password changed. You can close this page now."
         )
         
-        XCTAssertNotEqual(try User.find(1)?.password, oldPassword)
+        XCTAssertNotEqual(try User.find(1)?.hashedPassword, oldPassword)
     }
 }
 
@@ -83,6 +83,7 @@ final class ResetPasswordChangeTests: TestCase {
 private let validationFailedMessage = "Please correct the highlighted fields below."
 private let strongPassword = "$3cR34"
 private let validEmail = "a@b.com"
+private let validName = "name"
 
 // MARK: Helper
 
@@ -92,9 +93,9 @@ extension ResetPasswordChangeTests {
         let hasher = TestHasher()
         
         let user = try User(
-            email: Valid<UniqueEmail>(validEmail),
-            name: nil,
-            password: hasher.hash(Valid(strongPassword))
+            email: validEmail,
+            name: validName,
+            hashedPassword: hasher.make(strongPassword.bytes).makeString()
         )
         try user.save()
         return user
