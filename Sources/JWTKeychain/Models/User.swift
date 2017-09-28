@@ -109,7 +109,7 @@ extension User: PasswordResettable {
     public static func extractPasswordResetInfo(
         from request: Request,
         isOptional: Bool
-        ) throws -> PasswordResetInfoType {
+    ) throws -> PasswordResetInfoType {
         guard let json = request.json else {
             throw JWTKeychainUserError.missingJSONOnRequest
         }

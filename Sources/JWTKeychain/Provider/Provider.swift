@@ -30,10 +30,12 @@ extension PasswordAuthenticatable {
     }
 }
 
-/// Provider that sets up:
-/// - User API routes
-/// - Frontend password reset routes
-/// - Password Reset Mailer
+/// Provider that:
+/// - Adds the generic User type to the database preparations
+/// - Registers the token generator command
+/// - Sets up a password reset mailer
+/// - Creates User API routes
+/// - Creates Frontend password reset routes
 public final class Provider<U: JWTKeychainUser> {
 
     fileprivate let settings: Settings
@@ -76,6 +78,11 @@ extension Provider: Vapor.Provider {
         config.preparations += [U.self]
 
         try config.addProvider(JWTProvider.Provider.self)
+
+        config.addConfigurable(
+            command: TokenGeneratorCommand<U>.init,
+            name: "keychain:generate_token"
+        )
     }
 
     public func boot(_ drop: Droplet) throws {
