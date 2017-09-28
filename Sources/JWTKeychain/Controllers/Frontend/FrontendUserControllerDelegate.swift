@@ -17,8 +17,7 @@ public protocol PasswordResetInfoType: FieldsetRepresentable {
 
 public protocol PasswordResettable {
     static func extractPasswordResetInfo(
-        from: Request,
-        isOptional: Bool
+        from: Request
     ) throws -> PasswordResetInfoType
 }
 
@@ -54,10 +53,8 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         viewRenderer: ViewRenderer
     ) throws -> ResponseRepresentable {
         let fieldset = try request.fieldset ??
-            U.extractPasswordResetInfo(
-                from: request,
-                isOptional: true
-            ).makeFieldset(in: nil)
+            U.extractPasswordResetInfo(from: request)
+                .makeFieldset(in: ValidationContext(shouldValidate: false))
 
         return try viewRenderer.make(
             pathToFormView,
@@ -79,15 +76,12 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         verifiedJWT jwt: JWT,
         formPath: String
     ) throws -> ResponseRepresentable {
-        let passwordResetInfo = try U
-            .extractPasswordResetInfo(
-                from: request,
-                isOptional: false
-        )
+        let passwordResetInfo = try U.extractPasswordResetInfo(from: request)
 
         // prepare common response
-        let redirectToForm = try Response(redirect: formPath)
-            .setFieldset(passwordResetInfo.makeFieldset(in: nil))
+        let fieldset = try passwordResetInfo
+            .makeFieldset(in: ValidationContext(shouldValidate: true))
+        let redirectToForm = Response(redirect: formPath).setFieldset(fieldset)
 
         // ensure form values are valid
         guard

@@ -16,33 +16,28 @@ final class ResetPasswordChangeTests: TestCase {
         try changePassword()
             .assertFlashType(is: .error, withMessage: "User not found.")
     }
-    
-    func testInvalidEmail() throws {
-        let fielddet = try changePassword(email: "invalid")
-            .assertFlashType(is: .error, withMessage: validationFailedMessage)
-            .fieldset
-        
-        let error = fielddet?["email"]?["errors"]?.array?.first?.string
-        XCTAssertEqual(error, "invalid is not a valid email")
-    }
-    
+
     func testInvalidPassword() throws {
-        let fielddet = try changePassword(
+        let fieldset = try changePassword(
             password: "short",
-            passwordConfirmation: "short")
+            passwordRepeat: "short")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
             .fieldset
         
-        let error = fielddet?["password"]?["errors"]?.array?.first?.string
-        XCTAssertEqual(error, "Not strong password")
+        let error = fieldset?["password"]?["errors"]?.array?.first?.string
+        XCTAssertEqual(error, "Password is too weak.")
     }
     
     func testDifferentPasswords() throws {
-        let fielddet = try changePassword(passwordConfirmation: "different")
+        let user = try createUser()
+        let token = try createToken(hashedPassword: user.hashedPassword!)
+        let fieldset = try changePassword(
+            token: token,
+            passwordRepeat: "different")
             .assertFlashType(is: .error, withMessage: validationFailedMessage)
             .fieldset
         
-        let error = fielddet?["passwordConfirmation"]?["errors"]?.array?.first?
+        let error = fieldset?["passwordRepeat"]?["errors"]?.array?.first?
             .string
         XCTAssertEqual(error, "Passwords do not match.")
     }
@@ -66,9 +61,9 @@ final class ResetPasswordChangeTests: TestCase {
         let oldPassword = user.hashedPassword
         
         try changePassword(
-            token: createToken(password: strongPassword),
+            token: createToken(hashedPassword: strongPassword),
             password: "N3wp@ssword",
-            passwordConfirmation: "N3wp@ssword")
+            passwordRepeat: "N3wp@ssword")
             .assertFlashType(
                 is: .success,
                 withMessage: "Password changed. You can close this page now."
@@ -105,7 +100,7 @@ extension ResetPasswordChangeTests {
         token: String? = nil,
         email: String? = validEmail,
         password: String? = strongPassword,
-        passwordConfirmation: String? = strongPassword
+        passwordRepeat: String? = strongPassword
     ) throws -> Response {
         let token: String = token ?? self.token
         let request = Request.makeTest(
@@ -115,7 +110,7 @@ extension ResetPasswordChangeTests {
         var body = JSON()
         try body.set("email", email)
         try body.set("password", password)
-        try body.set("passwordConfirmation", passwordConfirmation)
+        try body.set("passwordRepeat", passwordRepeat)
         request.json = body
         
         let formPath = "/users/reset-password/form/\(token)"

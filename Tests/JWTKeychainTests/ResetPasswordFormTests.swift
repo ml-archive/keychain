@@ -4,19 +4,19 @@ class ResetPasswordFormTests: TestCase {
     func testResetPasswordForm() throws {
         let token = try createToken()
         try drop
-            .testResponse(to: .get, at: "/users/reset-password/form/\(token)")
+            .testResponse(to: .get, at: "users/reset-password/form/\(token)")
             .assertStatus(is: .ok)
         
-        XCTAssertEqual(drop.capturedViewPath, "ResetPassword/resetPassword")
+        XCTAssertEqual(drop.capturedViewPath, "JWTKeychain/Views/resetPassword")
         XCTAssertEqual(drop.capturedViewData?["token"]?.string, token)
         XCTAssertNotNil(drop.capturedViewData?["request"])
-        
-        let fielddet = drop.capturedViewData?["fieldset"]
-        XCTAssertEqual(fielddet?["email"], ["label": "Email"])
-        XCTAssertEqual(fielddet?["password"], ["label": "Password"])
+
+        let fieldset = drop.capturedViewData?["fieldset"]
+        XCTAssertEqual(fieldset?["email"], ["label": "Email"])
+        XCTAssertEqual(fieldset?["password"], ["label": "Password"])
         XCTAssertEqual(
-            fielddet?["passwordConfirmation"],
-            ["label": "Confirm Password"]
+            fieldset?["passwordRepeat"],
+            ["label": "Repeat Password"]
         )
     }
 }

@@ -1,3 +1,4 @@
+import Forms
 import HTTP
 import Vapor
 
@@ -27,11 +28,19 @@ extension JWTKeychainUserError: AbortError {
         case .userWithGivenEmailAlreadyExists:
             return "A user with that email address already exists."
         case .passwordsDoNotMatch:
-            return "Passwords do not match"
+            return "Passwords do not match."
         }
     }
 
     public var status: Status {
         return .badRequest
+    }
+}
+
+// MARK: FormFieldValidationError
+
+extension JWTKeychainUserError: FormFieldValidationError {
+    public var errorReasons: [String] {
+        return [reason]
     }
 }

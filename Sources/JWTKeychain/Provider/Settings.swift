@@ -50,7 +50,7 @@ public struct Settings {
         self.pathToFormView = pathToFormView ?? "JWTKeychain/Views/resetPassword"
         self.fromEmailAddress = fromEmailAddress
         self.apiPathPrefix = apiPathPrefix ?? "api/users"
-        self.frontendPathPrefix = frontendPathPrefix ?? ""
+        self.frontendPathPrefix = frontendPathPrefix ?? "users/reset-password"
         self.apiAccess = apiAccess ?? SignerParameters(kid: "access")
         self.refreshToken = refreshToken
         self.resetPassword = resetPassword ?? SignerParameters(kid: "reset")

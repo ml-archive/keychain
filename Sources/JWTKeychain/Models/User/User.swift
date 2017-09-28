@@ -107,17 +107,17 @@ extension User: PasswordAuthenticatable {
 
 extension User: PasswordResettable {
     public static func extractPasswordResetInfo(
-        from request: Request,
-        isOptional: Bool
+        from request: Request
     ) throws -> PasswordResetInfoType {
-        guard let json = request.json else {
-            throw JWTKeychainUserError.missingJSONOnRequest
-        }
+        let json = request.json
+        let email = json?[Keys.email]?.string
+        let password = json?[Keys.password]?.string
+        let passwordRepeat = json?[Keys.passwordRepeat]?.string
 
         return PasswordResetForm(
-            email: try json.get(Keys.email),
-            password: try json.get(Keys.password),
-            isOptional: isOptional
+            email: email,
+            password: password,
+            passwordRepeat: passwordRepeat
         )
     }
 }

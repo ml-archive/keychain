@@ -69,12 +69,16 @@ class SettingsTests: XCTestCase {
         let settings = try Settings(config: config)
 
         XCTAssertEqual(settings.baseURL, "url")
-        XCTAssertEqual(settings.pathToEmailView, "Emails/resetPassword")
-        XCTAssertEqual(settings.pathToFormView, "Views/resetPassword")
+        XCTAssertEqual(
+            settings.pathToEmailView,
+            "JWTKeychain/Emails/resetPassword")
+        XCTAssertEqual(
+            settings.pathToFormView,
+            "JWTKeychain/Views/resetPassword")
         XCTAssertEqual(settings.fromEmailAddress.address, "address")
         XCTAssertEqual(settings.fromEmailAddress.name, "name")
-        XCTAssertEqual(settings.apiPathPrefix, "")
-        XCTAssertEqual(settings.frontendPathPrefix, "")
+        XCTAssertEqual(settings.apiPathPrefix, "api/users")
+        XCTAssertEqual(settings.frontendPathPrefix, "users/reset-password")
         XCTAssertEqual(settings.apiAccess.kid, "access")
         XCTAssertEqual(settings.apiAccess.expireIn, 1.hour)
         XCTAssertNil(settings.refreshToken)
