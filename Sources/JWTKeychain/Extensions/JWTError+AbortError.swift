@@ -2,7 +2,6 @@ import HTTP
 import JWT
 import Vapor
 
-// TODO: should this be changed after recent JWTProvider error changes?
 extension JWTError: AbortError {
     public var status: Status {
         switch self {
