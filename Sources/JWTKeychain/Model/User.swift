@@ -77,11 +77,18 @@ extension User: RowRepresentable {
 
 extension User: PasswordResettable {
     public static func extractPasswordResetInfo(
-        from: Request,
+        from request: Request,
         isOptional: Bool
     ) throws -> PasswordResetInfoType {
-        // TODO: implement
-        fatalError()
+        guard let json = request.json else {
+            throw JWTKeychainUserError.missingJSONOnRequest
+        }
+
+        return PasswordResetForm(
+            email: try json.get(Keys.email),
+            password: try json.get(Keys.password),
+            isOptional: isOptional
+        )
     }
 }
 
@@ -280,4 +287,3 @@ extension User {
             .makeString()
     }
 }
-
