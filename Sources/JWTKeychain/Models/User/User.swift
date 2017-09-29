@@ -3,6 +3,7 @@ import FluentProvider
 import JWT
 import JWTProvider
 import SMTP
+import Validation
 
 /// A lightweight User implementation to get started with JWTKeychain.
 public final class User: Model, SoftDeletable, Timestampable {
@@ -81,6 +82,10 @@ extension User: JWTKeychainAuthenticatable {
             .count() == 0
             else {
                 throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
+        }
+
+        guard email.passes(EmailValidator()) else {
+            throw JWTKeychainUserError.invalidEmail
         }
 
         return User(
@@ -190,7 +195,11 @@ extension User: RequestUpdateable {
         {
             // require old password as confirmation when updating email
             try verifyOldPassword(json: json)
-            
+
+            guard email.passes(EmailValidator()) else {
+                throw JWTKeychainUserError.invalidEmail
+            }
+
             let numberOfExistingUsersWithSameEmail = try makeQuery()
                 .filter(Keys.email, email)
                 .filter(idKey, .notEquals, id)

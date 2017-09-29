@@ -10,6 +10,7 @@ public enum JWTKeychainUserError: Error {
     case missingOldPassword
     case userWithGivenEmailAlreadyExists
     case passwordsDoNotMatch
+    case invalidEmail
 }
 
 extension JWTKeychainUserError: AbortError {
@@ -29,6 +30,8 @@ extension JWTKeychainUserError: AbortError {
             return "A user with that email address already exists."
         case .passwordsDoNotMatch:
             return "Passwords do not match."
+        case .invalidEmail:
+            return "Email is not valid."
         }
     }
 
