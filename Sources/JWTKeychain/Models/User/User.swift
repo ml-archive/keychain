@@ -9,8 +9,8 @@ import Validation
 public final class User: Model, SoftDeletable, Timestampable {
 
     public struct Keys {
-        static let email = "email"
-        static let name = "name"
+        public static let email = "email"
+        public static let name = "name"
         static let hashedPassword = "hashedPassword"
 
         static let password = "password"
