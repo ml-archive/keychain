@@ -54,7 +54,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
     ) throws -> ResponseRepresentable {
         let fieldset = try request.fieldset ??
             U.extractPasswordResetInfo(from: request)
-                .makeFieldset(in: ValidationContext(shouldValidate: false))
+                .makeFieldset(withValidation: false)
 
         return try viewRenderer.make(
             pathToFormView,
@@ -79,8 +79,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         let passwordResetInfo = try U.extractPasswordResetInfo(from: request)
 
         // prepare common response
-        let fieldset = try passwordResetInfo
-            .makeFieldset(in: ValidationContext(shouldValidate: true))
+        let fieldset = try passwordResetInfo.makeFieldset(withValidation: true)
         let redirectToForm = Response(redirect: formPath).setFieldset(fieldset)
 
         // ensure form values are valid
