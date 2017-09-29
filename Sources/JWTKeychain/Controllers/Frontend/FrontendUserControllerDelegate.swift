@@ -12,7 +12,7 @@ import Vapor
 public protocol PasswordResetInfoType: FieldsetRepresentable {
     var email: String? { get }
     var password: String? { get }
-    var isValid: Bool { get }
+    func isValid(inValidationMode: ValidationMode) -> Bool
 }
 
 public protocol PasswordResettable {
@@ -54,7 +54,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
     ) throws -> ResponseRepresentable {
         let fieldset = try request.fieldset ??
             U.extractPasswordResetInfo(from: request)
-                .makeFieldset(withValidation: false)
+                .makeFieldset(inValidationMode: .none)
 
         return try viewRenderer.make(
             pathToFormView,
@@ -79,13 +79,14 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         let passwordResetInfo = try U.extractPasswordResetInfo(from: request)
 
         // prepare common response
-        let fieldset = try passwordResetInfo.makeFieldset(withValidation: true)
+        let fieldset = try passwordResetInfo
+            .makeFieldset(inValidationMode: .all)
         let redirectToForm = Response(redirect: formPath).setFieldset(fieldset)
 
         // ensure form values are valid
         guard
             let password = passwordResetInfo.password,
-            passwordResetInfo.isValid
+            passwordResetInfo.isValid(inValidationMode: .all)
         else {
             return redirectToForm
                 .flash(.error, "Please correct the highlighted fields below.")
