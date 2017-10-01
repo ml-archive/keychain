@@ -1,9 +1,9 @@
 import Authentication
 import FluentProvider
+import Forms
 import JWT
 import JWTProvider
 import SMTP
-import Validation
 
 /// A lightweight User implementation to get started with JWTKeychain.
 public final class User: Model, SoftDeletable, Timestampable {
@@ -61,31 +61,20 @@ extension User: JSONRepresentable {
 
 extension User: JWTKeychainAuthenticatable {
     public static func make(request: Request) throws -> User {
-        guard let json = request.json else {
-            throw JWTKeychainUserError.missingJSONOnRequest
-        }
+        let form: UserForm = try request.createForm()
 
-        guard let email: String = json[Keys.email]?.string else {
-            throw JWTKeychainUserError.missingEmail
-        }
+        try form.validate(inValidationMode: .all)
 
-        guard let name: String = json[Keys.name]?.string else {
-            throw JWTKeychainUserError.missingName
-        }
-
-        guard let password: String = json[Keys.password]?.string else {
-            throw JWTKeychainUserError.missingPassword
-        }
+        // force unwrapping is ok because form was validated
+        let email = form.email!
+        let name = form.name!
+        let password = form.password!
 
         guard try makeQuery()
             .filter(Keys.email.string, email)
             .count() == 0
             else {
                 throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
-        }
-
-        guard email.passes(EmailValidator()) else {
-            throw JWTKeychainUserError.invalidEmail
         }
 
         return User(
@@ -114,16 +103,7 @@ extension User: PasswordResettable {
     public static func extractPasswordResetInfo(
         from request: Request
     ) throws -> PasswordResetInfoType {
-        let json = request.json
-        let email = json?[Keys.email]?.string
-        let password = json?[Keys.password]?.string
-        let passwordRepeat = json?[Keys.passwordRepeat]?.string
-
-        return PasswordResetForm(
-            email: email,
-            password: password,
-            passwordRepeat: passwordRepeat
-        )
+        return try request.createForm() as PasswordResetForm
     }
 }
 
@@ -180,26 +160,21 @@ extension User: Preparation {
 
 extension User: RequestUpdateable {
     public func update(request: Request) throws {
-        guard let json = request.json else {
-            throw JWTKeychainUserError.missingJSONOnRequest
+        let form: UserForm = try request.createForm()
+
+        try form.validate(inValidationMode: .nonNil)
+
+        // require old password as confirmation when updating email or password
+        if form.email != nil || form.password != nil {
+            try verifyOldPassword(form: form)
         }
-        
-        let name = json[Keys.name]?.string
-        let email = json[Keys.email]?.string
-        let password = try extractNewPassword(json: json)
-        
+
+        // when updating email address, check for uniqueness
         if
-            let email = email,
+            let email = form.email,
             email != self.email,
             let id = id?.string
         {
-            // require old password as confirmation when updating email
-            try verifyOldPassword(json: json)
-
-            guard email.passes(EmailValidator()) else {
-                throw JWTKeychainUserError.invalidEmail
-            }
-
             let numberOfExistingUsersWithSameEmail = try makeQuery()
                 .filter(Keys.email, email)
                 .filter(idKey, .notEquals, id)
@@ -211,30 +186,27 @@ extension User: RequestUpdateable {
         }
 
         try update(
-            email: email,
-            name: name,
-            password: password
+            email: form.email,
+            name: form.name,
+            password: extractNewPassword(form: form)
         )
     }
 
-    private func extractNewPassword(json: JSON) throws -> String? {
-        guard let password = json[Keys.password]?.string else {
+    private func extractNewPassword(form: UserForm) throws -> String? {
+        guard let password = form.password else {
             return nil
         }
 
-        guard password == json[Keys.passwordRepeat]?.string else {
+        guard password == form.passwordRepeat else {
             throw JWTKeychainUserError.passwordsDoNotMatch
         }
-
-        // require old password as confirmation when updating password
-        try verifyOldPassword(json: json)
 
         return password
     }
 
-    private func verifyOldPassword(json: JSON) throws {
+    private func verifyOldPassword(form: UserForm) throws {
         guard
-            let oldPassword = json[Keys.oldPassword]?.string,
+            let oldPassword = form.oldPassword,
             let hashedPassword = hashedPassword,
             let passwordVerifier = User.passwordVerifier,
             try passwordVerifier.verify(

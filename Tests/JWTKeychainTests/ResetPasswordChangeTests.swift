@@ -25,7 +25,7 @@ final class ResetPasswordChangeTests: TestCase {
             .fieldset
         
         let error = fieldset?["password"]?["errors"]?.array?.first?.string
-        XCTAssertEqual(error, "Password is too weak.")
+        XCTAssertEqual(error, "Password is not strong enough.")
     }
     
     func testDifferentPasswords() throws {

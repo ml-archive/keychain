@@ -1,4 +1,5 @@
 import Forms
+import JSON
 import Sugar
 import Validation
 
@@ -7,18 +8,32 @@ internal struct PasswordResetForm {
     fileprivate let passwordField: FormField<String>
     fileprivate let passwordRepeatField: FormField<String>
 
-    internal init(email: String?, password: String?, passwordRepeat: String?) {
+    internal init(
+        email: String?,
+        password: String?,
+        passwordRepeat: String?
+    ) {
         emailField = FormField(
             key: User.Keys.email,
             label: "Email",
             value: email,
-            validator: OptionalValidator()
+            validator: OptionalValidator(
+                errorOnNil: JWTKeychainUserError.missingEmail
+            )
         )
         passwordField = FormField(
             key: User.Keys.password,
             label: "Password",
             value: password,
-            validator: OptionalValidator(validator: PasswordValidator())
+            validator: OptionalValidator(
+                errorOnNil: JWTKeychainUserError.missingPassword
+            ) {
+                do {
+                    try StrongPassword().validate($0)
+                } catch {
+                    throw JWTKeychainUserError.passwordTooWeak
+                }
+            }
         )
         passwordRepeatField = FormField(
             key: User.Keys.passwordRepeat,
@@ -34,8 +49,20 @@ internal struct PasswordResetForm {
 // MARK: Form
 
 extension PasswordResetForm: Form {
-    internal var fields: [FieldsetEntryRepresentable] {
+    var fields: [FieldsetEntryRepresentable & ValidationModeValidatable] {
         return [emailField, passwordField, passwordRepeatField]
+    }
+}
+
+// MARK: JSONInitializable
+
+extension PasswordResetForm: JSONInitializable {
+    internal init(json: JSON) throws {
+        try self.init(
+            email: json.get(User.Keys.email),
+            password: json.get(User.Keys.password),
+            passwordRepeat: json.get(User.Keys.passwordRepeat)
+        )
     }
 }
 
@@ -48,22 +75,5 @@ extension PasswordResetForm: PasswordResetInfoType {
 
     internal var password: String? {
         return passwordField.value
-    }
-}
-
-// MARK: PasswordValidator
-
-/// Wrapper for `StrongPassword` from `Sugar`.
-/// Transforms thrown error to `ValidatorError`s.
-private struct PasswordValidator: Validator {
-    func validate(_ input: String) throws {
-        do {
-            try StrongPassword().validate(input)
-        } catch {
-            throw ValidatorError.failure(
-                type: "",
-                reason: "Password is too weak."
-            )
-        }
     }
 }

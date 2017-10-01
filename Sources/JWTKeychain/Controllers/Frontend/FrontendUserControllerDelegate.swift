@@ -9,10 +9,12 @@ import JWTProvider
 import SMTP
 import Vapor
 
-public protocol PasswordResetInfoType: FieldsetRepresentable {
+public protocol PasswordResetInfoType:
+    FieldsetRepresentable,
+    ValidationModeValidatable
+{
     var email: String? { get }
     var password: String? { get }
-    func isValid(inValidationMode: ValidationMode) -> Bool
 }
 
 public protocol PasswordResettable {
