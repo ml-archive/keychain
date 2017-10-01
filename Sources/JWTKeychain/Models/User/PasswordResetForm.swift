@@ -49,7 +49,7 @@ internal struct PasswordResetForm {
 // MARK: Form
 
 extension PasswordResetForm: Form {
-    var fields: [FieldsetEntryRepresentable & ValidationModeValidatable] {
+    var fields: [FieldType] {
         return [emailField, passwordField, passwordRepeatField]
     }
 }
