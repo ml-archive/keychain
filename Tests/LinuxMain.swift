@@ -8,7 +8,6 @@ import XCTest
 extension ResetPasswordChangeTests {
   static var allTests = [
     ("testMissingUser", testMissingUser),
-    ("testInvalidEmail", testInvalidEmail),
     ("testInvalidPassword", testInvalidPassword),
     ("testDifferentPasswords", testDifferentPasswords),
     ("testInvalidToken", testInvalidToken),

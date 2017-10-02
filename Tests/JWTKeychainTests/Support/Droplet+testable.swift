@@ -5,7 +5,6 @@ import LeafProvider
 import Sessions
 import Vapor
 
-
 extension Droplet {
     static func testable() throws -> Droplet {
         var config = Config([:])

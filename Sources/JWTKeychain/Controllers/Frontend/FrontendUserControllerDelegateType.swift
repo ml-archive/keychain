@@ -27,33 +27,6 @@ public protocol FrontendUserControllerDelegateType {
 
 extension FrontendUserControllerDelegateType {
 
-    /// Shows the form where the user can reset the password
-    ///
-    /// - Parameters
-    ///   - request: current request
-    ///   - token: jwt token string
-    ///   - viewRenderer: view renderer to use
-    ///
-    /// - Returns: response (view or redirect)
-    public func resetPasswordForm(
-        request: Request,
-        token: String,
-        verifiedJWT jwt: JWT,
-        viewRenderer: ViewRenderer
-    ) throws -> ResponseRepresentable {
-        let fieldSet = try request.fieldSet ??
-            ResetPasswordForm(makeAllFieldsOptional: true).makeFieldSet()
-
-        return try viewRenderer.make(
-            "ResetPassword/resetPassword",
-            ViewData(
-                fieldSet: fieldSet,
-                request: request,
-                other: ViewData(["token": .string(token)])
-            )
-        )
-    }
-
     /// Redirects to formPath with a default flash error message
     ///
     /// - Parameters

@@ -22,10 +22,10 @@ extension JWTKeychainAuthenticatable where Self:
     /// - Throws: Abort error when usernameKey key is not present, or user could
     ///   not be found
     public static func find(request: Request) throws -> Self {
-        let email: String
+        let username: String
 
         do {
-            email = try request.data.get(usernameKey)
+            username = try request.data.get(usernameKey)
         } catch {
             throw Abort(
                 .preconditionFailed,
@@ -33,7 +33,7 @@ extension JWTKeychainAuthenticatable where Self:
             )
         }
 
-        guard let user = try makeQuery().filter(usernameKey, email).first()
+        guard let user = try makeQuery().filter(usernameKey, username).first()
             else {
                 throw Abort.notFound
         }
@@ -72,7 +72,6 @@ extension JWTKeychainAuthenticatable where Self:
 extension JWTKeychainAuthenticatable where Self: RequestInitializable & Entity {
     public static func make(request: Request) throws -> Self {
         let user = try Self(request: request)
-        try user.save()
         return user
     }
 }
@@ -83,7 +82,6 @@ extension JWTKeychainAuthenticatable where Self:
     public static func update(request: Request) throws -> Self {
         let user: Self = try request.auth.assertAuthenticated()
         try user.update(request: request)
-        try user.save()
         return user
     }
 }
