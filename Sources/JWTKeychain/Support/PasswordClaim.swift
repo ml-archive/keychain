@@ -6,15 +6,15 @@ import Vapor
 /// It is used with resetting passwords to see whether the User's password has
 /// not already been changed.
 internal struct PasswordClaim: EqualityClaim, StringBacked {
-    static let name = "nodes:pwd"
+    internal static let name = "nodes:pwd"
     
-    let value: String
+    internal let value: String
     
-    init(string: String) {
+    internal init(string: String) {
         self.value = string
     }
     
-    init(user: PasswordAuthenticatable) throws {
+    internal init(user: PasswordAuthenticatable) throws {
         guard let hashedPassword = user.hashedPassword else {
             throw Abort.serverError
         }

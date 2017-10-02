@@ -4,7 +4,7 @@ import JWT
 import Vapor
 
 extension Token {
-    init<E: Entity>(
+    public init<E: Entity>(
         user: E,
         expirationDate: Date,
         signer: Signer
@@ -31,7 +31,7 @@ extension SubjectClaim {
         guard
             let id = user.id,
             let string = id.string ?? id.int.map(String.init) else {
-                throw Abort.serverError
+                throw JWTKeychainError.missingUserId
         }
 
         self.init(string: string)

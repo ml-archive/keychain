@@ -63,22 +63,34 @@ Create config `jwt-keychain.json`.
 	},
 	"resetPassword": {
 		"kid": "reset",
-		"secondsToExpire": 3600,
-		"fromName": "Name of Sender",
-		"fromAddress": "sender@email.com",
-		"pathToEmail": "Emails/resetPassword",
-		"pathToView": "Views/resetPassword"
-	}
+		"secondsToExpire": 3600
+	},
+
+	"fromAddress": "sender@email.com",
+	"fromName": "Name of Sender",
+
+	"pathToEmailView": "JWTKeychain/Emails/resetPassword",
+	"pathToFormView": "JWTKeychain/Views/resetPassword",
+
+	"apiPathPrefix": "api/users",
+	"frontendPathPrefix": "users/reset-password",
+
+	"bCryptCost": 6
 }
 ```
 
-The `kid` values should correspond to values in `jwt.json`. The above values for `apiAccess` and `resetPassword` are the defaults used when no configuration is supplied; only `resetPassword.fromName` and `resetPassword.fromAddress` are required.
+The `kid` (key ID) values should correspond to values in `jwt.json`. The above values for `apiAccess` and `resetPassword` are the defaults used when no configuration is supplied.
 
 Usage of a refresh token is optional. You can opt out of using the refresh token by removing the `refreshToken` key.
 
-JWTKeychainProvider uses the default mailer as configured in `mail.json` for sending password reset emails.
+The cost for the BCrypt hasher can be configured using `bCryptCost`. This is separate from the default hasher used by the droplet. A cost of 6 is the default. A higher cost is more secure but adds significant response time to your requests (eg. a value of 10 can mean response times of several seconds).
 
-Make sure url is set up in `app.json`. This will be used to generate the link in the password reset email.
+The only required fields are `fromName` and `fromAddress`. They determine the name and email address that recipients of password reset emails will see.
+
+JWTKeychainProvider uses the default mailer as configured in `mail.json` or `mailgun.json`
+ for sending password reset emails.
+
+Make sure a value for the key `url` is provided in `app.json`. This will be used to generate the link in the password reset email.
 
 ```json
 {
@@ -86,28 +98,30 @@ Make sure url is set up in `app.json`. This will be used to generate the link in
 }
 ```
 
-### Token Generator Command
-In order to generate password reset tokens for users add the following to `droplet.json`'s `commands`: `"keychain:generate_token"`. Then you can create a token like so: 
+JWTKeychain uses Leaf to render the password reset email and form. Make sure Leaf is set up by adding `"view": "leaf"` to `droplet.json` and add the LeafProvider:
 
-```drop --run keychain:generate_token user@email.com```
+```swift
+try addProvider(LeafProvider.Provider.self)
+```
 
 ### Resources
 
 Copy package resources:
+
 `JWTKeychain/Resources/Views` to `/Resource/Views`.
 
 See `https://github.com/vapor/vapor-jwt` to learn more about signing.
 
 ### Usage
 
-Add the provider (preferrably in `Config+Setup.swift`):
+Add the provider (preferably in `setupProviders()` in `Config+Setup.swift`):
 
 ```swift
 import JWTKeychain
 ```
 
 ```swift
-try config.addProvider(JWTKeychain.Provider.self)
+try addProvider(JWTKeychain.Provider<JWTKeychain.User>.self)
 ```
 
 That's it! Now, you'll have the following routes out-of-the-box:
@@ -119,34 +133,15 @@ That's it! Now, you'll have the following routes out-of-the-box:
 - Me: `GET /users/me`
 - Reset password: `POST /users/reset-password/request`
 
-### Customized setup
+### Token Generator Command
+In order to generate password reset tokens for users add the following to `droplet.json`'s `commands`: `"keychain:generate_token"`. Then you can create a token like so:
 
-If you want to roll out your own routes or have more control over the controller logic, you can initialize the routes like this:
-
-```swift
-let configuration = try JWTKeychain.Configuration(drop: drop)
-let jwtAuthMiddleware = JWTKeychain.AuthMiddleware(configuration: configuration)
-let authMiddleware = Auth.AuthMiddleware<MyCustomUser>()
-let userController = MyUserController(configuration: configuration)
-
-drop.collection(
-    try ApiUserRoutes<JWTKeychain.User>(
-        drop: drop,
-        configuration: configuration,
-        jwtAuthMiddleware: jwtAuthMiddleware,
-        authMiddleware: authMiddleware,
-        userController: userController,
-        mailer: Mailer(configuration: configuration, drop: drop)
-    )
-)
-```
-
-Most of the parameters have default values, so feel free to mix and match as needed.
+> `drop --run keychain:generate_token user@email.com`
 
 ## Tokens
 There are three types of tokens used by JWTKeychain: refresh tokens, API access tokens, and password reset tokens.
 
-Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string). 
+Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string).
 
 ### Refresh Tokens
 
@@ -167,19 +162,150 @@ API Access tokens give access to the following endpoints:
 * GET `/users/logout`
 * PATCH `/users/update`
 
-as well as the endpoints 
+as well as the endpoints
 
 Whenever an access token is expired a new one can be generated using a request to `/users/regenerate`.
 
 ### Password Reset Tokens
 
+## Customization
 
-## Customization 
+Besides using configuration there are several more ways to customize JWTKeychain's behavior.
 
-### UserController
-If you wish to modify the behavior of the `UserController` you can subclass it and override any function you wish. If you want to create your own UserController from scratch you can conform to the 'UserControllerType` protocol.
+### User Type
 
-### PasswordResetMailer
+You can substitute the provided User type for your own by making your user conform to `JWTKeychainUser` which is composed of the following protocols:
+
+```swift
+public typealias JWTKeychainUser =
+    EmailAddressRepresentable &
+    Entity &
+    JSONRepresentable &
+    JWTKeychainAuthenticatable &
+    NodeRepresentable &
+    PasswordAuthenticatable &
+    PasswordUpdateable &
+    PayloadAuthenticatable &
+    Preparation
+```
+
+```swift
+class CustomUser: JWTKeychainUser {
+	...
+}
+```
+
+Substitute the provided User type with your own when adding the provider.
+
+```swift
+try addProvider(JWTKeychain.Provider<CustomUser>.self)
+```
+
+### API Requests
+
+```swift
+public protocol APIUserControllerDelegateType {
+    func register(
+        request: Request,
+        tokenGenerators: TokenGenerators
+    ) throws -> ResponseRepresentable
+
+    func logIn(
+        request: Request,
+        tokenGenerators: TokenGenerators
+    ) throws -> ResponseRepresentable
+
+    func logOut(
+        request: Request,
+        tokenGenerators: TokenGenerators
+    ) throws -> ResponseRepresentable
+
+    func regenerate(
+        request: Request,
+        tokenGenerators: TokenGenerators
+    ) throws -> ResponseRepresentable
+
+    func me(
+        request: Request,
+        tokenGenerators: TokenGenerators
+    ) throws -> ResponseRepresentable
+
+    func resetPasswordEmail(
+        request: Request,
+        tokenGenerators: TokenGenerators,
+        passwordResetMailer: PasswordResetMailerType
+    ) throws -> ResponseRepresentable
+
+    func update(
+        request: Request,
+        tokenGenerators: TokenGenerators
+    ) throws -> ResponseRepresentable
+}
+```
+
+```swift
+class CustomAPIDelegate: APIUserControllerDelegateType {
+	...
+}
+```
+
+```swift
+try addProvider(JWTKeychain.Provider<CustomUser>(
+	apiDelegate: CustomAPIDelegate()),
+	settings: Settings(config: config)
+)
+```
+
+
+### Frontend Requests
+
+```swift
+public protocol FrontendUserControllerDelegateType {
+    func resetPasswordForm(
+        request: Request,
+        token: String,
+        verifiedJWT: JWT,
+        viewRenderer: ViewRenderer
+    ) throws -> ResponseRepresentable
+
+    func resetPasswordChange(
+        request: Request,
+        verifiedJWT: JWT,
+        formPath: String
+    ) throws -> ResponseRepresentable
+
+    func handleInvalidJWT(
+        request: Request,
+        token: String,
+        jwtError: JWTError,
+        formPath: String
+    ) -> ResponseRepresentable
+}
+```
+
+```swift
+class CustomFrontendDelegate: FrontendUserControllerDelegateType {
+	...
+}
+```
+
+```swift
+try addProvider(JWTKeychain.Provider<CustomUser>(
+	frontendDelegate: CustomFrontendDelegate()),
+	settings: Settings(config: config)
+)
+```
+
+
+### Supply Additional Middleware
+
+```swift
+try addProvider(JWTKeychain.Provider<CustomUser>(
+	apiMiddleware: [...],
+	frontendMiddleware: [...],
+	settings: Settings(config: config)
+)
+```
 
 ## 🏆 Credits
 

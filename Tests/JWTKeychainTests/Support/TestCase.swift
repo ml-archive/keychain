@@ -18,11 +18,11 @@ class TestCase: XCTestCase {
 
 extension TestCase {
     func createToken(
-        password: String = "hashedpassword",
+        hashedPassword: String = "hashedpassword",
         kid: String = "reset"
     ) throws -> String {
         var payload = JSON()
-        payload["nodes:pwd"] = .string(password)
+        payload["nodes:pwd"] = .string(hashedPassword)
         payload["sub"] = .string("1")
         payload["exp"] = .number(.int(Int(1.hour.fromNow!.timeIntervalSince1970)))
 

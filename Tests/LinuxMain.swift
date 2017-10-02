@@ -8,7 +8,6 @@ import XCTest
 extension ResetPasswordChangeTests {
   static var allTests = [
     ("testMissingUser", testMissingUser),
-    ("testInvalidEmail", testInvalidEmail),
     ("testInvalidPassword", testInvalidPassword),
     ("testDifferentPasswords", testDifferentPasswords),
     ("testInvalidToken", testInvalidToken),
@@ -23,20 +22,15 @@ extension ResetPasswordFormTests {
   ]
 }
 
-extension UserControllerTests {
+extension SettingsTests {
   static var allTests = [
-    ("testRegister", testRegister),
-    ("testLogIn", testLogIn),
-    ("testLogOut", testLogOut),
-    ("testRegenerate", testRegenerate),
-    ("testMe", testMe),
-    ("testResetPasswordEmail", testResetPasswordEmail),
-    ("testUpdate", testUpdate),
+    ("testCreatingSettingsFromConfig", testCreatingSettingsFromConfig),
+    ("testCreatingSettingsFromMinimalConfig", testCreatingSettingsFromMinimalConfig),
   ]
 }
 
 XCTMain([
   testCase(ResetPasswordChangeTests.allTests),
   testCase(ResetPasswordFormTests.allTests),
-  testCase(UserControllerTests.allTests),
+  testCase(SettingsTests.allTests),
 ])

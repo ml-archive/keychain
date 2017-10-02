@@ -15,7 +15,7 @@ public struct SignerParameters {
         self.init(kid: kid, expireIn: secondsToExpire.seconds)
     }
     
-    public init(kid: String, expireIn: DateComponents) {
+    public init(kid: String, expireIn: DateComponents = 1.hour) {
         self.kid = kid
         self.expireIn = expireIn
     }
