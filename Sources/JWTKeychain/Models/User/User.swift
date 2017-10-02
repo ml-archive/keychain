@@ -87,7 +87,17 @@ extension User: JWTKeychainAuthenticatable {
 
 // MARK: NodeRepresentable
 
-extension User: NodeRepresentable {}
+extension User: NodeRepresentable {
+    public func makeNode(in context: Context?) throws -> Node {
+        var node = Node([:])
+
+        try node.set(User.idKey, id)
+        try node.set(Keys.email, email)
+        try node.set(Keys.name, name)
+
+        return node
+    }
+}
 
 // MARK: PasswordAuthenticatable
 
