@@ -74,7 +74,7 @@ class SettingsTests: XCTestCase {
             "JWTKeychain/Emails/resetPassword")
         XCTAssertEqual(
             settings.pathToFormView,
-            "JWTKeychain/Views/resetPassword")
+            "JWTKeychain/ResetPassword/resetPassword")
         XCTAssertEqual(settings.fromEmailAddress.address, "address")
         XCTAssertEqual(settings.fromEmailAddress.name, "name")
         XCTAssertEqual(settings.apiPathPrefix, "api/users")

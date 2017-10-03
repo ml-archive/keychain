@@ -7,7 +7,7 @@ class ResetPasswordFormTests: TestCase {
             .testResponse(to: .get, at: "users/reset-password/form/\(token)")
             .assertStatus(is: .ok)
         
-        XCTAssertEqual(drop.capturedViewPath, "JWTKeychain/Views/resetPassword")
+        XCTAssertEqual(drop.capturedViewPath, "JWTKeychain/ResetPassword/resetPassword")
         XCTAssertEqual(drop.capturedViewData?["token"]?.string, token)
         XCTAssertNotNil(drop.capturedViewData?["request"])
 
