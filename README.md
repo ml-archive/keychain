@@ -70,7 +70,7 @@ Create config `jwt-keychain.json`.
 	"fromName": "Name of Sender",
 
 	"pathToEmailView": "JWTKeychain/Emails/resetPassword",
-	"pathToFormView": "JWTKeychain/Views/resetPassword",
+	"pathToFormView": "JWTKeychain/ResetPassword/resetPassword",
 
 	"apiPathPrefix": "api/users",
 	"frontendPathPrefix": "users/reset-password",

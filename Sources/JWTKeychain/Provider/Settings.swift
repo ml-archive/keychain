@@ -47,7 +47,7 @@ public struct Settings {
     ) {
         self.baseURL = baseURL
         self.pathToEmailView = pathToEmailView ?? "JWTKeychain/Emails/resetPassword"
-        self.pathToFormView = pathToFormView ?? "JWTKeychain/Views/resetPassword"
+        self.pathToFormView = pathToFormView ?? "JWTKeychain/ResetPassword/resetPassword"
         self.fromEmailAddress = fromEmailAddress
         self.apiPathPrefix = apiPathPrefix ?? "api/users"
         self.frontendPathPrefix = frontendPathPrefix ?? "users/reset-password"
