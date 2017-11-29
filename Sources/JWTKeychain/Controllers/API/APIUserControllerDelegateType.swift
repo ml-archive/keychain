@@ -38,5 +38,3 @@ public protocol APIUserControllerDelegateType {
         tokenGenerators: TokenGenerators
     ) throws -> ResponseRepresentable
 }
-
-

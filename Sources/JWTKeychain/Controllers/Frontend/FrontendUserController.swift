@@ -23,7 +23,9 @@ internal class FrontendUserController {
         self.delegate = delegate
     }
 
-    internal func resetPasswordForm(request: Request) throws -> ResponseRepresentable {
+    internal func resetPasswordForm(
+        request: Request
+    ) throws -> ResponseRepresentable {
         let token = try request.parameters.next(String.self)
 
         do {
@@ -49,7 +51,8 @@ internal class FrontendUserController {
         let token = try request.parameters.next(String.self)
 
         // determine path to reset password form relative to current path
-        let formPath = request.uri
+        let formPath = request
+            .uri
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("form")

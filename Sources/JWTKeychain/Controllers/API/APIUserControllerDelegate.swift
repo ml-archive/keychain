@@ -1,6 +1,10 @@
 import JWTProvider
 import Vapor
 
+/// Class that implements the behavior for the `APIUserController` for User
+/// types conforming to the protocols in `JWTKeychainUser`.
+/// You can use your own implementation instead or subclass this class to
+/// customize behavior.
 open class APIUserControllerDelegate<U: JWTKeychainUser>:
     APIUserControllerDelegateType
 {
