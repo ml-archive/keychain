@@ -27,11 +27,10 @@ internal class FrontendUserController {
         let token = try request.parameters.next(String.self)
 
         do {
-            let jwt = try verifiedJWT(from: token)
+            _ = try verifiedJWT(from: token)
             return try delegate.resetPasswordForm(
                 request: request,
                 token: token,
-                verifiedJWT: jwt,
                 viewRenderer: viewRenderer
             )
         } catch let error as JWTError {

@@ -7,7 +7,6 @@ public protocol FrontendUserControllerDelegateType {
     func resetPasswordForm(
         request: Request,
         token: String,
-        verifiedJWT: JWT,
         viewRenderer: ViewRenderer
     ) throws -> ResponseRepresentable
 

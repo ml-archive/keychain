@@ -51,7 +51,6 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
     open func resetPasswordForm(
         request: Request,
         token: String,
-        verifiedJWT jwt: JWT,
         viewRenderer: ViewRenderer
     ) throws -> ResponseRepresentable {
         let fieldset = try request.fieldset ??
