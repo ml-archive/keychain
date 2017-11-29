@@ -10,3 +10,5 @@ node_modules/
 bower_components/
 .swift-version
 CMakeLists.txt
+Package.resolved
+

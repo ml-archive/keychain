@@ -40,18 +40,17 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         pathToFormView = settings.pathToFormView
     }
 
-    /// Shows the form where the user can reset the password
+    /// Renders the form where the user can reset the password.
     ///
-    /// - Parameters
+    /// - Parameters:
     ///   - request: current request
     ///   - token: jwt token string
-    ///   - viewRenderer: view renderer to use
-    ///
-    /// - Returns: response (view or redirect)
+    ///   - viewRenderer: renderer used to render the form
+    /// - Returns: rendered form view
+    /// - Throws: if processing the request or rendering the view fails.
     open func resetPasswordForm(
         request: Request,
         token: String,
-        verifiedJWT jwt: JWT,
         viewRenderer: ViewRenderer
     ) throws -> ResponseRepresentable {
         let fieldset = try request.fieldset ??
@@ -68,11 +67,14 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         )
     }
 
-    /// Validates the reset request and actually changes the password
+    /// Changes the password if the request is valid.
     ///
-    /// - Parameter request: current request
-    /// - Returns: success or error response
-    /// - Throws: if something goes wrong
+    /// - Parameters:
+    ///   - request: current request
+    ///   - verifiedJWT: a pre-verified JSON Web Token
+    ///   - formPath: URL path to redirect to after successful reset or error
+    /// - Returns: a redirect response
+    /// - Throws: any error processing the form request
     open func resetPasswordChange(
         request: Request,
         verifiedJWT jwt: JWT,

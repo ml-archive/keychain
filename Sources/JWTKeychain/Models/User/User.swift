@@ -140,7 +140,7 @@ extension User: PayloadAuthenticatable {
 
     public static func authenticate(
         _ payload: PayloadType
-        ) throws -> User {
+    ) throws -> User {
         guard let user = try User.find(payload.id) else {
             throw Abort.notFound
         }

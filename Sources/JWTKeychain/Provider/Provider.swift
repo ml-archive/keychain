@@ -37,13 +37,11 @@ extension PasswordAuthenticatable {
 /// - Creates User API routes
 /// - Creates Frontend password reset routes
 public final class Provider<U: JWTKeychainUser> {
-
-    fileprivate let settings: Settings
-
     fileprivate let apiDelegate: APIUserControllerDelegateType
     fileprivate let apiMiddleware: [Middleware]
     fileprivate let frontendDelegate: FrontendUserControllerDelegateType
     fileprivate let frontendMiddleware: [Middleware]
+    fileprivate let settings: Settings
 
     public init(
         apiDelegate: APIUserControllerDelegateType? = nil,

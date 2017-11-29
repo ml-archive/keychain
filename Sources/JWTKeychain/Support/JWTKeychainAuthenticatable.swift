@@ -29,7 +29,7 @@ extension JWTKeychainAuthenticatable where Self:
         } catch {
             throw Abort(
                 .preconditionFailed,
-                reason: "The field \"\(usernameKey)\" is required"
+                reason: "The field \"\(usernameKey)\" is required."
             )
         }
 

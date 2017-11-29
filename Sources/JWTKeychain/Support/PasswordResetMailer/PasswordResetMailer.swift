@@ -27,7 +27,7 @@ public class PasswordResetMailer: PasswordResetMailerType {
 
     /// Sends an email to the user with the password reset URL
     ///
-    /// - parameters:
+    /// - Parameters:
     ///   - user: user that is resetting the password
     ///   - resetToken: JWT that the user can be use to reset their password
     ///   - subject: subject of the email
@@ -37,17 +37,20 @@ public class PasswordResetMailer: PasswordResetMailerType {
         resetToken: Token,
         subject: String
     ) throws {
-        let html = try viewRenderer.make(
-            pathToEmailView,
-            ViewData(
-                node: [
-                    "user": user.makeNode(in: jsonContext),
-                    "token": resetToken.string,
-                    "expire": expireIn.minute ?? 0,
-                    "url": baseURL
-                ]
+        let html = try viewRenderer
+            .make(
+                pathToEmailView,
+                ViewData(
+                    node: [
+                        "user": user.makeNode(in: jsonContext),
+                        "token": resetToken.string,
+                        "expire": expireIn.minute ?? 0,
+                        "url": baseURL
+                    ]
+                )
             )
-        ).data.makeString()
+            .data
+            .makeString()
 
         let email = SMTP.Email(
             from: fromEmailAddress,
