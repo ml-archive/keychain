@@ -1,9 +1,9 @@
-// Generated using Sourcery 0.8.0 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+#if os(Linux)
 
-
-@testable import JWTKeychainTests
 import XCTest
+@testable import JWTKeychainTests
+
+// sourcery:inline:auto:LinuxMain
 
 extension ResetPasswordChangeTests {
   static var allTests = [
@@ -11,7 +11,7 @@ extension ResetPasswordChangeTests {
     ("testInvalidPassword", testInvalidPassword),
     ("testDifferentPasswords", testDifferentPasswords),
     ("testInvalidToken", testInvalidToken),
-    ("testMismatchingPasswordHash", testMismatchingPasswordHash),
+    ("testMismatchingPasswordVersion", testMismatchingPasswordVersion),
     ("testExistingUser", testExistingUser),
   ]
 }
@@ -34,3 +34,8 @@ XCTMain([
   testCase(ResetPasswordFormTests.allTests),
   testCase(SettingsTests.allTests),
 ])
+
+// sourcery:end
+
+#endif
+

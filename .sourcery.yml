@@ -1,6 +1,6 @@
 sources:
-  - Tests
+  - Tests/
 templates:
-  - Sourcery/LinuxMain.stencil
-args:
-  testimports: "@testable import JWTKeychainTests"
+  - Sourcery/
+output:
+  .
