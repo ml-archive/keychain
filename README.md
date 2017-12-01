@@ -1,4 +1,5 @@
 # JWT Keychain
+[![Swift Version](https://img.shields.io/badge/Swift-4.0-brightgreen.svg)](http://swift.org)
 [![Swift Version](https://img.shields.io/badge/Swift-3.1-brightgreen.svg)](http://swift.org)
 [![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
 [![Linux Build Status](https://img.shields.io/circleci/project/github/nodes-vapor/jwt-keychain.svg?label=Linux)](https://circleci.com/gh/nodes-vapor/jwt-keychain)
@@ -8,7 +9,7 @@
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/nodes-vapor/jwt-keychain)](http://clayallsopp.github.io/readme-score?url=https://github.com/nodes-vapor/jwt-keychain)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nodes-vapor/jwt-keychain/master/LICENSE)
 
-This package aims to provide developers with an easy way to scaffold their API using a JWT Keychain.
+Add a complete and customizable user authentication system for your API project.
 
 ## Demo project
 
@@ -17,8 +18,17 @@ https://github.com/nodes-vapor/jwt-keychain-demo
 ## 📦 Installation
 
 Update your `Package.swift` file.
+
+### Swift 3
+
 ```swift
-.Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0)
+.Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 1)
+```
+
+### Swift 4
+
+```swift
+.package(url: "https://github.com/nodes-vapor/jwt-keychain.git", upToMajorVersion: "1.0.0")
 ```
 
 ## Getting started 🚀
@@ -195,6 +205,8 @@ class CustomUser: JWTKeychainUser {
 }
 ```
 
+An easy way to get started is to copy the existing User implementation to your project and adjust where necessary.
+
 Substitute the provided User type with your own when adding the provider.
 
 ```swift
@@ -256,7 +268,6 @@ try addProvider(JWTKeychain.Provider<CustomUser>(
 )
 ```
 
-
 ### Frontend Requests
 
 ```swift
@@ -296,7 +307,6 @@ try addProvider(JWTKeychain.Provider<CustomUser>(
 )
 ```
 
-
 ### Supply Additional Middleware
 
 ```swift
@@ -311,7 +321,6 @@ try addProvider(JWTKeychain.Provider<CustomUser>(
 
 This package is developed and maintained by the Vapor team at [Nodes](https://www.nodesagency.com).
 The package owner for this project is [Siemen](https://github.com/siemensikkema/).
-
 
 ## 📄 License
 
