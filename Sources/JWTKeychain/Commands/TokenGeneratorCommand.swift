@@ -5,7 +5,10 @@ import JWT
 import JWTProvider
 import Vapor
 
-public typealias TokenGeneratableUser = Entity & PasswordAuthenticatable
+public typealias TokenGeneratableUser =
+    Entity &
+    PasswordAuthenticatable &
+    PasswordUpdateable
 
 /// Generates a token for a user with a given username (generally email) that
 /// can be used to reset their password.

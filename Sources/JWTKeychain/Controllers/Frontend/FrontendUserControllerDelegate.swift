@@ -115,8 +115,8 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         // check that the password hash is still the same as when the token
         // was issued
         do {
-            let passwordClaim = try PasswordClaim(user: user)
-            try jwt.verifyClaims([passwordClaim])
+            let passwordVersionClaim = try PasswordVersionClaim(user: user)
+            try jwt.verifyClaims([passwordVersionClaim])
         } catch {
             return redirectToForm.flash(.error, "Password already changed." +
                 " Request another password reset to change it again."
