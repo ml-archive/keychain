@@ -46,7 +46,7 @@ extension ExpireableSigner: Signer {
 extension ExpireableSigner: TokenGenerator {
     public func generateToken<E>(
         for user: E
-    ) throws -> Token where E: PasswordAuthenticatable, E: Entity {
+    ) throws -> Token where E: PasswordUpdateable, E: Entity {
         return try Token(
             user: user,
             expirationDate: expirationPeriod.from(now())!,
