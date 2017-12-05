@@ -29,8 +29,7 @@ final class ResetPasswordChangeTests: TestCase {
     }
     
     func testDifferentPasswords() throws {
-        let user = try createUser()
-        let token = try createToken(hashedPassword: user.hashedPassword!)
+        let token = try createToken()
         let fieldset = try changePassword(
             token: token,
             passwordRepeat: "different")
@@ -47,9 +46,9 @@ final class ResetPasswordChangeTests: TestCase {
             .assertFlashType(is: .error, withMessage: "Invalid token.")
     }
     
-    func testMismatchingPasswordHash() throws {
+    func testMismatchingPasswordVersion() throws {
         try createUser()
-        try changePassword()
+        try changePassword(token: createToken(passwordVersion: "1"))
             .assertFlashType(
                 is: .error,
                 withMessage: "Password already changed. Request another password reset to change it again."
@@ -57,19 +56,19 @@ final class ResetPasswordChangeTests: TestCase {
     }
     
     func testExistingUser() throws {
-        let user = try createUser()
-        let oldPassword = user.hashedPassword
-        
+        let oldPassword = try createUser().hashedPassword
+
         try changePassword(
-            token: createToken(hashedPassword: strongPassword),
+            token: createToken(),
             password: "N3wp@ssword",
-            passwordRepeat: "N3wp@ssword")
-            .assertFlashType(
+            passwordRepeat: "N3wp@ssword").assertFlashType(
                 is: .success,
                 withMessage: "Password changed. You can close this page now."
         )
-        
-        XCTAssertNotEqual(try User.find(1)?.hashedPassword, oldPassword)
+
+        let user = try User.find(1)
+        XCTAssertEqual(user?.passwordVersion, 1)
+        XCTAssertNotEqual(user?.hashedPassword, oldPassword)
     }
 }
 

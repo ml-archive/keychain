@@ -1,7 +1,4 @@
-// sourcery:file:Tests/LinuxMain.swift
-
-{{ argument.testimports }}
-import XCTest
+// sourcery:inline:auto:LinuxMain
 
 {% for type in types.classes|based:"XCTestCase" %}
 {% if not type.annotations.excludeFromLinuxMain %}extension {{ type.name }} {
@@ -14,4 +11,5 @@ import XCTest
 XCTMain([
 {% for type in types.classes|based:"XCTestCase" %}{% if not type.annotations.excludeFromLinuxMain %}  testCase({{ type.name }}.allTests),
 {% endif %}{% endfor %}])
+
 // sourcery:end

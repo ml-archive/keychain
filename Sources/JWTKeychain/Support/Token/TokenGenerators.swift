@@ -56,8 +56,7 @@ public extension TokenGenerators {
         if responseOptions.contains(.access) {
             try response.set(
                 "accessToken",
-                self
-                    .apiAccessTokenGenerator
+                self.apiAccessTokenGenerator
                     .generateToken(for: user)
                     .string
             )

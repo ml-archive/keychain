@@ -11,27 +11,31 @@ public final class User: Model, SoftDeletable, Timestampable {
     public struct Keys {
         public static let email = "email"
         public static let name = "name"
-        static let hashedPassword = "hashedPassword"
+        internal static let hashedPassword = "hashedPassword"
+        internal static let passwordVersion = "passwordVersion"
 
-        static let password = "password"
-        static let passwordRepeat = "passwordRepeat"
-        static let oldPassword = "oldPassword"
+        internal static let password = "password"
+        internal static let passwordRepeat = "passwordRepeat"
+        internal static let oldPassword = "oldPassword"
     }
 
     public var email: String
     public var name: String
     public var hashedPassword: String?
+    public var passwordVersion: Int = 0
 
     public let storage = Storage()
 
     public init(
         email: String,
         name: String,
-        hashedPassword: String?
+        hashedPassword: String?,
+        passwordVersion: Int = 0
     ) {
         self.email = email
         self.name = name
         self.hashedPassword = hashedPassword
+        self.passwordVersion = passwordVersion
     }
 }
 
@@ -52,6 +56,7 @@ extension User: JSONRepresentable {
         try json.set(User.idKey, id)
         try json.set(Keys.email, email)
         try json.set(Keys.name, name)
+        try json.set(Keys.passwordVersion, passwordVersion)
 
         return json
     }
@@ -73,8 +78,8 @@ extension User: JWTKeychainAuthenticatable {
         guard try makeQuery()
             .filter(Keys.email.string, email)
             .count() == 0
-            else {
-                throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
+        else {
+            throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
         }
 
         return User(
@@ -94,6 +99,7 @@ extension User: NodeRepresentable {
         try node.set(User.idKey, id)
         try node.set(Keys.email, email)
         try node.set(Keys.name, name)
+        try node.set(Keys.passwordVersion, passwordVersion)
 
         return node
     }
@@ -140,7 +146,7 @@ extension User: PayloadAuthenticatable {
 
     public static func authenticate(
         _ payload: PayloadType
-        ) throws -> User {
+    ) throws -> User {
         guard let user = try User.find(payload.id) else {
             throw Abort.notFound
         }
@@ -158,6 +164,7 @@ extension User: Preparation {
             $0.string(Keys.email, unique: true)
             $0.string(Keys.name)
             $0.string(Keys.hashedPassword, optional: true)
+            $0.int(Keys.passwordVersion)
         }
     }
 
@@ -236,7 +243,8 @@ extension User: RowRepresentable {
         try self.init(
             email: row.get(Keys.email),
             name: row.get(Keys.name),
-            hashedPassword: row.get(Keys.hashedPassword)
+            hashedPassword: row.get(Keys.hashedPassword),
+            passwordVersion: row.get(Keys.passwordVersion)
         )
     }
 
@@ -246,6 +254,7 @@ extension User: RowRepresentable {
         try row.set(Keys.email, email)
         try row.set(Keys.name, name)
         try row.set(Keys.hashedPassword, hashedPassword)
+        try row.set(Keys.passwordVersion, passwordVersion)
 
         return row
     }
@@ -269,6 +278,7 @@ extension User {
 
         if let password = password {
             self.hashedPassword = try User.hash(password: password)
+            self.passwordVersion += 1
         }
     }
 

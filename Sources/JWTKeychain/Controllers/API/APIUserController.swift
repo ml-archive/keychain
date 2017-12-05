@@ -1,7 +1,7 @@
 import Foundation
 import Vapor
 
-/// Controller for user API requests
+/// Controller for user API requests. Forwards all calls to its delegate.
 final internal class APIUserController {
     private let delegate: APIUserControllerDelegateType
     private let passwordResetMailer: PasswordResetMailerType
@@ -21,6 +21,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON response with User data.
+    /// - Throws: Any error from the delegate call.
     internal func register(request: Request) throws -> ResponseRepresentable {
         return try delegate.register(
             request: request,
@@ -32,7 +33,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON response with User data.
-    /// - Throws: on invalid data or wrong credentials.
+    /// - Throws: Any error from the delegate call.
     internal func logIn(request: Request) throws -> ResponseRepresentable {
         return try delegate.logIn(
             request: request,
@@ -44,7 +45,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON success response.
-    /// - Throws: if not able to find token.
+    /// - Throws: Any error from the delegate call.
     internal func logOut(request: Request) throws -> ResponseRepresentable {
         return try delegate.logOut(
             request: request,
@@ -56,7 +57,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON with token.
-    /// - Throws: if not able to generate token.
+    /// - Throws: Any error from the delegate call.
     internal func regenerate(request: Request) throws -> ResponseRepresentable {
         return try delegate.regenerate(
             request: request,
@@ -68,7 +69,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: JSON response with User data.
-    /// - Throws: on no user found.
+    /// - Throws: Any error from the delegate call.
     internal func me(request: Request) throws -> ResponseRepresentable {
         return try delegate.me(
             request: request,
@@ -80,6 +81,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: success or failure message
+    /// - Throws: Any error from the delegate call.
     internal func resetPasswordEmail(
         request: Request
     ) throws -> ResponseRepresentable {
@@ -94,6 +96,7 @@ final internal class APIUserController {
     ///
     /// - Parameter request: current request.
     /// - Returns: success or failure message
+    /// - Throws: Any error from the delegate call.
     func update(request: Request) throws -> ResponseRepresentable {
         return try delegate.update(
             request: request,

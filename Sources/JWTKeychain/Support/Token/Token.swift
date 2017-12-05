@@ -8,11 +8,11 @@ extension Token {
         user: E,
         expirationDate: Date,
         signer: Signer
-    ) throws where E: PasswordAuthenticatable {
+    ) throws where E: PasswordUpdateable {
         let claims: [Claim] = try [
             ExpirationTimeClaim(date: expirationDate),
             SubjectClaim(user: user),
-            PasswordClaim(user: user)
+            PasswordVersionClaim(user: user)
         ]
 
         let jwt = try JWT(
