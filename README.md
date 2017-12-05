@@ -22,7 +22,7 @@ Update your `Package.swift` file.
 ### Swift 3
 
 ```swift
-.Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 1)
+.Package(url: "https://github.com/nodes-vapor/jwt-keychain.git", majorVersion: 0, minor: 13)
 ```
 
 ### Swift 4
