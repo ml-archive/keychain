@@ -35,7 +35,7 @@ Update your `Package.swift` file.
 
 ### Configuration
 
-Create config `jwt.json` (for more information, see [JWTProvider](https://github.com/vapor/jwt-provider).
+Create config `jwt.json` (for more information, see [JWTProvider](https://github.com/vapor/jwt-provider)).
 
 ```json
 {
@@ -113,13 +113,13 @@ JWTKeychain uses Leaf to render the password reset email and form. Make sure Lea
 try addProvider(LeafProvider.Provider.self)
 ```
 
+> Note: it is recommended you use different signing keys for the production environment than for development and/or staging.
+
 ### Resources
 
 Copy package resources:
 
 `JWTKeychain/Resources/Views` to `/Resource/Views`.
-
-See `https://github.com/vapor/vapor-jwt` to learn more about signing.
 
 ### Usage
 
