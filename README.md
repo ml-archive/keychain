@@ -1,5 +1,5 @@
 # JWT Keychain
-[![Swift Version](https://img.shields.io/badge/Swift-4.0-brightgreen.svg)](http://swift.org)
+[![Swift Version](https://img.shields.io/badge/Swift-4-brightgreen.svg)](http://swift.org)
 [![Swift Version](https://img.shields.io/badge/Swift-3-brightgreen.svg)](http://swift.org)
 [![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
 [![Circle CI](https://circleci.com/gh/nodes-vapor/jwt-keychain/tree/master.svg?style=shield)](https://circleci.com/gh/nodes-vapor/jwt-keychain)
