@@ -117,7 +117,7 @@ try addProvider(LeafProvider.Provider.self)
 
 Copy package resources:
 
-`JWTKeychain/Resources/Views` to `/Resource/Views`.
+Move the content of `JWTKeychain/Resources/Views` into the `Resources/Views` folder of your project. Unfortunately there's no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you're not overwriting any files in your project.
 
 See `https://github.com/vapor/vapor-jwt` to learn more about signing.
 
