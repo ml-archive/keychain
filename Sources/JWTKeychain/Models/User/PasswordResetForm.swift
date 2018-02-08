@@ -3,7 +3,7 @@ import JSON
 import Sugar
 import Validation
 
-internal struct PasswordResetForm {
+public struct PasswordResetForm {
     fileprivate let emailField: FormField<String>
     fileprivate let passwordField: FormField<String>
     fileprivate let passwordRepeatField: FormField<String>
@@ -49,7 +49,7 @@ internal struct PasswordResetForm {
 // MARK: Form
 
 extension PasswordResetForm: Form {
-    var fields: [FieldType] {
+    public var fields: [FieldType] {
         return [emailField, passwordField, passwordRepeatField]
     }
 }
@@ -57,7 +57,7 @@ extension PasswordResetForm: Form {
 // MARK: JSONInitializable
 
 extension PasswordResetForm: JSONInitializable {
-    internal init(json: JSON) throws {
+    public init(json: JSON) throws {
         try self.init(
             email: json.get(User.Keys.email),
             password: json.get(User.Keys.password),
@@ -69,11 +69,11 @@ extension PasswordResetForm: JSONInitializable {
 // MARK: PasswordResetInfoType
 
 extension PasswordResetForm: PasswordResetInfoType {
-    internal var email: String? {
+    public var email: String? {
         return emailField.value
     }
 
-    internal var password: String? {
+    public var password: String? {
         return passwordField.value
     }
 }
