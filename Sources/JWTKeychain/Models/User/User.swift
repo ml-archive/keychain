@@ -77,7 +77,7 @@ extension User: JWTKeychainAuthenticatable {
 
         guard try makeQuery()
             .filter(Keys.email.string, email)
-            .count() == 0
+            .first == nil
         else {
             throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
         }
@@ -192,12 +192,12 @@ extension User: RequestUpdateable {
             email != self.email,
             let id = id?.string
         {
-            let numberOfExistingUsersWithSameEmail = try makeQuery()
+            let existingUserWithSameEmail = try makeQuery()
                 .filter(Keys.email, email)
                 .filter(idKey, .notEquals, id)
-                .count()
+                .first()
             
-            if numberOfExistingUsersWithSameEmail > 0 {
+            if existingUserWithSameEmail != nil {
                 throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
             }
         }
