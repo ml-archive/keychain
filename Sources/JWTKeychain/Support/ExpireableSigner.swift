@@ -9,7 +9,7 @@ public struct ExpireableSigner {
     fileprivate let expirationPeriod: DateComponents
     fileprivate let now: () -> Date
     fileprivate let signer: Signer
-    
+
     public init(
         // injectable for control over dates during testing
         now: @escaping () -> Date = Date.init,

@@ -29,8 +29,8 @@ public final class ErrorListTag: BasicTag {
             let fieldName = arguments[1]?.string,
             let errors = fields[fieldName]?["errors"]?.array,
             errors.count > 0
-            else {
-                return nil
+        else {
+            return nil
         }
 
         return ["errors": .array(errors)]

@@ -196,7 +196,7 @@ extension User: RequestUpdateable {
                 .filter(Keys.email, email)
                 .filter(idKey, .notEquals, id)
                 .first()
-            
+
             if existingUserWithSameEmail != nil {
                 throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
             }

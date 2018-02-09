@@ -78,7 +78,7 @@ extension JWTKeychainAuthenticatable where Self: RequestInitializable & Entity {
 
 extension JWTKeychainAuthenticatable where Self:
     RequestUpdateable & Entity & Authenticatable {
-    
+
     public static func update(request: Request) throws -> Self {
         let user: Self = try request.auth.assertAuthenticated()
         try user.update(request: request)
