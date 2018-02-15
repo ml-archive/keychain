@@ -108,7 +108,7 @@ extension Provider {
     fileprivate func registerRoutes(_ drop: Droplet) throws {
         let signerMap = try drop.assertSigners()
         let viewRenderer = drop.view
-        
+
         let frontendRoutes = try createFrontendRoutes(
             signerMap: signerMap,
             viewRenderer: viewRenderer
@@ -123,16 +123,16 @@ extension Provider {
             passwordResetMailer: passwordResetMailer,
             signerMap: signerMap
         )
-        
+
         try drop.collection(frontendRoutes)
         try drop.collection(userRoutes)
     }
-    
+
     fileprivate func registerTags(_ stem: Stem) {
         stem.register(ErrorListTag())
         stem.register(ValueForFieldTag())
     }
-    
+
     fileprivate func createFrontendRoutes(
         signerMap: SignerMap,
         viewRenderer: ViewRenderer
@@ -141,20 +141,20 @@ extension Provider {
         guard let signer = signerMap[kid] else {
             throw JWTKeychainError.missingSigner(kid: kid)
         }
-        
+
         let controller = FrontendUserController(
             signer: signer,
             viewRenderer: viewRenderer,
             delegate: frontendDelegate
         )
-        
+
         return FrontendResetPasswordRoutes(
             controller: controller,
             middleware: frontendMiddleware,
             pathPrefix: settings.frontendPathPrefix
         )
     }
-    
+
     fileprivate func createUserRoutes(
         passwordResetMailer: PasswordResetMailerType,
         signerMap: SignerMap
@@ -163,13 +163,13 @@ extension Provider {
             settings: settings,
             signerMap: signerMap
         )
-        
+
         let controller = APIUserController(
             delegate: apiDelegate,
             passwordResetMailer: passwordResetMailer,
             tokenGenerators: tokenGenerators
         )
-        
+
         let apiAccessMiddleware = PayloadAuthenticationMiddleware<U>(
             tokenGenerators.apiAccess,
             [ExpirationTimeClaim()]
@@ -188,7 +188,7 @@ extension Provider {
         } else {
             refreshMiddleware = nil
         }
-        
+
         return APIUserRoutes(
             apiAccessMiddleware: apiAccessMiddleware,
             refreshMiddleware: refreshMiddleware,

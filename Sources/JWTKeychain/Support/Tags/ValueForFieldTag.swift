@@ -14,8 +14,8 @@ public final class ValueForFieldTag: BasicTag {
             arguments.count == 2,
             let fields = arguments[0]?.object,
             let fieldName = arguments[1]?.string
-            else {
-                return nil
+        else {
+            return nil
         }
         return fields[fieldName]?["value"]
     }

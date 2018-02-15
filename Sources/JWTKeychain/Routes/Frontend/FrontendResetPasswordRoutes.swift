@@ -6,7 +6,7 @@ import Vapor
 /// Defines basic reset password routes.
 internal struct FrontendResetPasswordRoutes: RouteCollection {
     internal typealias Wrapped = Responder
-    
+
     private let controller: FrontendUserController
     private let middleware: [Middleware]
     private let pathPrefix: String
@@ -26,7 +26,7 @@ internal struct FrontendResetPasswordRoutes: RouteCollection {
         self.middleware = middleware
         self.pathPrefix = pathPrefix
     }
-    
+
     internal func build(
         _ builder: RouteBuilder
     ) throws {
