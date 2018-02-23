@@ -1,4 +1,6 @@
+import Forms
 import JWTProvider
+import Validation
 import Vapor
 
 /// Class that implements the behavior for the `APIUserController` for User
