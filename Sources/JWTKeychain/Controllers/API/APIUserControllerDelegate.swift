@@ -57,6 +57,15 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         passwordResetMailer: PasswordResetMailerType
     ) throws -> ResponseRepresentable {
         do {
+
+            if let json = request.json {
+                let email: String = try json.get("email")
+
+                try EmailValidator()
+                    .transformingErrors(to: EmailError.invalidEmailFormat)
+                    .validate(email)
+            }
+
             let user = try U.find(request: request)
             let token = try tokenGenerators
                 .resetPasswordTokenGenerator
@@ -66,6 +75,8 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
                 resetToken: token,
                 subject: "Reset Password"
             )
+        } catch is EmailError {
+            return status("Invalid Email format.")
         } catch let error as AbortError where error.status == .notFound {
             // ignore "notFound" errors and pretend the operation succeeded
         }
@@ -86,5 +97,9 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
 extension APIUserControllerDelegate {
     func status(_ status: String) -> ResponseRepresentable {
         return JSON(["status": .string(status)])
+    }
+
+    enum EmailError: Error {
+        case invalidEmailFormat
     }
 }
