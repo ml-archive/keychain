@@ -1,4 +1,6 @@
+import Forms
 import JWTProvider
+import Validation
 import Vapor
 
 /// Class that implements the behavior for the `APIUserController` for User
@@ -57,6 +59,14 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         passwordResetMailer: PasswordResetMailerType
     ) throws -> ResponseRepresentable {
         do {
+            if let json = request.json {
+                let email: String = try json.get(User.Keys.email)
+
+                try EmailValidator()
+                    .transformingErrors(to: EmailError.invalidEmailFormat)
+                    .validate(email)
+            }
+
             let user = try U.find(request: request)
             let token = try tokenGenerators
                 .resetPasswordTokenGenerator
@@ -66,6 +76,8 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
                 resetToken: token,
                 subject: "Reset Password"
             )
+        } catch is EmailError {
+            return status("Invalid Email format.")
         } catch let error as AbortError where error.status == .notFound {
             // ignore "notFound" errors and pretend the operation succeeded
         }
@@ -86,5 +98,9 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
 extension APIUserControllerDelegate {
     func status(_ status: String) -> ResponseRepresentable {
         return JSON(["status": .string(status)])
+    }
+
+    private enum EmailError: Error {
+        case invalidEmailFormat
     }
 }
