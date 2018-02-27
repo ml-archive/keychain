@@ -59,9 +59,8 @@ open class APIUserControllerDelegate<U: JWTKeychainUser>:
         passwordResetMailer: PasswordResetMailerType
     ) throws -> ResponseRepresentable {
         do {
-
             if let json = request.json {
-                let email: String = try json.get("email")
+                let email: String = try json.get(User.Keys.email)
 
                 try EmailValidator()
                     .transformingErrors(to: EmailError.invalidEmailFormat)
@@ -101,7 +100,7 @@ extension APIUserControllerDelegate {
         return JSON(["status": .string(status)])
     }
 
-    enum EmailError: Error {
+    private enum EmailError: Error {
         case invalidEmailFormat
     }
 }
