@@ -29,6 +29,18 @@ Update your `Package.swift` file.
 ```swift
 .package(url: "https://github.com/nodes-vapor/jwt-keychain.git", upToMajorVersion: "1.0.0")
 ```
+```swift
+targets: [
+    .target(
+        name: "App",
+        dependencies: [
+            ...
+            "JWTKeychain"
+        ]
+    ),
+    ...
+]
+```
 
 ## Getting started 🚀
 
