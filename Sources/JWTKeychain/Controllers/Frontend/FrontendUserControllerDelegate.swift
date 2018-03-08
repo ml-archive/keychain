@@ -59,7 +59,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
 
         return try viewRenderer.make(
             pathToFormView,
-            ViewData([.fieldset: fieldset, .request: request, "token": Node.string(token)])
+            ViewData(dict: [.fieldset: fieldset, .request: request, "token": token])
         )
     }
 
