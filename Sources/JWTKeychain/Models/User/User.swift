@@ -77,7 +77,7 @@ extension User: JWTKeychainAuthenticatable {
 
         guard try makeQuery()
             .filter(Keys.email.string, email)
-            .first == nil
+            .first() == nil
         else {
             throw JWTKeychainUserError.userWithGivenEmailAlreadyExists
         }
