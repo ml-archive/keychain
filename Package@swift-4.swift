@@ -10,7 +10,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/harlanhaskins/Punctual.swift.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/nodes-vapor/flash.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/nodes-vapor/forms.git", .upToNextMinor(from: "0.5.0")),
+        .package(url: "https://github.com/nodes-vapor/forms.git", .upToNextMinor(from: "0.6.1")),
         .package(url: "https://github.com/nodes-vapor/sugar.git", .upToNextMajor(from: "2.0.0")),
         .package(url: "https://github.com/vapor/fluent-provider.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/vapor/jwt-provider.git", .upToNextMajor(from: "1.0.0")),
