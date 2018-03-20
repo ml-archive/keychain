@@ -1,19 +1,38 @@
+// swift-tools-version:4.0
+
 import PackageDescription
 
 let package = Package(
     name: "JWTKeychain",
-    dependencies: [
-        .Package(url: "https://github.com/harlanhaskins/Punctual.swift.git", majorVersion: 1),
-        .Package(url: "https://github.com/nodes-vapor/flash.git", majorVersion: 1),
-        .Package(url: "https://github.com/nodes-vapor/forms.git", majorVersion: 0, minor: 6),
-        .Package(url: "https://github.com/nodes-vapor/sugar.git", majorVersion: 2),
-        .Package(url: "https://github.com/vapor/fluent-provider.git", majorVersion: 1),
-        .Package(url: "https://github.com/vapor/jwt-provider.git", majorVersion: 1),
-        .Package(url: "https://github.com/vapor/leaf-provider.git", majorVersion: 1),
-        .Package(url: "https://github.com/vapor/validation.git", majorVersion: 1),
-        .Package(url: "https://github.com/vapor/vapor.git", majorVersion: 2),
+    products: [
+        .library(name: "JWTKeychain", targets: ["JWTKeychain"])
     ],
-    exclude: [
-        "Sourcery",
+    dependencies: [
+        .package(url: "https://github.com/harlanhaskins/Punctual.swift.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/nodes-vapor/flash.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/nodes-vapor/forms.git", .upToNextMinor(from: "0.6.1")),
+        .package(url: "https://github.com/nodes-vapor/sugar.git", .upToNextMajor(from: "2.0.0")),
+        .package(url: "https://github.com/vapor/fluent-provider.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/vapor/jwt-provider.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/vapor/leaf-provider.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "2.0.0")),
+        .package(url: "https://github.com/vapor/validation.git", .upToNextMajor(from: "1.0.0")),
+    ],
+    targets: [
+        .target(
+            name: "JWTKeychain", 
+            dependencies: [
+                "Flash",
+                "FluentProvider",
+                "Forms",
+                "JWTProvider",
+                "Punctual", 
+                "LeafProvider",
+                "Sugar",
+                "Validation",
+                "Vapor"
+            ]
+        ),
+        .testTarget(name: "JWTKeychainTests", dependencies: ["JWTKeychain"])
     ]
 )
