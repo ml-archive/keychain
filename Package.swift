@@ -29,8 +29,8 @@ let package = Package(
                 "Punctual", 
                 "LeafProvider",
                 "Sugar",
-                "Validation"
-                "Vapor",
+                "Validation",
+                "Vapor"
             ]
         ),
         .testTarget(name: "JWTKeychainTests", dependencies: ["JWTKeychain"])
