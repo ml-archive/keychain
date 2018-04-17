@@ -29,6 +29,7 @@ public final class JWTCustomPayloadKeychainProvider
 extension JWTCustomPayloadKeychainProvider: Provider {
     public func register(_ services: inout Services) throws {
         services.register(config.makeSigner())
+        services.register { _ in PayloadCache<P>() }
         services.register { _ in UserCache<U>() }
     }
 
@@ -43,6 +44,17 @@ extension JWTCustomPayloadKeychainProvider: Provider {
             try request.user()
         }
 
+        users.post { request -> Future<UserWithTokens<U>> in
+            try U.decode(from: request)
+                .flatMap(to: U.self) { (user: U) in
+                    try user.register(on: request)
+                }.map(UserWithTokens.init)
+        }
+
         return .done(on: container)
     }
+}
+
+struct UserWithTokens<U: Codable>: Content {
+    let user: U
 }
