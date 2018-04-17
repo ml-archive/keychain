@@ -75,11 +75,12 @@ import Vapor
 extension JWTKeychainProvider where U: Model, U.ID == Int, U.Database: QuerySupporting {
     public convenience init() {
         self.init { (request, id) -> Future<U> in
-            U.query(on: request).first().map(to: U.self) {
-                guard let user = $0 else {
-                    throw JWTKeychainError.userNotFound
-                }
-                return user
+            try U.find(Int(id) ?? 0, on: request)
+                .map(to: U.self) {
+                    guard let user = $0 else {
+                        throw JWTKeychainError.userNotFound
+                    }
+                    return user
             }
         }
     }
