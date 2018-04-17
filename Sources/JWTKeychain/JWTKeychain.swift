@@ -4,6 +4,7 @@ import Service
 
 enum JWTKeychainError: Error {
     case unauthorized
+    case userNotFound
 }
 
 extension JWTKeychainError: AbortError {
@@ -31,10 +32,12 @@ struct Payload: JWTPayload {
 
 extension JWTSigner: Service {}
 
+public typealias UserLoader<U> = (Request, String) throws -> Future<U>
+
 public final class JWTKeychainProvider<U: Content>: Provider {
     private let userCacheFactory: () -> UserCache<U>
 
-    public init(loadUser: @escaping (String) throws -> U) {
+    public init(loadUser: @escaping UserLoader<U>) {
         userCacheFactory = { UserCache<U>(loadUser: loadUser) }
     }
 
@@ -54,29 +57,49 @@ public final class JWTKeychainProvider<U: Content>: Provider {
             .grouped(middleware)
             .grouped("users")
 
-        users.get("me") { req -> U in
-            return try req.user()
+        users.get("me") { (request: Request) -> Future<U> in
+
+            try request.user().flatMap(to: U.self) { (u: U) in
+                print(u)
+                return try request.user()
+            }
         }
 
         return .done(on: container)
     }
 }
 
-final class UserCache<U>: Service {
-    private let loadUser: (String) throws -> U
+import Fluent
+import Vapor
 
-    init(loadUser: @escaping (String) throws -> U) {
+extension JWTKeychainProvider where U: Model, U.ID == Int, U.Database: QuerySupporting {
+    public convenience init() {
+        self.init { (request, id) -> Future<U> in
+            U.query(on: request).first().map(to: U.self) {
+                guard let user = $0 else {
+                    throw JWTKeychainError.userNotFound
+                }
+                return user
+            }
+        }
+    }
+}
+
+final class UserCache<U>: Service {
+    private let loadUser: UserLoader<U>
+
+    init(loadUser: @escaping UserLoader<U>) {
         self.loadUser = loadUser
     }
 
     var userId: String? = nil
 
-    private var cachedUser: U?
-    func user() throws -> U {
-        if let loadedUser = cachedUser {
-            return loadedUser
+    private var cachedUser: Future<U>?
+    func user(on request: Request) throws -> Future<U> {
+        if let cachedUser = cachedUser {
+            return cachedUser
         } else if let userId = userId {
-            let user = try loadUser(userId)
+            let user = try loadUser(request, userId)
             cachedUser = user
             return user
         } else {
@@ -104,9 +127,9 @@ extension Request {
         return payload.sub.value
     }
 
-    public func user<U>(userType: U.Type = U.self) throws -> U {
+    public func user<U>(userType: U.Type = U.self) throws -> Future<U> {
         let userService = try make(UserCache<U>.self)
-        return try userService.user()
+        return try userService.user(on: self)
     }
 }
 
