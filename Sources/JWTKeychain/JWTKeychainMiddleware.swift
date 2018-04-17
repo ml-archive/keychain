@@ -8,7 +8,10 @@ final class JWTKeychainMiddleware<P: JWTKeychainPayload>: Middleware {
         self.signer = signer
     }
 
-    func respond(to request: Request, chainingTo next: Responder) throws -> EventLoopFuture<Response> {
+    func respond(
+        to request: Request,
+        chainingTo next: Responder
+    ) throws -> EventLoopFuture<Response> {
         let cache = try request.make(PayloadCache<P>.self)
 
         if cache.payload == nil {

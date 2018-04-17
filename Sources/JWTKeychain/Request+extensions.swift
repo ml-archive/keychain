@@ -19,7 +19,7 @@ extension Request {
         return payload
     }
 
-    public func user<U>(userType: U.Type = U.self) throws -> Future<U> {
+    public func user<U: JWTKeychainUser>(userType: U.Type = U.self) throws -> Future<U> {
         return try make(UserCache<U>.self).user(on: self)
     }
 }
