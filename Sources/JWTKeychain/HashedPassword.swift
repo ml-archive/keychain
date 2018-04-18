@@ -7,14 +7,17 @@ public struct HashedPassword: Codable, Equatable {
     }
 }
 
+// MARK: - ReflectionDecodable
+
 extension HashedPassword: ReflectionDecodable {
     public static func reflectDecoded() throws -> (HashedPassword, HashedPassword) {
         return (.init(0), .init(1))
     }
 }
 
-import MySQL
+// MARK: - MySQLDataConvertible
 
+import MySQL
 extension HashedPassword: MySQLDataConvertible {
     public func convertToMySQLData() throws -> MySQLData {
         return MySQLData(string: value)
@@ -24,6 +27,8 @@ extension HashedPassword: MySQLDataConvertible {
         return try self.init(mysqlData.decode(String.self))
     }
 }
+
+// MARK: - JWTCustomPayloadKeychainUser
 
 extension JWTCustomPayloadKeychainUser {
     public static func hashPassword(_ data: LosslessDataConvertible) throws -> HashedPassword {
