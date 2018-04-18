@@ -1,9 +1,11 @@
 import Vapor
 
 enum JWTKeychainError: String, Error {
+    case incorrectPassword
     case invalidIdentifier
     case unauthorized
     case userNotFound
+    case weakPassword
 }
 
 extension JWTKeychainError: AbortError {

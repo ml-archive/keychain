@@ -36,20 +36,20 @@ extension JWTCustomPayloadKeychainProvider: Provider {
     public func didBoot(_ container: Container) throws -> EventLoopFuture<Void> {
         let router = try container.make(Router.self)
 
-        let users = router
-            .grouped(middleware)
-            .grouped("users")
+        let users = router.grouped("users")
+        users.post { request -> Future<UserWithTokens<U>> in
+            try U.register(on: request).map(UserWithTokens.init)
+        }
+        users.post("login") { request -> Future<UserWithTokens<U>> in
+            try U.logIn(on: request).map(UserWithTokens.init)
+        }
 
-        users.get("me") { request -> Future<U> in
+        let secured = users.grouped(middleware)
+
+        secured.get("me") { request -> Future<U> in
             try request.user()
         }
 
-        users.post { request -> Future<UserWithTokens<U>> in
-            try U.decode(from: request)
-                .flatMap(to: U.self) { (user: U) in
-                    try user.register(on: request)
-                }.map(UserWithTokens.init)
-        }
 
         return .done(on: container)
     }
