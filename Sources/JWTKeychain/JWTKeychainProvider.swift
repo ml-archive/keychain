@@ -28,7 +28,7 @@ public final class JWTCustomPayloadKeychainProvider
 // MARK: - Provider
 extension JWTCustomPayloadKeychainProvider: Provider {
     public func register(_ services: inout Services) throws {
-        services.register(config.makeSigner())
+        services.register(signer)
         services.register { _ in PayloadCache<P>() }
         services.register { _ in UserCache<U>() }
     }
@@ -49,7 +49,6 @@ extension JWTCustomPayloadKeychainProvider: Provider {
         secured.get("me") { request -> Future<U> in
             try request.user()
         }
-
 
         return .done(on: container)
     }

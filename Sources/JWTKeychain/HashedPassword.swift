@@ -12,7 +12,9 @@ extension HashedPassword: ReflectionDecodable {
         return (.init(0), .init(1))
     }
 }
+
 import MySQL
+
 extension HashedPassword: MySQLDataConvertible {
     public func convertToMySQLData() throws -> MySQLData {
         return MySQLData(string: value)
