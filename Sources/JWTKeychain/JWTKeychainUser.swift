@@ -2,25 +2,36 @@ import Crypto
 import Fluent
 import Vapor
 
-public protocol JWTUserRegistration: Decodable {
+public protocol JWTKeychainUserLogin: Decodable {
     var password: String { get }
 }
 
-public protocol JWTCustomPayloadKeychainUser: Content {
-    associatedtype P: JWTKeychainPayload
+public protocol JWTKeychainUserPublic: Encodable {}
 
-    static var passwordKey: KeyPath<Self, HashedPassword> { get }
-    static var userIdentifierKey: KeyPath<Self, String> { get }
+public protocol JWTKeychainUserRegistration: Decodable {
+    var password: String { get }
+}
+
+public protocol JWTKeychainUserUpdate: Decodable {}
+
+public protocol JWTCustomPayloadKeychainUser: Content, Model where
+    Self.Database: QuerySupporting, Self.ID: StringInitializable
+{
+    associatedtype Login: JWTKeychainUserLogin
+    associatedtype Payload: JWTKeychainPayload
+//    associatedtype Public: JWTKeychainUserPublic
+    associatedtype Registration: JWTKeychainUserRegistration
+//    associatedtype Update: JWTKeychainUserUpdate
 
     static var bCryptCost: Int { get }
 
-    static func load(on: Request) throws -> Future<Self>
-    static func logIn(on: Request) throws -> Future<Self>
-    static func register(on: Request) throws -> Future<Self>
+    static func logIn(with: Login, on: Request) throws -> Future<Self?>
+    init(_: Registration) throws
 
-    associatedtype R: JWTUserRegistration
+    var password: HashedPassword { get }
 
-    init(_: R) throws
+//    func asPublic() throws -> Public
+//    func update(_ : Update) throws -> Self
 }
 
 extension JWTCustomPayloadKeychainUser {
@@ -29,40 +40,36 @@ extension JWTCustomPayloadKeychainUser {
     }
 }
 
-public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where P == Payload {}
+public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where Payload == JWTKeychain.Payload {}
 
-extension JWTCustomPayloadKeychainUser where Self: Model, Self.Database: QuerySupporting, Self: Content {
-    public static func logIn(on request: Request) throws -> Future<Self> {
-        guard
-            let userIdentifierProperty = try reflectProperty(forKey: userIdentifierKey),
-            let passwordProperty = try reflectProperty(forKey: passwordKey)
-        else {
-            // TODO: better error?
+extension JWTCustomPayloadKeychainUser {
+    public static func load(on request: Request) throws -> Future<Self> {
+        let payload: Payload = try request.payload()
+
+        guard let id = ID(string: payload.sub.value) else {
             throw JWTKeychainError.invalidIdentifier
         }
 
-        let content = request.content
+        return try find(id, on: request).map(to: Self.self, userOrNotFound)
+    }
 
-        return flatMap(
-            to: Self.self,
-            content[String.self, at: userIdentifierProperty.path],
-            content[String.self, at: passwordProperty.path]
-        ) { userIdentifier, password in
-            return try query(on: request)
-                .filter(userIdentifierKey, .equals, .data(userIdentifier))
-                .first()
-                .map(to: Self.self, userOrNotFound)
-                .map(to: Self.self) { user in
-                    guard
-                        let password = password,
-                        let created = Data(base64Encoded: user[keyPath: passwordKey].value),
-                        try BCrypt.verify(password, created: created)
-                    else {
-                        throw JWTKeychainError.incorrectPassword
-                    }
+    public static func logIn(on request: Request) throws -> Future<Self> {
+        return try request
+            .content
+            .decode(Login.self)
+            .flatMap(to: Self.self) { login in
+                return try logIn(with: login, on: request)
+                    .map(to: Self.self, userOrNotFound)
+                    .map(to: Self.self) { user in
+                        guard
+                            let created = Data(base64Encoded: user.password.value),
+                            try BCrypt.verify(login.password, created: created)
+                        else {
+                            throw JWTKeychainError.incorrectPassword
+                        }
 
-                    return user
-            }
+                        return user
+                }
         }
     }
 
@@ -70,27 +77,13 @@ extension JWTCustomPayloadKeychainUser where Self: Model, Self.Database: QuerySu
         let content = request.content
 
         return try content
-            .decode(R.self)
+            .decode(Registration.self)
             .flatMap(to: Self.self) { registration in
                 if registration.password.count < 8 {
                     throw JWTKeychainError.weakPassword
                 }
                 return try Self(registration).save(on: request)
             }
-    }
-}
-
-extension JWTCustomPayloadKeychainUser where
-    Self: Model, Self.Database: QuerySupporting, Self.ID: StringInitializable
-{
-    public static func load(on request: Request) throws -> Future<Self> {
-        let payload: P = try request.payload()
-
-        guard let id = ID(string: payload.sub.value) else {
-            throw JWTKeychainError.invalidIdentifier
-        }
-
-        return try find(id, on: request).map(to: Self.self, userOrNotFound)
     }
 }
 
