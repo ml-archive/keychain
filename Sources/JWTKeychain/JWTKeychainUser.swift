@@ -1,5 +1,6 @@
 import Crypto
 import Fluent
+import Sugar
 import Vapor
 
 public protocol JWTKeychainUserLogin: Decodable {
@@ -14,7 +15,7 @@ public protocol JWTKeychainUserRegistration: Decodable {
 
 public protocol JWTKeychainUserUpdate: Decodable {}
 
-public protocol JWTCustomPayloadKeychainUser: Content, Model where
+public protocol JWTCustomPayloadKeychainUser: Content, HasHashedPassword, Model where
     Self.Database: QuerySupporting, Self.ID: StringInitializable
 {
     associatedtype Login: JWTKeychainUserLogin
@@ -22,8 +23,6 @@ public protocol JWTCustomPayloadKeychainUser: Content, Model where
 //    associatedtype Public: JWTKeychainUserPublic
     associatedtype Registration: JWTKeychainUserRegistration
 //    associatedtype Update: JWTKeychainUserUpdate
-
-    static var bCryptCost: Int { get }
 
     static func logIn(with: Login, on: Request) throws -> Future<Self?>
     init(_: Registration) throws

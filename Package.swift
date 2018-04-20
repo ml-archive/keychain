@@ -8,6 +8,7 @@ let package = Package(
         .library(name: "JWTKeychain", targets: ["JWTKeychain"])
     ],
     dependencies: [
+        .package(url: "https://github.com/nodes-vapor/sugar.git", .branch("vapor-3")),
         .package(url: "https://github.com/vapor/jwt.git", .branch("master")),
         .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0-rc.2")
     ],
