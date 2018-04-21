@@ -1,9 +1,9 @@
 import Vapor
 
+// TODO: conform to Debuggable
 enum JWTKeychainError: String, Error {
     case incorrectPassword
-    case invalidIdentifier
-    case unauthorized
+    case invalidCredentials
     case userNotFound
     case weakPassword
 }

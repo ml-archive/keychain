@@ -1,3 +1,4 @@
+import Authentication
 import Fluent
 import JWT
 import Vapor
@@ -11,13 +12,15 @@ public typealias JWTKeychainProvider<U: JWTKeychainUser> =
 public final class JWTCustomPayloadKeychainProvider
     <U: JWTKeychainUser, P: JWTKeychainPayload>
 {
+    // TODO: only expose through services instead?
     public let middleware: Middleware
 
     private let config: JWTKeychainConfig
 
     public init(config: JWTKeychainConfig) {
         self.config = config
-        middleware = JWTKeychainMiddleware<P>(signer: config.accessTokenSigner)
+
+        middleware = JWTAuthenticationMiddleware<U>(signer: config.accessTokenSigner)
     }
 }
 
@@ -25,25 +28,36 @@ public final class JWTCustomPayloadKeychainProvider
 extension JWTCustomPayloadKeychainProvider: Provider {
     public func register(_ services: inout Services) throws {
         services.register(config)
-        services.register { _ in PayloadCache<P>() }
-        services.register { _ in UserCache<U>() }
+        try services.register(AuthenticationProvider())
     }
 
     public func didBoot(_ container: Container) throws -> EventLoopFuture<Void> {
         let router = try container.make(Router.self)
 
         let users = router.grouped("users")
-        users.post { request -> Future<UserWithTokens<U>> in
-            try U.register(on: request).map { UserWithTokens(user: $0) }
+        users.post { req -> Future<UserWithTokens<U>> in
+            try U.register(on: req).map { UserWithTokens(user: $0) }
         }
-        users.post("login") { request -> Future<UserWithTokens<U>> in
-            try U.logIn(on: request).map { UserWithTokens(user: $0) }
+        users.post("login") { req -> Future<UserWithTokens<U>> in
+            try U.logIn(on: req).map { UserWithTokens(user: $0) }
         }
 
         let secured = users.grouped(middleware)
 
-        secured.get("me") { request -> Future<U> in
-            try request.user()
+        secured.get("me") { req -> U.Public in
+            return try req.requireAuthenticated(U.self).publicRepresentation()
+        }
+
+        secured.patch("me") { req -> Future<U> in
+            return try req
+                .content
+                .decode(U.Update.self)
+                .flatMap(to: U.self) {
+                    return try req
+                        .requireAuthenticated(U.self)
+                        .update(using: $0)
+                        .save(on: req)
+            }
         }
 
         return .done(on: container)

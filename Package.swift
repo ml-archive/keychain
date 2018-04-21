@@ -16,7 +16,7 @@ let package = Package(
     targets: [
         .target(
             name: "JWTKeychain", 
-            dependencies: ["JWT", "Vapor"]
+            dependencies: ["Authentication", "JWT", "Vapor"]
         ),
         .testTarget(name: "JWTKeychainTests", dependencies: ["JWTKeychain"])
     ]
