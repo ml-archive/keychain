@@ -1,20 +1,25 @@
 import JWT
 import Service
 
-//struct ExpireableJWTSigner {
-//    let expirationTime: TimeInterval
-//    let signer: JWTSigner
-//}
+public struct ExpireableJWTSigner {
+    let expirationPeriod: TimeInterval
+    let signer: JWTSigner
+
+    public init(expirationPeriod: TimeInterval, signer: JWTSigner) {
+        self.expirationPeriod = expirationPeriod
+        self.signer = signer
+    }
+}
 
 public struct JWTKeychainConfig: Service {
-    public let accessTokenSigner: JWTSigner
-    public let refreshTokenSigner: JWTSigner?
-    public let resetPasswordTokenSigner: JWTSigner?
+    public let accessTokenSigner: ExpireableJWTSigner
+    public let refreshTokenSigner: ExpireableJWTSigner?
+    public let resetPasswordTokenSigner: ExpireableJWTSigner?
 
     public init(
-        accessTokenSigner: JWTSigner,
-        refreshTokenSigner: JWTSigner? = nil,
-        resetPasswordTokenSigner: JWTSigner? = nil
+        accessTokenSigner: ExpireableJWTSigner,
+        refreshTokenSigner: ExpireableJWTSigner? = nil,
+        resetPasswordTokenSigner: ExpireableJWTSigner? = nil
     ) {
         self.accessTokenSigner = accessTokenSigner
         self.refreshTokenSigner = refreshTokenSigner

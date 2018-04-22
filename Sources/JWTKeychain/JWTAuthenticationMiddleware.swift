@@ -5,7 +5,7 @@ import Vapor
 final class JWTAuthenticationMiddleware<A: JWTAuthenticatable>: Middleware {
     let signer: JWTSigner
 
-    public init(signer: JWTSigner, _ type: A.Type = A.self) {
+    public init(signer: JWTSigner) {
         self.signer = signer
     }
 

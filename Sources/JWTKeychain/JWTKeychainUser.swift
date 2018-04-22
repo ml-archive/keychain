@@ -1,48 +1,46 @@
 import Authentication
 import Crypto
 import Fluent
+import JWT
 import Sugar
 import Vapor
 
-public protocol AuthenticationPayload: Decodable {
-    var password: String { get }
-}
+public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where
+    JWTPayload == JWTKeychain.Payload
+{}
 
-public protocol JWTAuthenticatable: Authenticatable {
-    associatedtype JWTPayload: JWTKeychainPayload
-
-    /// Authenticates using the supplied credentials and connection.
-    static func authenticate(
-        using payload: JWTPayload,
-        on connection: DatabaseConnectable
-    ) throws -> Future<Self?>
+extension JWTKeychainUser {
+    public func makePayload(expirationTime: Date, on req: Request) -> Future<JWTPayload> {
+        return Future.map(on: req) {
+            try JWTPayload(
+                exp: ExpirationClaim(value: expirationTime),
+                sub: SubjectClaim(value: self.requireID().convertToString())
+            )
+        }
+    }
 }
 
 public protocol JWTCustomPayloadKeychainUser:
     Content,
     HasHashedPassword,
-    JWTAuthenticatable
-    where Self.Database: QuerySupporting, Self.ID: StringConvertible
+    JWTAuthenticatable,
+    PublicRepresentable
+where
+    Self.Database: QuerySupporting,
+    Self.ID: StringConvertible
 {
-    associatedtype Login: AuthenticationPayload
-    associatedtype Public: ResponseEncodable
-    associatedtype Registration: AuthenticationPayload
+    associatedtype Login: PasswordPayload
+    associatedtype Registration: PasswordPayload
     associatedtype Update: Decodable
 
     static func logIn(with: Login, on: DatabaseConnectable) throws -> Future<Self?>
     init(_: Registration) throws
 
-    var password: HashedPassword { get }
-
-    func publicRepresentation() throws -> Public
     func update(using: Update) throws -> Self
 }
 
-public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where JWTPayload == JWTKeychain.Payload {
-}
-
 extension JWTCustomPayloadKeychainUser {
-    public static func validatePasswordStrength(for password: String) throws {
+    public static func validateStrength(ofPassword password: String) throws {
         // TODO: stricter validation
         guard password.count > 8 else {
             throw JWTKeychainError.weakPassword
@@ -65,8 +63,8 @@ extension JWTCustomPayloadKeychainUser {
             .content
             .decode(Login.self)
             .flatMap(to: Self.self) { login in
-                return try logIn(with: login, on: request)
-                    .map(to: Self.self, userOrNotFound)
+                try logIn(with: login, on: request)
+                    .unwrap(or: JWTKeychainError.userNotFound)
                     .map(to: Self.self) { user in
                         guard
                             let created = Data(base64Encoded: user.password.value),
@@ -76,11 +74,9 @@ extension JWTCustomPayloadKeychainUser {
                         }
 
                         return user
-                }
-        }
+                    }
+            }
     }
-
-//    public static func update(on request: Request) throws ->
 
     public static func register(on request: Request) throws -> Future<Self> {
         let content = request.content
@@ -91,12 +87,4 @@ extension JWTCustomPayloadKeychainUser {
                 return try Self(registration).save(on: request)
             }
     }
-}
-
-private func userOrNotFound<U>(_ user: U?) throws -> U {
-    guard let user = user else {
-        throw JWTKeychainError.userNotFound
-    }
-
-    return user
 }

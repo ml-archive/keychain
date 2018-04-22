@@ -1,4 +1,5 @@
 import JWT
+import Fluent
 
 public protocol JWTKeychainPayload: JWTPayload {
     var exp: ExpirationClaim { get }
