@@ -67,8 +67,7 @@ extension JWTCustomPayloadKeychainUser {
                     .unwrap(or: JWTKeychainError.userNotFound)
                     .map(to: Self.self) { user in
                         guard
-                            let created = Data(base64Encoded: user.password.value),
-                            try BCrypt.verify(login.password, created: created)
+                            try BCrypt.verify(login.password, created: user.password.value)
                         else {
                             throw JWTKeychainError.incorrectPassword
                         }

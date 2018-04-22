@@ -4,6 +4,7 @@ import Vapor
 enum JWTKeychainError: String, Error {
     case incorrectPassword
     case invalidCredentials
+    case signingError
     case userNotFound
     case weakPassword
 }

@@ -30,9 +30,9 @@ extension JWTAuthenticatable {
         on connection: DatabaseConnectable
     ) -> Future<String> {
         return makePayload(expirationTime: currentTime + signer.expirationPeriod, on: connection)
-            .map(to: String.self) {
+            .map(to: String?.self) {
                 var jwt = JWT(payload: $0)
-                return try jwt.sign(using: signer.signer).base64URLEncodedString()
-        }
+                return try String(bytes: jwt.sign(using: signer.signer), encoding: .utf8)
+            }.unwrap(or: JWTKeychainError.signingError)
     }
 }
