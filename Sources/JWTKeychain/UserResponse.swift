@@ -1,20 +1,6 @@
 import JWT
 import Vapor
 
-public struct UserResponseOptions: OptionSet {
-    public init(rawValue: Int) {
-        self.rawValue = rawValue
-    }
-
-    public let rawValue: Int
-
-    public static let user          = UserResponseOptions(rawValue: 1 << 0)
-    public static let accessToken   = UserResponseOptions(rawValue: 1 << 0)
-    public static let refreshToken  = UserResponseOptions(rawValue: 1 << 0)
-
-    public static let all: UserResponseOptions = [.user, .accessToken, .refreshToken]
-}
-
 public struct UserResponse<U: PublicRepresentable>: Content {
     let user: U.Public?
     let accessToken: String?
@@ -27,9 +13,34 @@ public struct UserResponse<U: PublicRepresentable>: Content {
     }
 }
 
+public struct UserResponseOptions: OptionSet {
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+
+    public let rawValue: Int
+
+    public static let user          = UserResponseOptions(rawValue: 1 << 0)
+    public static let accessToken   = UserResponseOptions(rawValue: 1 << 1)
+    public static let refreshToken  = UserResponseOptions(rawValue: 1 << 2)
+
+    public static let all: UserResponseOptions = [.user, .accessToken, .refreshToken]
+}
+
 // MARK: - JWTKeychainProvider + UserResponse
 
 extension JWTKeychainProvider {
+
+    /// Makes UserResponse value containing (all optional, depending on the `options` parameter):
+    ///   - a publically safe representation of the user
+    ///   - an access token
+    ///   - a refresh token
+    ///
+    /// - Parameters:
+    ///   - user: the user for which the generate the tokens
+    ///   - options: determines which of the values to include in the response
+    ///   - req: the current request
+    /// - Returns: a future UserResponse value containing the requested values
     public func makeUserResponse(
         for user: U,
         withOptions options: UserResponseOptions,

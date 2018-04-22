@@ -36,7 +36,7 @@ where
     static func logIn(with: Login, on: DatabaseConnectable) throws -> Future<Self?>
     init(_: Registration) throws
 
-    func update(using: Update) throws -> Self
+    func update(using: Update) throws
 }
 
 extension JWTCustomPayloadKeychainUser {

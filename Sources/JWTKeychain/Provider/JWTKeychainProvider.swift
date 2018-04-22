@@ -38,8 +38,8 @@ extension JWTKeychainProvider: Provider {
 // MARK: - Private
 
 // MARK: Routes
-private extension JWTKeychainProvider {
-    func logIn(req: Request) throws -> Future<UserResponse<U>> {
+extension JWTKeychainProvider {
+    public func logIn(req: Request) throws -> Future<UserResponse<U>> {
         return try U
             .logIn(on: req)
             .flatMap(to: UserResponse<U>.self) { user in
@@ -47,11 +47,11 @@ private extension JWTKeychainProvider {
             }
     }
 
-    func me(req: Request) throws -> U.Public {
+    public func me(req: Request) throws -> U.Public {
         return try req.requireAuthenticated(U.self).convertToPublic()
     }
 
-    func register(req: Request) throws -> Future<UserResponse<U>> {
+    public func register(req: Request) throws -> Future<UserResponse<U>> {
         return try U
             .register(on: req)
             .flatMap(to: UserResponse<U>.self) { user in
@@ -59,7 +59,7 @@ private extension JWTKeychainProvider {
             }
     }
 
-    func token(req: Request) throws -> Future<UserResponse<U>> {
+    public func token(req: Request) throws -> Future<UserResponse<U>> {
         return try self.makeUserResponse(
             for: req.requireAuthenticated(),
             withOptions: .accessToken,
@@ -67,15 +67,14 @@ private extension JWTKeychainProvider {
         )
     }
 
-    func update(req: Request) throws -> Future<U.Public> {
+    public func update(req: Request) throws -> Future<U.Public> {
         return try req
             .content
             .decode(U.Update.self)
             .flatMap(to: U.self) {
-                try req
-                    .requireAuthenticated(U.self)
-                    .update(using: $0)
-                    .save(on: req)
+                let user = try req.requireAuthenticated(U.self)
+                try user.update(using: $0)
+                return user.save(on: req)
             }
             .map { $0.convertToPublic() }
     }
@@ -84,17 +83,18 @@ private extension JWTKeychainProvider {
 // MARK: Helper
 private extension JWTKeychainProvider {
     func registerRoutes(on router: Router) {
-        let users = router.grouped("users")
-        users.post(use: register)
-        users.post("login", use: logIn)
+        let endpoints = config.endpoints
 
-        let access = users.grouped(accessMiddleware)
+        router.post(endpoints.register, use: register)
+        router.post(endpoints.login, use: logIn)
 
-        access.get("me", use: me)
-        access.patch("me", use: update)
+        let access = router.grouped(accessMiddleware)
+
+        access.get(endpoints.me, use: me)
+        access.patch(endpoints.update, use: update)
 
         if let refreshMiddleware = refreshMiddleware {
-            users.grouped(refreshMiddleware).post("token", use: token)
+            router.grouped(refreshMiddleware).post(endpoints.token, use: token)
         }
     }
 }
