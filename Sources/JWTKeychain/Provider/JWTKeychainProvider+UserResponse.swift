@@ -1,34 +1,6 @@
 import JWT
 import Vapor
 
-public struct UserResponse<U: PublicRepresentable>: Content {
-    let user: U.Public?
-    let accessToken: String?
-    let refreshToken: String?
-
-    public init(user: U?, accessToken: String? = nil, refreshToken: String? = nil) {
-        self.user = user?.convertToPublic()
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
-    }
-}
-
-public struct UserResponseOptions: OptionSet {
-    public init(rawValue: Int) {
-        self.rawValue = rawValue
-    }
-
-    public let rawValue: Int
-
-    public static let user          = UserResponseOptions(rawValue: 1 << 0)
-    public static let accessToken   = UserResponseOptions(rawValue: 1 << 1)
-    public static let refreshToken  = UserResponseOptions(rawValue: 1 << 2)
-
-    public static let all: UserResponseOptions = [.user, .accessToken, .refreshToken]
-}
-
-// MARK: - JWTKeychainProvider + UserResponse
-
 extension JWTKeychainProvider {
 
     /// Makes UserResponse value containing (all optional, depending on the `options` parameter):
@@ -56,10 +28,10 @@ extension JWTKeychainProvider {
                 .flatMap(on: req) { () -> Future<String?> in
                     user.makePayload(expirationTime: now + signer.expirationPeriod, on: req)
                         .map(to: String?.self) {
-                            var jwt = JWT<U.JWTPayload>(payload: $0)
+                            var jwt = JWT(payload: $0)
                             return try jwt.sign(using: signer.signer).base64URLEncodedString()
                         }
-                }
+            }
         }
 
         return map(

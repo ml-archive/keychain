@@ -21,7 +21,7 @@ public struct JWTKeychainEndpoints {
         register: PathComponentsRepresentable,
         token: PathComponentsRepresentable,
         update: PathComponentsRepresentable
-        ) {
+    ) {
         self.login =    login
         self.me =       me
         self.register = register

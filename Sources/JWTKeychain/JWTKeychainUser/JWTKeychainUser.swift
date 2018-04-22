@@ -40,13 +40,6 @@ where
 }
 
 extension JWTCustomPayloadKeychainUser {
-    public static func validateStrength(ofPassword password: String) throws {
-        // TODO: stricter validation
-        guard password.count > 8 else {
-            throw JWTKeychainError.weakPassword
-        }
-    }
-
     public static var bCryptCost: Int {
         return 4
     }
