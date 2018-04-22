@@ -80,6 +80,19 @@ extension JWTKeychainProvider {
     }
 }
 
+// MARK: Commands
+
+extension JWTKeychainProvider {
+    public static func commands(
+        databaseIdentifier: DatabaseIdentifier<U.Database>
+    ) -> [String: Command] {
+        return ["jwt-keychain:generate-token": GeneratePasswordResetTokenCommand<U>(
+                databaseIdentifier: databaseIdentifier
+            )
+        ]
+    }
+}
+
 // MARK: Helper
 private extension JWTKeychainProvider {
     func registerRoutes(on router: Router) {

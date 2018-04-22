@@ -5,13 +5,18 @@ import JWT
 import Sugar
 import Vapor
 
-public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where
+public protocol JWTKeychainUser:
+    JWTCustomPayloadKeychainUser
+where
     JWTPayload == JWTKeychain.Payload
 {}
 
 extension JWTKeychainUser {
-    public func makePayload(expirationTime: Date, on req: Request) -> Future<JWTPayload> {
-        return Future.map(on: req) {
+    public func makePayload(
+        expirationTime: Date,
+        on connection: DatabaseConnectable
+    ) -> Future<Payload> {
+        return Future.map(on: connection) {
             try JWTPayload(
                 exp: ExpirationClaim(value: expirationTime),
                 sub: SubjectClaim(value: self.requireID().convertToString())
@@ -19,6 +24,8 @@ extension JWTKeychainUser {
         }
     }
 }
+
+// MARK: - JWTCustomPayloadKeychainUser
 
 public protocol JWTCustomPayloadKeychainUser:
     Content,
@@ -36,6 +43,7 @@ where
     static func logIn(with: Login, on: DatabaseConnectable) throws -> Future<Self?>
     init(_: Registration) throws
 
+    func makePayload(expirationTime: Date, on: DatabaseConnectable) -> Future<Self.JWTPayload>
     func update(using: Update) throws
 }
 

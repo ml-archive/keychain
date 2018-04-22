@@ -18,6 +18,6 @@ public protocol JWTAuthenticatable: Authenticatable {
     /// - Returns: JWT Payload that is able to identify the user
     func makePayload(
         expirationTime: Date,
-        on: Request
+        on: DatabaseConnectable
     ) -> Future<JWTPayload>
 }

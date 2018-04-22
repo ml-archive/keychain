@@ -20,30 +20,43 @@ extension JWTKeychainProvider {
     ) -> Future<UserResponse<U>> {
         let now = Date()
 
-        func sign(using signer: ExpireableJWTSigner?) -> Future<String?> {
+        func signIfPresent(
+            using signer: ExpireableJWTSigner?,
+            on worker: Worker
+        ) -> Future<String?> {
             guard let signer = signer else {
-                return Future.map(on: req) { nil }
+                return Future.map(on: worker) { nil }
             }
-            return Future
-                .flatMap(on: req) { () -> Future<String?> in
-                    user.makePayload(expirationTime: now + signer.expirationPeriod, on: req)
-                        .map(to: String?.self) {
-                            var jwt = JWT(payload: $0)
-                            return try jwt.sign(using: signer.signer).base64URLEncodedString()
-                        }
-            }
+            return user.signToken(using: signer, currentTime: now, on: req).map(Optional.init)
         }
+
+        let accessTokenSigner = options.contains(.accessToken) ? config.accessTokenSigner : nil
+        let refreshTokenSigner = options.contains(.refreshToken) ? config.refreshTokenSigner : nil
 
         return map(
             to: UserResponse<U>.self,
-            sign(using: options.contains(.accessToken) ? config.accessTokenSigner : nil),
-            sign(using: options.contains(.refreshToken) ? config.refreshTokenSigner : nil)
+            signIfPresent(using: accessTokenSigner, on: req),
+            signIfPresent(using: refreshTokenSigner, on: req)
         ) { (accessToken, refreshToken) in
             UserResponse(
                 user: options.contains(.user) ? user : nil,
                 accessToken: accessToken,
                 refreshToken: refreshToken
             )
+        }
+    }
+}
+
+extension JWTCustomPayloadKeychainUser {
+    func signToken(
+        using signer: ExpireableJWTSigner,
+        currentTime: Date = .init(),
+        on connection: DatabaseConnectable
+    ) -> Future<String> {
+        return makePayload(expirationTime: currentTime + signer.expirationPeriod, on: connection)
+            .map(to: String.self) {
+                var jwt = JWT(payload: $0)
+                return try jwt.sign(using: signer.signer).base64URLEncodedString()
         }
     }
 }
