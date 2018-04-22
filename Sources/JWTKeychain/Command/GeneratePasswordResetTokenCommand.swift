@@ -1,9 +1,13 @@
+import Authentication
 import Command
 import Fluent
 
-// TODO: support user lookup by email or username
-// TODO: don't require full JWTKeychainUser protocol
-public struct GeneratePasswordResetTokenCommand<U: JWTCustomPayloadKeychainUser>: Command {
+public struct GeneratePasswordResetTokenCommand<U: Model & JWTAuthenticatable>:
+    Command
+where
+    U.Database: QuerySupporting,
+    U.ID: StringConvertible
+{
     public let arguments: [CommandArgument] = [.argument(name: Keys.userId)]
     public let options: [CommandOption] = []
 

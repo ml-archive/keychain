@@ -43,7 +43,6 @@ where
     static func logIn(with: Login, on: DatabaseConnectable) throws -> Future<Self?>
     init(_: Registration) throws
 
-    func makePayload(expirationTime: Date, on: DatabaseConnectable) -> Future<Self.JWTPayload>
     func update(using: Update) throws
 }
 
