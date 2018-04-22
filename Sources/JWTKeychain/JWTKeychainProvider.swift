@@ -4,8 +4,6 @@ import JWT
 import Vapor
 import Service
 
-public typealias UserLoader<U> = (Request) throws -> Future<U>
-
 public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUser> {
     public let accessMiddleware: Middleware
     public let refreshMiddleware: Middleware?
@@ -30,7 +28,9 @@ extension JWTKeychainProvider: Provider {
     }
 
     public func didBoot(_ container: Container) throws -> EventLoopFuture<Void> {
-        try registerRoutes(on: container.make())
+        if config.shouldRegisterRoutes {
+            try registerRoutes(on: container.make())
+        }
         return .done(on: container)
     }
 }
