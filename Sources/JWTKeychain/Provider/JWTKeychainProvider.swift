@@ -59,6 +59,11 @@ extension JWTKeychainProvider {
             }
     }
 
+    public func requestPasswordReset(req: Request) throws -> Future<Response> {
+        let user = try req.requireAuthenticated(U.self)
+        user.email
+    }
+
     public func token(req: Request) throws -> Future<UserResponse<U>> {
         return try self.makeUserResponse(
             for: req.requireAuthenticated(),

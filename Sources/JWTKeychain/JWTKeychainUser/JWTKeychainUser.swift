@@ -27,6 +27,10 @@ extension JWTKeychainUser {
 
 // MARK: - JWTCustomPayloadKeychainUser
 
+public protocol HasEmail {
+    var email: S
+}
+
 public protocol JWTCustomPayloadKeychainUser:
     Content,
     HasHashedPassword,
@@ -85,5 +89,13 @@ extension JWTCustomPayloadKeychainUser {
             .flatMap(to: Self.self) { registration in
                 return try Self(registration).save(on: request)
             }
+    }
+}
+
+extension Model where Database: QuerySupporting {
+    static func requireFind(_ id: ID, on worker: DatabaseConnectable) throws -> Future<Self> {
+        return try Self
+            .find(id, on: worker)
+            .unwrap(or: Abort(.notFound, reason: "\(Self.self) with id \(id) not found"))
     }
 }
