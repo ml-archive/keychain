@@ -1,7 +1,6 @@
 import Vapor
 
-// TODO: conform to Debuggable
-enum JWTKeychainError: String, Error {
+enum JWTKeychainError: String, Error, Debuggable {
     case incorrectPassword
     case invalidCredentials
     case signingError
@@ -9,6 +8,7 @@ enum JWTKeychainError: String, Error {
     case weakPassword
 }
 
+// MARK: - AbortError
 extension JWTKeychainError: AbortError {
     var identifier: String {
         return rawValue
