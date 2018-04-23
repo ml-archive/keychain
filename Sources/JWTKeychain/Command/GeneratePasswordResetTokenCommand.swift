@@ -44,21 +44,21 @@ public struct GeneratePasswordResetTokenCommand<U: JWTAuthenticatable>: Command 
     public func run(using context: CommandContext) throws -> Future<Void> {
         let signer = try context.container.make(JWTKeychainConfig.self).resetPasswordTokenSigner
 
-        return context
-            .container
-            .withPooledConnection(to: databaseIdentifier) { connection in
-                try U
-                    .query(on: connection)
-                    .filter(self.makeFilter(context.argument(Keys.query)))
-                    .first()
-                    .unwrap(or: JWTKeychainError.userNotFound)
-                    .flatMap(to: String.self) { user in
-                        user.signToken(using: signer, on: connection)
-                    }
-                    .map {
-                        context.console.print("Password Reset Token: \($0)")
-                    }
-            }
+        let container = context.container
+
+        return container.withPooledConnection(to: databaseIdentifier) { connection in
+            try U
+                .query(on: connection)
+                .filter(self.makeFilter(context.argument(Keys.query)))
+                .first()
+                .unwrap(or: JWTKeychainError.userNotFound)
+                .flatMap(to: String.self) { user in
+                    user.signToken(using: signer, on: container)
+                }
+                .map {
+                    context.console.print("Password Reset Token: \($0)")
+                }
+        }
     }
 }
 

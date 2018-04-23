@@ -9,7 +9,7 @@ public struct JWTKeychainConfig: Service {
 
     public let shouldRegisterRoutes: Bool
 
-    /// Creates a new JWTKeychain configuration
+    /// Creates a new JWTKeychain configuration.
     ///
     /// - Parameters:
     ///   - accessTokenSigner: signer and expiration period for access tokens
@@ -17,6 +17,7 @@ public struct JWTKeychainConfig: Service {
     ///       refresh tokens and use access tokens only.
     ///   - resetPasswordTokenSigner: signer and expiration period for password reset tokens
     ///   - shouldRegisterRoutes: determines whether to register the default routes at boot time
+    ///   - endpoints: the configuration that determines the endpoints for the routes
     public init(
         accessTokenSigner: ExpireableJWTSigner,
         refreshTokenSigner: ExpireableJWTSigner? = nil,

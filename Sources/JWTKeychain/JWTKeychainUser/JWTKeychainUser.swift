@@ -14,9 +14,9 @@ where
 extension JWTKeychainUser {
     public func makePayload(
         expirationTime: Date,
-        on connection: DatabaseConnectable
+        on container: Container
     ) -> Future<Payload> {
-        return Future.map(on: connection) {
+        return Future.map(on: container) {
             try JWTPayload(
                 exp: ExpirationClaim(value: expirationTime),
                 sub: SubjectClaim(value: self.requireID().convertToString())
