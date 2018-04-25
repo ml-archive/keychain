@@ -13,15 +13,12 @@ extension JWTKeychainUser {
     public func makePayload(
         expirationTime: Date,
         on container: Container
-    ) -> Future<Payload> {
-
-        let payload = try! Payload(
-            exp: ExpirationClaim(value: expirationTime),
-            sub: SubjectClaim(value: self.requireID().convertToString())
-        )
-
+    ) throws -> Future<Payload> {
         return Future.map(on: container) {
-            payload
+            try Payload(
+                exp: ExpirationClaim(value: expirationTime),
+                sub: SubjectClaim(value: self.requireID().convertToString())
+            )
         }
     }
 }
@@ -37,8 +34,8 @@ where
     Self.Database: QuerySupporting,
     Self.ID: StringConvertible
 {
-    associatedtype Login: PasswordPayload
-    associatedtype Registration: PasswordPayload
+    associatedtype Login: HasPasswordString
+    associatedtype Registration: HasPasswordString
     associatedtype Update: Decodable
 
     static func logIn(with: Login, on: DatabaseConnectable) throws -> Future<Self?>
