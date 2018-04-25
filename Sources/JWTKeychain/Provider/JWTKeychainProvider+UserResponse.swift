@@ -1,4 +1,5 @@
 import JWT
+import Sugar
 import Vapor
 
 extension JWTKeychainProvider {

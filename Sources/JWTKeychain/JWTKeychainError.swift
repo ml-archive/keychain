@@ -1,24 +1,24 @@
 import Vapor
 
-enum JWTKeychainError: String, Error, Debuggable {
+public enum JWTKeychainError: String, Error {
     case incorrectPassword
-    case invalidCredentials
-    case signingError
     case userNotFound
-    case weakPassword
 }
 
 // MARK: - AbortError
 extension JWTKeychainError: AbortError {
-    var identifier: String {
-        return rawValue
-    }
-
-    var reason: String {
+    public var reason: String {
         return "Unauthorized"
     }
 
-    var status: HTTPResponseStatus {
+    public var status: HTTPResponseStatus {
         return .unauthorized
+    }
+}
+
+// MARK: - Debuggable
+extension JWTKeychainError: Debuggable {
+    public var identifier: String {
+        return rawValue
     }
 }

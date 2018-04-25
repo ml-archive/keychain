@@ -1,9 +1,9 @@
 import Service
+import Sugar
 
 public struct JWTKeychainConfig: Service {
     public let accessTokenSigner: ExpireableJWTSigner
     public let refreshTokenSigner: ExpireableJWTSigner?
-    public let resetPasswordTokenSigner: ExpireableJWTSigner
 
     public let endpoints: JWTKeychainEndpoints
 
@@ -15,20 +15,23 @@ public struct JWTKeychainConfig: Service {
     ///   - accessTokenSigner: signer and expiration period for access tokens
     ///   - refreshTokenSigner: signer and expiration period for refresh tokens or nil to opt out of
     ///       refresh tokens and use access tokens only.
-    ///   - resetPasswordTokenSigner: signer and expiration period for password reset tokens
+    ///
+    ///   - endpoints: determines the endpoints for the routes
+    ///
     ///   - shouldRegisterRoutes: determines whether to register the default routes at boot time
-    ///   - endpoints: the configuration that determines the endpoints for the routes
     public init(
         accessTokenSigner: ExpireableJWTSigner,
         refreshTokenSigner: ExpireableJWTSigner? = nil,
-        resetPasswordTokenSigner: ExpireableJWTSigner,
-        shouldRegisterRoutes: Bool = true,
-        endpoints: JWTKeychainEndpoints = .default
+
+        endpoints: JWTKeychainEndpoints = .default,
+
+        shouldRegisterRoutes: Bool = true
     ) {
         self.accessTokenSigner = accessTokenSigner
         self.refreshTokenSigner = refreshTokenSigner
-        self.resetPasswordTokenSigner = resetPasswordTokenSigner
-        self.shouldRegisterRoutes = shouldRegisterRoutes
+
         self.endpoints = endpoints
+
+        self.shouldRegisterRoutes = shouldRegisterRoutes
     }
 }

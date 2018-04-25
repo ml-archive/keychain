@@ -5,10 +5,8 @@ import JWT
 import Sugar
 import Vapor
 
-public protocol JWTKeychainUser:
-    JWTCustomPayloadKeychainUser
-where
-    JWTPayload == JWTKeychain.Payload
+public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where
+    JWTPayload == Payload
 {}
 
 extension JWTKeychainUser {
@@ -16,24 +14,23 @@ extension JWTKeychainUser {
         expirationTime: Date,
         on container: Container
     ) -> Future<Payload> {
+
+        let payload = try! Payload(
+            exp: ExpirationClaim(value: expirationTime),
+            sub: SubjectClaim(value: self.requireID().convertToString())
+        )
+
         return Future.map(on: container) {
-            try JWTPayload(
-                exp: ExpirationClaim(value: expirationTime),
-                sub: SubjectClaim(value: self.requireID().convertToString())
-            )
+            payload
         }
     }
 }
 
 // MARK: - JWTCustomPayloadKeychainUser
 
-public protocol HasEmail {
-    var email: S
-}
-
 public protocol JWTCustomPayloadKeychainUser:
     Content,
-    HasHashedPassword,
+    HasPassword,
     JWTAuthenticatable,
     PublicRepresentable
 where
@@ -51,10 +48,6 @@ where
 }
 
 extension JWTCustomPayloadKeychainUser {
-    public static var bCryptCost: Int {
-        return 4
-    }
-
     public static func authenticate(
         using payload: JWTPayload,
         on connection: DatabaseConnectable
@@ -62,12 +55,12 @@ extension JWTCustomPayloadKeychainUser {
         return try find(.convertFromString(payload.sub.value), on: connection)
     }
 
-    public static func logIn(on request: Request) throws -> Future<Self> {
-        return try request
+    public static func logIn(on req: Request) throws -> Future<Self> {
+        return try req
             .content
             .decode(Login.self)
             .flatMap(to: Self.self) { login in
-                try logIn(with: login, on: request)
+                try logIn(with: login, on: req)
                     .unwrap(or: JWTKeychainError.userNotFound)
                     .map(to: Self.self) { user in
                         guard
@@ -81,13 +74,13 @@ extension JWTCustomPayloadKeychainUser {
             }
     }
 
-    public static func register(on request: Request) throws -> Future<Self> {
-        let content = request.content
+    public static func register(on req: Request) throws -> Future<Self> {
+        let content = req.content
 
         return try content
             .decode(Registration.self)
             .flatMap(to: Self.self) { registration in
-                return try Self(registration).save(on: request)
+                return try Self(registration).save(on: req)
             }
     }
 }

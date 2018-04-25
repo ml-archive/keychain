@@ -1,8 +1,9 @@
 import Authentication
 import Fluent
 import JWT
-import Vapor
 import Service
+import Sugar
+import Vapor
 
 public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUser> {
     public let accessMiddleware: Middleware
@@ -13,7 +14,9 @@ public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUser> {
     public init(config: JWTKeychainConfig) {
         self.config = config
 
-        accessMiddleware = JWTAuthenticationMiddleware<U>(signer: config.accessTokenSigner.signer)
+        accessMiddleware = JWTAuthenticationMiddleware<U>(
+            signer: config.accessTokenSigner.signer
+        )
         refreshMiddleware = config.refreshTokenSigner.map {
             JWTAuthenticationMiddleware<U>(signer: $0.signer)
         }
@@ -59,11 +62,6 @@ extension JWTKeychainProvider {
             }
     }
 
-    public func requestPasswordReset(req: Request) throws -> Future<Response> {
-        let user = try req.requireAuthenticated(U.self)
-        user.email
-    }
-
     public func token(req: Request) throws -> Future<UserResponse<U>> {
         return try self.makeUserResponse(
             for: req.requireAuthenticated(),
@@ -82,19 +80,6 @@ extension JWTKeychainProvider {
                 return user.save(on: req)
             }
             .map { $0.convertToPublic() }
-    }
-}
-
-// MARK: Commands
-
-extension JWTKeychainProvider {
-    public static func commands(
-        databaseIdentifier: DatabaseIdentifier<U.Database>
-    ) -> [String: Command] {
-        return ["jwt-keychain:generate-token": GeneratePasswordResetTokenCommand<U>(
-                databaseIdentifier: databaseIdentifier
-            )
-        ]
     }
 }
 
