@@ -1,11 +1,11 @@
 import Routing
 
 public struct JWTKeychainEndpoints {
-    public let login    : PathComponentsRepresentable
-    public let me       : PathComponentsRepresentable
-    public let register : PathComponentsRepresentable
-    public let token    : PathComponentsRepresentable
-    public let update   : PathComponentsRepresentable
+    public let login    : String
+    public let me       : String
+    public let register : String
+    public let token    : String
+    public let update   : String
 
     /// Endpoints to use by provider when registering routes.
     ///
@@ -16,11 +16,11 @@ public struct JWTKeychainEndpoints {
     ///   - token   : token refresh endpoint (POST)
     ///   - update  : user update endpoint (PATCH)
     public init(
-        login   : PathComponentsRepresentable,
-        me      : PathComponentsRepresentable,
-        register: PathComponentsRepresentable,
-        token   : PathComponentsRepresentable,
-        update  : PathComponentsRepresentable
+        login   : String,
+        me      : String,
+        register: String,
+        token   : String,
+        update  : String
     ) {
         self.login      = login
         self.me         = me
