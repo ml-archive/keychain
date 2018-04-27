@@ -64,7 +64,7 @@ extension JWTKeychainProvider {
 
     public func token(req: Request) throws -> Future<UserResponse<U>> {
         return try self.makeUserResponse(
-            for: req.requireAuthenticated(),
+            for: req.requireAuthenticated(U.self),
             withOptions: .accessToken,
             on: req
         )
