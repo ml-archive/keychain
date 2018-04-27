@@ -2,17 +2,20 @@ import Vapor
 
 public enum JWTKeychainError: String, Error {
     case incorrectPassword
-    case userNotFound
 }
 
 // MARK: - AbortError
 extension JWTKeychainError: AbortError {
     public var reason: String {
-        return "Unauthorized"
+        switch self {
+        case .incorrectPassword: return "Incorrect password given."
+        }
     }
 
     public var status: HTTPResponseStatus {
-        return .unauthorized
+        switch self {
+        case .incorrectPassword: return .unauthorized
+        }
     }
 }
 

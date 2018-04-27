@@ -29,20 +29,13 @@ public protocol JWTCustomPayloadKeychainUser:
     Content,
     HasPassword,
     JWTAuthenticatable,
+    UserType,
+    PasswordAuthenticatable,
     PublicRepresentable
 where
     Self.Database: QuerySupporting,
     Self.ID: StringConvertible
-{
-    associatedtype Login: HasPasswordString
-    associatedtype Registration: HasPasswordString
-    associatedtype Update: Decodable
-
-    static func logIn(with: Login, on: DatabaseConnectable) throws -> Future<Self?>
-    init(_: Registration) throws
-
-    func update(using: Update) throws
-}
+{}
 
 extension JWTCustomPayloadKeychainUser {
     public static func authenticate(
@@ -50,35 +43,6 @@ extension JWTCustomPayloadKeychainUser {
         on connection: DatabaseConnectable
     ) throws -> Future<Self?> {
         return try find(.convertFromString(payload.sub.value), on: connection)
-    }
-
-    public static func logIn(on req: Request) throws -> Future<Self> {
-        return try req
-            .content
-            .decode(Login.self)
-            .flatMap(to: Self.self) { login in
-                try logIn(with: login, on: req)
-                    .unwrap(or: JWTKeychainError.userNotFound)
-                    .map(to: Self.self) { user in
-                        guard
-                            try BCrypt.verify(login.password, created: user.password.value)
-                        else {
-                            throw JWTKeychainError.incorrectPassword
-                        }
-
-                        return user
-                    }
-            }
-    }
-
-    public static func register(on req: Request) throws -> Future<Self> {
-        let content = req.content
-
-        return try content
-            .decode(Registration.self)
-            .flatMap(to: Self.self) { registration in
-                return try Self(registration).save(on: req)
-            }
     }
 }
 
