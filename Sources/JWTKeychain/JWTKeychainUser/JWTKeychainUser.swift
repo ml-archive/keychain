@@ -17,7 +17,7 @@ extension JWTKeychainUser {
         return Future.map(on: container) {
             try Payload(
                 exp: ExpirationClaim(value: expirationTime),
-                sub: SubjectClaim(value: self.requireID().convertToString())
+                sub: SubjectClaim(value: self.requireID().description)
             )
         }
     }
@@ -29,20 +29,26 @@ public protocol JWTCustomPayloadKeychainUser:
     Content,
     HasPassword,
     JWTAuthenticatable,
-    UserType,
+    Model,
     PasswordAuthenticatable,
-    PublicRepresentable
+    PublicRepresentable,
+    UserType
 where
     Self.Database: QuerySupporting,
-    Self.ID: StringConvertible
+    Self.ID: LosslessStringConvertible
 {}
 
-extension JWTCustomPayloadKeychainUser {
+extension JWTCustomPayloadKeychainUser
+{
     public static func authenticate(
         using payload: JWTPayload,
         on connection: DatabaseConnectable
     ) throws -> Future<Self?> {
-        return try find(.convertFromString(payload.sub.value), on: connection)
+        guard let id = ID(payload.sub.value) else {
+            throw JWTKeychainError.malformedPayload
+        }
+
+        return try find(id, on: connection)
     }
 }
 
