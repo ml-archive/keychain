@@ -1,6 +1,6 @@
-# JWT Keychain
-[![Swift Version](https://img.shields.io/badge/Swift-4-brightgreen.svg)](http://swift.org)
-[![Swift Version](https://img.shields.io/badge/Swift-3-brightgreen.svg)](http://swift.org)
+# JWT Keychain ⛓
+[![Swift Version](https://img.shields.io/badge/Swift-4.1-brightgreen.svg)](http://swift.org)
+[![Vapor Version](https://img.shields.io/badge/Vapor-3-30B6FC.svg)](http://vapor.codes)
 [![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
 [![Circle CI](https://circleci.com/gh/nodes-vapor/jwt-keychain/tree/master.svg?style=shield)](https://circleci.com/gh/nodes-vapor/jwt-keychain)
 [![codebeat badge](https://codebeat.co/badges/04ee1891-95e9-483e-99c1-44a9191d1d8a)](https://codebeat.co/projects/github-com-nodes-vapor-jwt-keychain-master)
