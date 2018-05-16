@@ -51,11 +51,3 @@ extension JWTCustomPayloadKeychainUser
         return try find(id, on: connection)
     }
 }
-
-extension Model where Database: QuerySupporting {
-    static func requireFind(_ id: ID, on worker: DatabaseConnectable) throws -> Future<Self> {
-        return try Self
-            .find(id, on: worker)
-            .unwrap(or: Abort(.notFound, reason: "\(Self.self) with id \(id) not found"))
-    }
-}

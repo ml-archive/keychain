@@ -46,7 +46,7 @@ extension JWTKeychainProvider {
         return try U
             .logIn(on: req)
             .flatMap(to: UserResponse<U>.self) { user in
-                self.makeUserResponse(for: user, withOptions: .all, on: req)
+                try self.makeUserResponse(for: user, withOptions: .all, on: req)
             }
     }
 
@@ -58,7 +58,7 @@ extension JWTKeychainProvider {
         return try U
             .register(on: req)
             .flatMap(to: UserResponse<U>.self) { user in
-                self.makeUserResponse(for: user, withOptions: .all, on: req)
+                try self.makeUserResponse(for: user, withOptions: .all, on: req)
             }
     }
 
@@ -71,14 +71,7 @@ extension JWTKeychainProvider {
     }
 
     public func update(req: Request) throws -> Future<U.Public> {
-        return try req
-            .content
-            .decode(U.Update.self)
-            .flatMap(to: U.self) {
-                let user = try req.requireAuthenticated(U.self)
-                try user.update(using: $0)
-                return user.save(on: req)
-            }
+        return try U.update(on: req)
             .map { $0.convertToPublic() }
     }
 }
@@ -91,7 +84,7 @@ private extension JWTKeychainProvider {
         router.post(endpoints.register, use: register)
         router.post(endpoints.login, use: logIn)
 
-        let access = router.grouped(accessMiddleware)
+        let access = router.grouped([accessMiddleware, U.guardAuthMiddleware()])
 
         access.get(endpoints.me, use: me)
         access.patch(endpoints.update, use: update)
