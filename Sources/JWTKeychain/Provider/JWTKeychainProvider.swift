@@ -84,7 +84,7 @@ private extension JWTKeychainProvider {
         router.post(endpoints.register, use: register)
         router.post(endpoints.login, use: logIn)
 
-        let access = router.grouped([accessMiddleware, U.guardAuthMiddleware()])
+        let access = router.grouped(accessMiddleware, U.guardAuthMiddleware())
 
         access.get(endpoints.me, use: me)
         access.patch(endpoints.update, use: update)
