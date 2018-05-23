@@ -7,7 +7,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-spm-deps-{{ checksum "Package.swift" }}
+            - v3-spm-deps-{{ checksum "Package.swift" }}
       - run:
           name: Install CMySQL and CTLS
           command: |
@@ -36,7 +36,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-spm-deps-{{ checksum "Package.swift" }}
+            - v4-spm-deps-{{ checksum "Package.swift" }}
       - run:
           name: Copy Package file
           command: cp Package.swift res

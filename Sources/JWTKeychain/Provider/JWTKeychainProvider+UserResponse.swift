@@ -18,23 +18,23 @@ extension JWTKeychainProvider {
         for user: U,
         withOptions options: UserResponseOptions,
         on req: Request
-    ) -> Future<UserResponse<U>> {
+    ) throws -> Future<UserResponse<U>> {
         let now = Date()
 
         func signIfPresent(
             using signer: ExpireableJWTSigner?,
             on worker: Worker
-        ) -> Future<String?> {
+        ) throws -> Future<String?> {
             guard let signer = signer else {
                 return Future.map(on: worker) { nil }
             }
-            return user.signToken(using: signer, currentTime: now, on: req).map(Optional.init)
+            return try user.signToken(using: signer, currentTime: now, on: req).map(Optional.init)
         }
 
         let accessTokenSigner = options.contains(.accessToken) ? config.accessTokenSigner : nil
         let refreshTokenSigner = options.contains(.refreshToken) ? config.refreshTokenSigner : nil
 
-        return map(
+        return try map(
             to: UserResponse<U>.self,
             signIfPresent(using: accessTokenSigner, on: req),
             signIfPresent(using: refreshTokenSigner, on: req)
