@@ -1,13 +1,14 @@
 import Routing
 
 public struct JWTKeychainEndpoints {
-    public let login: String
-    public let me: String
-    public let register: String
-    public let token: String
-    public let update: String
+    public let login: String?
+    public let me: String?
+    public let register: String?
+    public let token: String?
+    public let update: String?
 
-    /// Endpoints to use by provider when registering routes.
+    /// Endpoints to use by provider when registering routes. Any endpoint which is not supplied
+    /// will not be registered with the router.
     ///
     /// - Parameters:
     ///   - login: login endpoint (POST)
@@ -16,11 +17,11 @@ public struct JWTKeychainEndpoints {
     ///   - token: token refresh endpoint (POST)
     ///   - update: user update endpoint (PATCH)
     public init(
-        login: String,
-        me: String,
-        register: String,
-        token: String,
-        update: String
+        login: String? = nil,
+        me: String? = nil,
+        register: String? = nil,
+        token: String? = nil,
+        update: String? = nil
     ) {
         self.login = login
         self.me = me

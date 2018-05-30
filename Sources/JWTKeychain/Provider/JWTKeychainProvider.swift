@@ -81,16 +81,26 @@ private extension JWTKeychainProvider {
     func registerRoutes(on router: Router) {
         let endpoints = config.endpoints
 
-        router.post(endpoints.register, use: register)
-        router.post(endpoints.login, use: logIn)
+        if let registerPath = endpoints.register {
+            router.post(registerPath, use: register)
+        }
+
+        if let loginPath = endpoints.login {
+            router.post(loginPath, use: logIn)
+        }
 
         let access = router.grouped(accessMiddleware, U.guardAuthMiddleware())
 
-        access.get(endpoints.me, use: me)
-        access.patch(endpoints.update, use: update)
+        if let mePath = endpoints.me {
+            access.get(mePath, use: me)
+        }
 
-        if let refreshMiddleware = refreshMiddleware {
-            router.grouped(refreshMiddleware).post(endpoints.token, use: token)
+        if let updatePath = endpoints.update {
+            access.patch(updatePath, use: update)
+        }
+
+        if let refreshMiddleware = refreshMiddleware, let tokenPath = endpoints.token {
+            router.grouped(refreshMiddleware).post(tokenPath, use: token)
         }
     }
 }
