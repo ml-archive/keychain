@@ -19,9 +19,9 @@ public struct UserResponseOptions: OptionSet {
 
     public let rawValue: Int
 
-    public static let user          = UserResponseOptions(rawValue: 1 << 0)
-    public static let accessToken   = UserResponseOptions(rawValue: 1 << 1)
-    public static let refreshToken  = UserResponseOptions(rawValue: 1 << 2)
+    public static let user = UserResponseOptions(rawValue: 1 << 0)
+    public static let accessToken = UserResponseOptions(rawValue: 1 << 1)
+    public static let refreshToken = UserResponseOptions(rawValue: 1 << 2)
 
     public static let all: UserResponseOptions = [.user, .accessToken, .refreshToken]
 }
