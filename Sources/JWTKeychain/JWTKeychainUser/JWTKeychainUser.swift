@@ -37,16 +37,3 @@ where
     Self.Database: QuerySupporting,
     Self.ID: LosslessStringConvertible
 {}
-
-extension JWTCustomPayloadKeychainUser {
-    public static func authenticate(
-        using payload: JWTPayload,
-        on connection: DatabaseConnectable
-    ) throws -> Future<Self?> {
-        guard let id = ID(payload.sub.value) else {
-            throw JWTKeychainError.malformedPayload
-        }
-
-        return try find(id, on: connection)
-    }
-}
