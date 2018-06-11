@@ -38,8 +38,7 @@ where
     Self.ID: LosslessStringConvertible
 {}
 
-extension JWTCustomPayloadKeychainUser
-{
+extension JWTCustomPayloadKeychainUser {
     public static func authenticate(
         using payload: JWTPayload,
         on connection: DatabaseConnectable

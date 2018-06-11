@@ -30,7 +30,7 @@ extension JWTKeychainProvider: Provider {
         try services.register(AuthenticationProvider())
     }
 
-    public func didBoot(_ container: Container) throws -> EventLoopFuture<Void> {
+    public func didBoot(_ container: Container) throws -> Future<Void> {
         if config.shouldRegisterRoutes {
             try registerRoutes(on: container.make())
         }
