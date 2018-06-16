@@ -5,11 +5,11 @@ import JWT
 import Sugar
 import Vapor
 
-public protocol JWTKeychainUser: JWTCustomPayloadKeychainUser where
+public protocol JWTKeychainUserType: JWTCustomPayloadKeychainUserType where
     JWTPayload == Payload
 {}
 
-extension JWTKeychainUser {
+extension JWTKeychainUserType {
     public func makePayload(
         expirationTime: Date,
         on container: Container
@@ -25,7 +25,7 @@ extension JWTKeychainUser {
 
 // MARK: - JWTCustomPayloadKeychainUser
 
-public protocol JWTCustomPayloadKeychainUser:
+public protocol JWTCustomPayloadKeychainUserType:
     Content,
     HasPassword,
     JWTAuthenticatable,

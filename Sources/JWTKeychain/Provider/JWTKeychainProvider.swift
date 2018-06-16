@@ -5,7 +5,7 @@ import Service
 import Sugar
 import Vapor
 
-public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUser> {
+public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
     public let accessMiddleware: Middleware
     public let refreshMiddleware: Middleware?
 
