@@ -34,6 +34,5 @@ public protocol JWTCustomPayloadKeychainUser:
     PublicRepresentable,
     UserType
 where
-    Self.Database: QuerySupporting,
     Self.ID: LosslessStringConvertible
 {}
