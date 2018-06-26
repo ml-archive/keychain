@@ -10,6 +10,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/nodes-vapor/sugar.git", from: "3.0.0-beta"),
         .package(url: "https://github.com/vapor/auth.git", from: "2.0.0-rc"),
+        .package(url: "https://github.com/vapor/fluent-mysql.git", from: "3.0.0-rc"),
         .package(url: "https://github.com/vapor/jwt.git", from: "3.0.0-rc"),
         .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0")
     ],
@@ -18,6 +19,7 @@ let package = Package(
             name: "JWTKeychain", 
             dependencies: [
                 "Authentication",
+                "FluentMySQL",
                 "JWT",
                 "Sugar",
                 "Vapor"
