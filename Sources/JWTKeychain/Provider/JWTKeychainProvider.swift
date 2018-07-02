@@ -50,8 +50,8 @@ extension JWTKeychainProvider {
             }
     }
 
-    public func me(req: Request) throws -> U.Public {
-        return try req.requireAuthenticated(U.self).convertToPublic()
+    public func me(req: Request) throws -> Future<U.Public> {
+        return try req.requireAuthenticated(U.self).convertToPublic(on: req)
     }
 
     public func register(req: Request) throws -> Future<UserResponse<U>> {
@@ -72,7 +72,7 @@ extension JWTKeychainProvider {
 
     public func update(req: Request) throws -> Future<U.Public> {
         return try U.update(on: req)
-            .map { $0.convertToPublic() }
+            .flatMap { try $0.convertToPublic(on: req) }
     }
 }
 

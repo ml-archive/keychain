@@ -45,7 +45,7 @@ extension JWTKeychainUser: JWTKeychainUserType {
         }
     }
 
-    public func convertToPublic() -> Public {
-        return .init(email: email, name: name)
+    public func convertToPublic(on db: DatabaseConnectable) throws -> Future<Public> {
+        return db.future(.init(email: email, name: name))
     }
 }

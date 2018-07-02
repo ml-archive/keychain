@@ -2,5 +2,5 @@ import Vapor
 
 public protocol PublicRepresentable {
     associatedtype Public: Content
-    func convertToPublic() -> Public
+    func convertToPublic(on db: DatabaseConnectable) throws -> Future<Public>
 }

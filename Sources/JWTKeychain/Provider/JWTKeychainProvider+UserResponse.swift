@@ -33,16 +33,26 @@ extension JWTKeychainProvider {
         let accessTokenSigner = options.contains(.accessToken) ? config.accessTokenSigner : nil
         let refreshTokenSigner = options.contains(.refreshToken) ? config.refreshTokenSigner : nil
 
-        return try map(
+        return try flatMap(
             to: UserResponse<U>.self,
             signIfPresent(using: accessTokenSigner, on: req),
             signIfPresent(using: refreshTokenSigner, on: req)
         ) { (accessToken, refreshToken) in
-            UserResponse(
-                user: options.contains(.user) ? user : nil,
-                accessToken: accessToken,
-                refreshToken: refreshToken
-            )
+            if options.contains(.user) {
+                return try user.convertToPublic(on: req).map { pub in
+                    return UserResponse(
+                        user: pub,
+                        accessToken: accessToken,
+                        refreshToken: refreshToken
+                    )
+                }
+            } else {
+                return req.future(UserResponse(
+                    user: nil,
+                    accessToken: accessToken,
+                    refreshToken: refreshToken
+                ))
+            }
         }
     }
 }
