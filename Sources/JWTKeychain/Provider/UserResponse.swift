@@ -5,8 +5,8 @@ public struct UserResponse<U: PublicRepresentable>: Content {
     let accessToken: String?
     let refreshToken: String?
 
-    public init(user: U?, accessToken: String? = nil, refreshToken: String? = nil) {
-        self.user = user?.convertToPublic()
+    public init(user: U.Public?, accessToken: String? = nil, refreshToken: String? = nil) {
+        self.user = user
         self.accessToken = accessToken
         self.refreshToken = refreshToken
     }
