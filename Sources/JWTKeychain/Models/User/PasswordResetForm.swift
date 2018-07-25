@@ -69,6 +69,14 @@ extension PasswordResetForm: JSONInitializable {
 // MARK: PasswordResetInfoType
 
 extension PasswordResetForm: PasswordResetInfoType {
+    public func makeNode(in context: Context?) throws -> Node {
+        return Node([
+            User.Keys.email: .string(email ?? ""),
+            User.Keys.password: .string(password ?? ""),
+            User.Keys.passwordRepeat: .string(passwordRepeatField.value ?? "")
+        ])
+    }
+
     public var email: String? {
         return emailField.value
     }

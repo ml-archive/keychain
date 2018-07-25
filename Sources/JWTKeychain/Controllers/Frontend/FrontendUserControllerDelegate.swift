@@ -10,7 +10,7 @@ import SMTP
 import Vapor
 
 public protocol PasswordResetInfoType:
-    FieldsetRepresentable,
+    NodeRepresentable,
     ValidationModeValidatable
 {
     var email: String? { get }
@@ -54,8 +54,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         viewRenderer: ViewRenderer
     ) throws -> ResponseRepresentable {
         let fieldset = try request.fieldset ??
-            U.extractPasswordResetInfo(from: request)
-                .makeFieldset(inValidationMode: .none)
+            U.extractPasswordResetInfo(from: request).makeNode(in: ValidationContext(mode: .none))
 
         return try viewRenderer.make(
             pathToFormView,
@@ -79,8 +78,7 @@ open class FrontendUserControllerDelegate<U: PasswordResettableUser>:
         let passwordResetInfo = try U.extractPasswordResetInfo(from: request)
 
         // prepare common response
-        let fieldset = try passwordResetInfo
-            .makeFieldset(inValidationMode: .all)
+        let fieldset = try passwordResetInfo.makeNode(in: ValidationContext(mode: .all))
         let redirectToForm = Response(redirect: formPath).setFieldset(fieldset)
 
         // ensure form values are valid
