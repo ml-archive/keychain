@@ -5,21 +5,41 @@ import Service
 import Sugar
 import Vapor
 
-public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
-    public let accessMiddleware: Middleware
-    public let refreshMiddleware: Middleware?
+public struct JWTKeychainMiddlewares {
+    public let accessMiddlewares: [Middleware]
+    public let refreshMiddlewares: [Middleware]?
+}
 
+public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
+    public let middlewares: JWTKeychainMiddlewares
     public let config: JWTKeychainConfig
 
     public init(config: JWTKeychainConfig) {
         self.config = config
 
-        accessMiddleware = JWTAuthenticationMiddleware<U>(
-            signer: config.accessTokenSigner.signer
-        )
-        refreshMiddleware = config.refreshTokenSigner.map {
-            JWTAuthenticationMiddleware<U>(signer: $0.signer)
+        var accessMiddlewares: [Middleware] = [
+            JWTAuthenticationMiddleware<U>(
+                signer: config.accessTokenSigner.signer
+            )
+        ]
+
+        var refreshMiddlewares: [Middleware]?
+        if let refresh = config.refreshTokenSigner {
+            refreshMiddlewares = [
+                JWTAuthenticationMiddleware<U>(signer: refresh.signer)
+            ]
         }
+
+        if config.forceAuthentication {
+            let guardMiddleware = U.guardAuthMiddleware()
+            accessMiddlewares.append(guardMiddleware)
+            refreshMiddlewares?.append(guardMiddleware)
+        }
+
+        self.middlewares = .init(
+            accessMiddlewares: accessMiddlewares,
+            refreshMiddlewares: refreshMiddlewares
+        )
     }
 }
 
@@ -89,7 +109,7 @@ private extension JWTKeychainProvider {
             router.post(loginPath, use: logIn)
         }
 
-        let access = router.grouped(accessMiddleware, U.guardAuthMiddleware())
+        let access = router.grouped(middlewares.accessMiddlewares)
 
         if let mePath = endpoints.me {
             access.get(mePath, use: me)
@@ -99,8 +119,11 @@ private extension JWTKeychainProvider {
             access.patch(updatePath, use: update)
         }
 
-        if let refreshMiddleware = refreshMiddleware, let tokenPath = endpoints.token {
-            router.grouped(refreshMiddleware).post(tokenPath, use: token)
+        if
+            let refreshMiddlewares = middlewares.refreshMiddlewares,
+            let tokenPath = endpoints.token
+        {
+            router.grouped(refreshMiddlewares).post(tokenPath, use: token)
         }
     }
 }
