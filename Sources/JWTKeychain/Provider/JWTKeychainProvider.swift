@@ -23,11 +23,8 @@ public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
             )
         ]
 
-        var refreshMiddlewares: [Middleware]?
-        if let refresh = config.refreshTokenSigner {
-            refreshMiddlewares = [
-                JWTAuthenticationMiddleware<U>(signer: refresh.signer)
-            ]
+        var refreshMiddlewares: [Middleware]? = config.refreshTokenSigner.map {
+            [JWTAuthenticationMiddleware<U>(signer: $0.signer)]
         }
 
         if config.forceAuthentication {
