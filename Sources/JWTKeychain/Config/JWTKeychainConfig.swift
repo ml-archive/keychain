@@ -16,6 +16,9 @@ public struct JWTKeychainConfig: Service {
     /// Determines whether to register the routes for the `endpoints` at boot time.
     public let shouldRegisterRoutes: Bool
 
+    /// Determines whether to require authentication on all endpoints (access and refresh).
+    public let forceAuthentication: Bool
+
     /// Creates a new JWTKeychain configuration.
     ///
     /// - Parameters:
@@ -25,15 +28,18 @@ public struct JWTKeychainConfig: Service {
     ///   - endpoints: determines the endpoints for the routes
     ///   - shouldRegisterRoutes: determines whether to register the routes for the `endpoints` at
     ///     boot time.
+    ///   - forceAuthentication: determines whether to require authentication on all endpoints (access and refresh).
     public init(
         accessTokenSigner: ExpireableJWTSigner,
         refreshTokenSigner: ExpireableJWTSigner? = nil,
         endpoints: JWTKeychainEndpoints = .default,
-        shouldRegisterRoutes: Bool = true
+        shouldRegisterRoutes: Bool = true,
+        forceAuthentication: Bool = true
     ) {
         self.accessTokenSigner = accessTokenSigner
         self.refreshTokenSigner = refreshTokenSigner
         self.endpoints = endpoints
         self.shouldRegisterRoutes = shouldRegisterRoutes
+        self.forceAuthentication = forceAuthentication
     }
 }
