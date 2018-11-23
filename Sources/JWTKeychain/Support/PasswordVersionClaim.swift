@@ -10,11 +10,11 @@ public struct PasswordVersionClaim: EqualityClaim, StringBacked {
 
     internal let value: String
 
-    internal init(string: String) {
+    public init(string: String) {
         self.value = string
     }
 
-    internal init(user: PasswordUpdateable) throws {
+    public init(user: PasswordUpdateable) throws {
         self.init(string: "\(user.passwordVersion)")
     }
 }
