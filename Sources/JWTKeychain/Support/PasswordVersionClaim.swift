@@ -6,9 +6,9 @@ import Vapor
 /// It is used with resetting passwords to see whether the User's password has
 /// not already been changed.
 public struct PasswordVersionClaim: EqualityClaim, StringBacked {
-    internal static let name = "nodes:pwd"
+    public static let name = "nodes:pwd"
 
-    internal let value: String
+    public let value: String
 
     public init(string: String) {
         self.value = string
