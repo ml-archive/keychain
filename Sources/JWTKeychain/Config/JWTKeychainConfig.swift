@@ -2,7 +2,7 @@ import Service
 import Sugar
 
 /// Configuration for the JWTKeychain Provider.
-public struct JWTKeychainConfig: Service {
+public struct JWTKeychainConfig<U: JWTCustomPayloadKeychainUserType>: Service {
     /// Signer and expiration period for access tokens.
     public let accessTokenSigner: ExpireableJWTSigner
 
@@ -13,11 +13,11 @@ public struct JWTKeychainConfig: Service {
     /// Endpoints for the routes provided by JWTKeychain.
     public let endpoints: JWTKeychainEndpoints
 
-    /// Determines whether to register the routes for the `endpoints` at boot time.
-    public let shouldRegisterRoutes: Bool
-
     /// Determines whether to require authentication on all endpoints (access and refresh).
     public let forceAuthentication: Bool
+
+    /// The controller that holds the logic for the routes.
+    public let controller: JWTKeychainController<U>
 
     /// Creates a new JWTKeychain configuration.
     ///
@@ -33,13 +33,13 @@ public struct JWTKeychainConfig: Service {
         accessTokenSigner: ExpireableJWTSigner,
         refreshTokenSigner: ExpireableJWTSigner? = nil,
         endpoints: JWTKeychainEndpoints = .default,
-        shouldRegisterRoutes: Bool = true,
-        forceAuthentication: Bool = true
+        forceAuthentication: Bool = true,
+        controller: JWTKeychainController<U> = JWTKeychainController()
     ) {
         self.accessTokenSigner = accessTokenSigner
         self.refreshTokenSigner = refreshTokenSigner
         self.endpoints = endpoints
-        self.shouldRegisterRoutes = shouldRegisterRoutes
         self.forceAuthentication = forceAuthentication
+        self.controller = controller
     }
 }
