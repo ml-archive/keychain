@@ -2,7 +2,7 @@ import JWT
 import Sugar
 import Vapor
 
-extension JWTKeychainProvider {
+extension JWTKeychainController {
     /// Makes UserResponse value containing (all optional, depending on the `options` parameter):
     ///   - a publically safe representation of the user
     ///   - an access token
@@ -30,6 +30,7 @@ extension JWTKeychainProvider {
             return try user.signToken(using: signer, currentTime: now, on: req).map(Optional.init)
         }
 
+        let config: JWTKeychainConfig<U> = try req.make()
         let accessTokenSigner = options.contains(.accessToken) ? config.accessTokenSigner : nil
         let refreshTokenSigner = options.contains(.refreshToken) ? config.refreshTokenSigner : nil
 
