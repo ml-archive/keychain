@@ -17,7 +17,7 @@ public struct JWTKeychainConfig<U: JWTCustomPayloadKeychainUserType>: Service {
     public let forceAuthentication: Bool
 
     /// The controller that holds the logic for the routes.
-    public let controller: JWTKeychainController<U>
+    public let controller: JWTKeychainControllerType
 
     /// Creates a new JWTKeychain configuration.
     ///
@@ -34,7 +34,7 @@ public struct JWTKeychainConfig<U: JWTCustomPayloadKeychainUserType>: Service {
         refreshTokenSigner: ExpireableJWTSigner? = nil,
         endpoints: JWTKeychainEndpoints = .default,
         forceAuthentication: Bool = true,
-        controller: JWTKeychainController<U> = JWTKeychainController()
+        controller: JWTKeychainControllerType = JWTKeychainController<U>()
     ) {
         self.accessTokenSigner = accessTokenSigner
         self.refreshTokenSigner = refreshTokenSigner
