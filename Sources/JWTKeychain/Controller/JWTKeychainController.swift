@@ -1,3 +1,4 @@
+import Sugar
 import Vapor
 
 public protocol JWTKeychainControllerType {
@@ -29,7 +30,7 @@ open class JWTKeychainController<U: JWTCustomPayloadKeychainUserType>: JWTKeycha
 
     open func register(req: Request) throws -> Future<Response> {
         return try U
-            .register(on: req)
+            .create(on: req)
             .flatMap(to: UserResponse<U>.self) { user in
                 try self.makeUserResponse(for: user, withOptions: .all, on: req)
             }
@@ -47,7 +48,9 @@ open class JWTKeychainController<U: JWTCustomPayloadKeychainUserType>: JWTKeycha
     }
 
     open func update(req: Request) throws -> Future<Response> {
-        return try U.update(on: req)
+        return try req
+            .requireAuthenticated(U.self)
+            .update(on: req)
             .flatMap { try $0.convertToPublic(on: req) }
             .encode(for: req)
     }

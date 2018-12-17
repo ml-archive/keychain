@@ -9,7 +9,7 @@ public protocol JWTKeychainUserType: JWTCustomPayloadKeychainUserType where
     JWTPayload == Payload
 {}
 
-extension JWTKeychainUserType {
+extension JWTCustomPayloadKeychainUserType where JWTPayload == Payload {
     public func makePayload(
         expirationTime: Date,
         on container: Container
@@ -26,13 +26,18 @@ extension JWTKeychainUserType {
 // MARK: - JWTCustomPayloadKeychainUser
 
 public protocol JWTCustomPayloadKeychainUserType:
+    Creatable,
     Content,
     HasPassword,
     JWTAuthenticatable,
+    Loginnable,
     Model,
     PasswordAuthenticatable,
     PublicRepresentable,
-    UserType
+    Updatable
 where
-    Self.ID: LosslessStringConvertible
+    Self.ID: LosslessStringConvertible,
+    Self.Create: Decodable,
+    Self.Login: Decodable,
+    Self.Update: Decodable
 {}
