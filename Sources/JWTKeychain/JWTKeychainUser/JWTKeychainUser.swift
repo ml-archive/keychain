@@ -9,10 +9,6 @@ public final class JWTKeychainUser: Codable {
     public var password: String
     public var passwordChangeCount: Int
 
-    public static let createdAtKey = \JWTKeychainUser.createdAt
-    public static let updatedAtKey = \JWTKeychainUser.updatedAt
-    public static let deletedAtKey = \JWTKeychainUser.deletedAt
-
     public var createdAt: Date?
     public var updatedAt: Date?
     public var deletedAt: Date?
@@ -34,5 +30,9 @@ public final class JWTKeychainUser: Codable {
 
 extension JWTKeychainUser: Content {}
 extension JWTKeychainUser: Migration {}
-extension JWTKeychainUser: MySQLModel {}
+extension JWTKeychainUser: MySQLModel {
+    public static let createdAtKey: TimestampKey? = \.createdAt
+    public static let updatedAtKey: TimestampKey? = \.updatedAt
+    public static let deletedAtKey: TimestampKey? = \.deletedAt
+}
 extension JWTKeychainUser: Parameter {}
