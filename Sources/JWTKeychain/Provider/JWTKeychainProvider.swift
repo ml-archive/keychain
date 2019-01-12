@@ -56,7 +56,7 @@ extension JWTKeychainProvider: Provider {
 // MARK: Routes
 
 public extension Router {
-    func useJWTKeychainRoutes<U: JWTCustomPayloadKeychainUserType & Creatable & Updatable>(
+    func useJWTKeychainRoutes<U: JWTCustomPayloadKeychainUserType>(
         _ type: U.Type,
         on container: Container
     ) throws {

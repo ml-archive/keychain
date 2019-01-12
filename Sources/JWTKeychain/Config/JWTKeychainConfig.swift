@@ -3,6 +3,7 @@ import Sugar
 
 /// Configuration for the JWTKeychain Provider.
 public struct JWTKeychainConfig<U: JWTCustomPayloadKeychainUserType>: Service {
+
     /// Signer and expiration period for access tokens.
     public let accessTokenSigner: ExpireableJWTSigner
 

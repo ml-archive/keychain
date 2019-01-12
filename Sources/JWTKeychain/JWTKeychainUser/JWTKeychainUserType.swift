@@ -6,10 +6,26 @@ import Sugar
 import Vapor
 
 public protocol JWTKeychainUserType: JWTCustomPayloadKeychainUserType where
-    JWTPayload == Payload
+JWTPayload == Payload {}
+
+/// Defines the requirements for user models to be compatible with JWTKeychain.
+public protocol JWTCustomPayloadKeychainUserType:
+    Creatable,
+    JWTAuthenticatable,
+    Loginable,
+    PublicRepresentable,
+    Updatable
+where
+    Self.Login: Decodable,
+    Self.Update: Decodable
 {}
 
-extension JWTCustomPayloadKeychainUserType where JWTPayload == Payload {
+extension JWTCustomPayloadKeychainUserType where
+    Self: Model,
+    JWTPayload == Payload,
+    Self.ID: LosslessStringConvertible
+{
+    /// See `JWTAuthenticatable`.
     public func makePayload(
         expirationTime: Date,
         on container: Container
@@ -22,22 +38,3 @@ extension JWTCustomPayloadKeychainUserType where JWTPayload == Payload {
         }
     }
 }
-
-// MARK: - JWTCustomPayloadKeychainUser
-
-public protocol JWTCustomPayloadKeychainUserType:
-    Creatable,
-    Content,
-    HasPassword,
-    JWTAuthenticatable,
-    Loginnable,
-    Model,
-    PasswordAuthenticatable,
-    PublicRepresentable,
-    Updatable
-where
-    Self.ID: LosslessStringConvertible,
-    Self.Create: Decodable,
-    Self.Login: Decodable,
-    Self.Update: Decodable
-{}

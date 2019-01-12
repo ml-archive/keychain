@@ -1,4 +1,5 @@
 import FluentMySQL
+import Sugar
 import Vapor
 
 /// Basic implementation for a JWTKeychain compatible user.
@@ -29,6 +30,7 @@ public final class JWTKeychainUser: Codable {
 }
 
 extension JWTKeychainUser: Content {}
+extension JWTKeychainUser: HasPassword {}
 extension JWTKeychainUser: Migration {}
 extension JWTKeychainUser: MySQLModel {
     public static let createdAtKey: TimestampKey? = \.createdAt

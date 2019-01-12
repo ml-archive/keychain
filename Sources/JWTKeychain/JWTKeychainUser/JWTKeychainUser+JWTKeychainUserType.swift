@@ -1,3 +1,4 @@
+import Authentication
 import Sugar
 import Vapor
 
@@ -8,7 +9,11 @@ extension JWTKeychainUser: JWTKeychainUserType {
 
     /// See 'BasicAuthenticatable'.
     public static let usernameKey: WritableKeyPath<JWTKeychainUser, String> = \.email
+}
 
+extension JWTKeychainUser: PasswordAuthenticatable {}
+
+extension JWTKeychainUser: Loginable {
     public struct Login: Decodable, HasReadablePassword, HasReadableUsername {
         public static let readablePasswordKey = \Login.password
         public static let readableUsernameKey = \Login.email
@@ -16,7 +21,9 @@ extension JWTKeychainUser: JWTKeychainUserType {
         let email: String
         let password: String
     }
+}
 
+extension JWTKeychainUser: PublicRepresentable {
     public struct Public: Content {
         let email: String
         let name: String
