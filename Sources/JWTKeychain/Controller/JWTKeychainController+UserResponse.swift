@@ -3,6 +3,7 @@ import Sugar
 import Vapor
 
 extension JWTKeychainController {
+
     /// Makes UserResponse value containing (all optional, depending on the `options` parameter):
     ///   - a publically safe representation of the user
     ///   - an access token

@@ -1,6 +1,7 @@
 import FluentMySQL
 import Vapor
 
+/// Basic implementation for a JWTKeychain compatible user.
 public final class JWTKeychainUser: Codable {
     public var id: Int?
     public var email: String

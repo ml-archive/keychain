@@ -1,5 +1,6 @@
 import Routing
 
+/// Endpoints to use by the JWTKeychainProvider when registering routes.
 public struct JWTKeychainEndpoints {
     public let login: String?
     public let me: String?
@@ -7,7 +8,7 @@ public struct JWTKeychainEndpoints {
     public let token: String?
     public let update: String?
 
-    /// Endpoints to use by provider when registering routes. Any endpoint which is not supplied
+    /// Creates a new `JWTKeychainEndpoints`. Any endpoint which is not supplied
     /// will not be registered with the router.
     ///
     /// - Parameters:
@@ -30,6 +31,7 @@ public struct JWTKeychainEndpoints {
         self.update = update
     }
 
+    /// Default endpoints.
     public static var `default`: JWTKeychainEndpoints {
         let users = "users"
         return .init(
