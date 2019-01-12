@@ -10,7 +10,7 @@ public struct JWTKeychainMiddlewares: Service {
     public let refreshMiddlewares: [Middleware]?
 }
 
-public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
+public final class JWTKeychainProvider<U: JWTKeychainUserType> {
     public let middlewares: JWTKeychainMiddlewares
     public let config: JWTKeychainConfig<U>
 
@@ -56,7 +56,7 @@ extension JWTKeychainProvider: Provider {
 // MARK: Routes
 
 public extension Router {
-    func useJWTKeychainRoutes<U: JWTCustomPayloadKeychainUserType>(
+    func useJWTKeychainRoutes<U: JWTKeychainUserType>(
         _ type: U.Type,
         on container: Container
     ) throws {

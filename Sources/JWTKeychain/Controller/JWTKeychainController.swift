@@ -12,7 +12,7 @@ public protocol JWTKeychainControllerType {
 
 /// Controller for JWTKeychain with default implementations. Can be subclassed in case some of the
 /// routes need custom behavior.
-open class JWTKeychainController<U: JWTCustomPayloadKeychainUserType>: JWTKeychainControllerType {
+open class JWTKeychainController<U: JWTKeychainUserType>: JWTKeychainControllerType {
     public init() {}
 
     open func logIn(req: Request) throws -> Future<Response> {
