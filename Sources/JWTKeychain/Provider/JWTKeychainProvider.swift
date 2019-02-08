@@ -5,12 +5,12 @@ import Service
 import Sugar
 import Vapor
 
-public struct JWTKeychainMiddlewares<U: JWTCustomPayloadKeychainUserType>: Service {
+public struct JWTKeychainMiddlewares<U: JWTKeychainUserType>: Service {
     public let accessMiddlewares: [Middleware]
     public let refreshMiddlewares: [Middleware]?
 }
 
-public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
+public final class JWTKeychainProvider<U: JWTKeychainUserType> {
     public let middlewares: JWTKeychainMiddlewares<U>
     public let config: JWTKeychainConfig<U>
 

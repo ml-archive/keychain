@@ -5,9 +5,6 @@ import JWT
 import Sugar
 import Vapor
 
-public protocol JWTKeychainUserType: JWTCustomPayloadKeychainUserType where
-JWTPayload == Payload {}
-
 /// Defines the requirements for user models to be compatible with JWTKeychain.
 public protocol JWTKeychainUserType:
     Creatable,
