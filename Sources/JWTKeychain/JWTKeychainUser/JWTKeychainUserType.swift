@@ -27,11 +27,9 @@ extension JWTKeychainUserType where
         expirationTime: Date,
         on container: Container
     ) throws -> Future<Payload> {
-        return Future.map(on: container) {
-            try Payload(
-                exp: ExpirationClaim(value: expirationTime),
-                sub: SubjectClaim(value: self.requireID().description)
-            )
-        }
+        return try container.future(Payload(
+            exp: ExpirationClaim(value: expirationTime),
+            sub: SubjectClaim(value: requireID().description)
+        ))
     }
 }

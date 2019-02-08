@@ -26,7 +26,7 @@ extension JWTKeychainController {
             on worker: Worker
         ) throws -> Future<String?> {
             guard let signer = signer else {
-                return Future.map(on: worker) { nil }
+                return worker.future(nil)
             }
             return try user.signToken(using: signer, currentTime: now, on: req).map(Optional.init)
         }
