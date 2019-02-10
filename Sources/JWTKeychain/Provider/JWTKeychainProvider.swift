@@ -5,13 +5,13 @@ import Service
 import Sugar
 import Vapor
 
-public struct JWTKeychainMiddlewares: Service {
+public struct JWTKeychainMiddlewares<U: JWTCustomPayloadKeychainUserType>: Service {
     public let accessMiddlewares: [Middleware]
     public let refreshMiddlewares: [Middleware]?
 }
 
-public final class JWTKeychainProvider<U: JWTKeychainUserType> {
-    public let middlewares: JWTKeychainMiddlewares
+public final class JWTKeychainProvider<U: JWTCustomPayloadKeychainUserType> {
+    public let middlewares: JWTKeychainMiddlewares<U>
     public let config: JWTKeychainConfig<U>
 
     public init(config: JWTKeychainConfig<U>) {
@@ -61,7 +61,7 @@ public extension Router {
         on container: Container
     ) throws {
         let config: JWTKeychainConfig<U> = try container.make()
-        let middlewares: JWTKeychainMiddlewares = try container.make()
+        let middlewares: JWTKeychainMiddlewares<U> = try container.make()
         let access = self.grouped(middlewares.accessMiddlewares)
 
         if let registerPath = config.endpoints.register {
