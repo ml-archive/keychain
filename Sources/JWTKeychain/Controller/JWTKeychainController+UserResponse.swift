@@ -3,6 +3,7 @@ import Sugar
 import Vapor
 
 extension JWTKeychainController {
+
     /// Makes UserResponse value containing (all optional, depending on the `options` parameter):
     ///   - a publically safe representation of the user
     ///   - an access token
@@ -25,7 +26,7 @@ extension JWTKeychainController {
             on worker: Worker
         ) throws -> Future<String?> {
             guard let signer = signer else {
-                return Future.map(on: worker) { nil }
+                return worker.future(nil)
             }
             return try user.signToken(using: signer, currentTime: now, on: req).map(Optional.init)
         }
