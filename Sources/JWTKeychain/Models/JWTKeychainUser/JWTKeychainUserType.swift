@@ -10,6 +10,7 @@ public protocol JWTKeychainUserType:
     Creatable,
     JWTAuthenticatable,
     Loginable,
+    Model,
     PublicRepresentable,
     Updatable
 where
