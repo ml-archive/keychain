@@ -34,6 +34,7 @@ open class JWTKeychainController<U: JWTKeychainUserType>: JWTKeychainControllerT
     open func register(req: Request) throws -> Future<Response> {
         return try U
             .create(on: req)
+            .save(on: req)
             .flatMap(to: UserResponse<U>.self) { user in
                 try self.makeUserResponse(for: user, withOptions: .all, on: req)
             }
@@ -54,6 +55,7 @@ open class JWTKeychainController<U: JWTKeychainUserType>: JWTKeychainControllerT
         return try req
             .requireAuthenticated(U.self)
             .applyUpdate(on: req)
+            .save(on: req)
             .flatMap { try $0.convertToPublic(on: req) }
             .encode(for: req)
     }
