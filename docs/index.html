@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JWTKeychain  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a title="JWTKeychain  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">JWTKeychain Docs</a> (52% documented)</p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">JWTKeychain Reference</a>
+        <img id="carat" src="img/carat.png" />
+        JWTKeychain  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainController.html">JWTKeychainController</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainProvider.html">JWTKeychainProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainUser.html">JWTKeychainUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainUser/Create.html">– Create</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainUser/Login.html">– Login</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainUser.html#/s:11JWTKeychain0A4UserC6PublicV">– Public</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/JWTKeychainUser.html#/s:11JWTKeychain0A4UserC6UpdateV">– Update</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/JWTKeychainError.html">JWTKeychainError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/Router.html">Router</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/JWTKeychainControllerType.html">JWTKeychainControllerType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Protocols/JWTKeychainUserType.html">JWTKeychainUserType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/JWTKeychainConfig.html">JWTKeychainConfig</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/JWTKeychainEndpoints.html">JWTKeychainEndpoints</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/JWTKeychainMiddlewares.html">JWTKeychainMiddlewares</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/UserResponse.html">UserResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/UserResponseOptions.html">UserResponseOptions</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='jwt-keychain' class='heading'>JWT Keychain ⛓</h1>
+
+<p><a href="http://swift.org"><img src="https://img.shields.io/badge/Swift-4.1-brightgreen.svg" alt="Swift Version"></a>
+<a href="http://vapor.codes"><img src="https://img.shields.io/badge/Vapor-3-30B6FC.svg" alt="Vapor Version"></a>
+<a href="http://vapor.codes"><img src="https://img.shields.io/badge/Vapor-2-F6CBCA.svg" alt="Vapor Version"></a>
+<a href="https://circleci.com/gh/nodes-vapor/jwt-keychain"><img src="https://circleci.com/gh/nodes-vapor/jwt-keychain/tree/master.svg?style=shield" alt="Circle CI"></a>
+<a href="https://codebeat.co/projects/github-com-nodes-vapor-jwt-keychain-master"><img src="https://codebeat.co/badges/04ee1891-95e9-483e-99c1-44a9191d1d8a" alt="codebeat badge"></a>
+<a href="https://codecov.io/gh/nodes-vapor/jwt-keychain"><img src="https://codecov.io/gh/nodes-vapor/jwt-keychain/branch/master/graph/badge.svg" alt="codecov"></a>
+<a href="http://clayallsopp.github.io/readme-score?url=https://github.com/nodes-vapor/jwt-keychain"><img src="http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/nodes-vapor/jwt-keychain" alt="Readme Score"></a>
+<a href="https://raw.githubusercontent.com/nodes-vapor/jwt-keychain/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="GitHub license"></a></p>
+
+<p>Add a complete and customizable user authentication system for your API project.</p>
+<h2 id='demo-project' class='heading'>Demo project</h2>
+
+<p><a href="https://github.com/nodes-vapor/jwt-keychain-demo">https://github.com/nodes-vapor/jwt-keychain-demo</a></p>
+<h2 id='installation' class='heading'>📦 Installation</h2>
+
+<p>Update your <code>Package.swift</code> file.</p>
+<pre class="highlight swift"><code><span class="o">.</span><span class="nf">package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/nodes-vapor/jwt-keychain.git"</span><span class="p">,</span> <span class="nv">upToMajorVersion</span><span class="p">:</span> <span class="s">"2.0.0"</span><span class="p">)</span>
+</code></pre>
+<pre class="highlight swift"><code><span class="nv">targets</span><span class="p">:</span> <span class="p">[</span>
+    <span class="o">.</span><span class="nf">target</span><span class="p">(</span>
+        <span class="nv">name</span><span class="p">:</span> <span class="s">"App"</span><span class="p">,</span>
+        <span class="nv">dependencies</span><span class="p">:</span> <span class="p">[</span>
+            <span class="o">...</span>
+            <span class="s">"JWTKeychain"</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</code></pre>
+<h2 id='getting-started' class='heading'>Getting started 🚀</h2>
+
+<p>TODO</p>
+<h3 id='resources' class='heading'>Resources</h3>
+
+<p>Copy package resources:</p>
+
+<p>Move the content of <code>JWTKeychain/Resources/Views</code> into the <code>Resources/Views</code> folder of your project. Unfortunately there&rsquo;s no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you&rsquo;re not overwriting any files in your project.</p>
+
+<p>See <code>https://github.com/vapor/jwt</code> to learn more about signing.</p>
+<h3 id='usage' class='heading'>Usage</h3>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">JWTKeychain</span>
+</code></pre>
+<h3 id='token-generator-command' class='heading'>Token Generator Command</h3>
+
+<p>In order to generate password reset tokens for users add the following to <code>droplet.json</code>&lsquo;s <code>commands</code>: <code>&quot;keychain:generate_token&quot;</code>. Then you can create a token like so:</p>
+
+<blockquote>
+<p><code>drop --run keychain:generate_token user@email.com</code></p>
+</blockquote>
+<h2 id='tokens' class='heading'>Tokens</h2>
+
+<p>There are three types of tokens used by JWTKeychain: refresh tokens, API access tokens, and password reset tokens.</p>
+
+<p>Both refresh and access tokens should be included in the <code>Authorization</code> header for each request they are needed for, as follows: <code>Authorization: Bearer TOKEN</code> (where <code>TOKEN</code> is replaced with the actual token string).</p>
+<h3 id='refresh-tokens' class='heading'>Refresh Tokens</h3>
+
+<blockquote>
+<p>Usage of this type of token is optional but recommended for extra security. You can opt-out of using refresh tokens by omitting the value for <code>refreshToken</code> in <code>jwt-keychain.json</code>.</p>
+</blockquote>
+
+<p>Refresh tokens are tokens with a long expiration time that can be used to generate the more short-lived access tokens that are needed for API access.</p>
+
+<p>Refresh tokens are returned when logging in and when signing up* as a string under the key: <code>refreshToken</code>. They can only be used to create new access tokens at the <code>/users/regenerate</code> endpoint.</p>
+
+<p>When a refresh token expires a new one can be generated by logging in using the user&rsquo;s credentials.</p>
+
+<p>* Besides the refresh token, an access token and the user object are also returned as a convenience to the client developer.</p>
+<h3 id='api-access-tokens' class='heading'>API Access Tokens</h3>
+
+<p>API Access tokens give access to the following endpoints:</p>
+
+<ul>
+<li>GET <code>/users/me</code></li>
+<li>GET <code>/users/logout</code></li>
+<li>PATCH <code>/users/update</code></li>
+</ul>
+
+<p>TODO: add other routes</p>
+
+<p>Whenever an access token is expired a new one can be generated using a request to <code>/users/regenerate</code>.</p>
+<h3 id='password-reset-tokens' class='heading'>Password Reset Tokens</h3>
+
+<p>TODO: explain</p>
+<h2 id='customization' class='heading'>Customization</h2>
+
+<p>TODO:</p>
+<h3 id='api-requests' class='heading'>API Requests</h3>
+
+<p>TODO:</p>
+<h3 id='frontend-requests' class='heading'>Frontend Requests</h3>
+
+<p>TODO:</p>
+<h3 id='supply-additional-middleware' class='heading'>Supply Additional Middleware</h3>
+
+<p>TODO:</p>
+<h2 id='credits' class='heading'>🏆 Credits</h2>
+
+<p>This package is developed and maintained by the Vapor team at <a href="https://www.nodesagency.com">Nodes</a>.
+The package owner for this project is <a href="https://github.com/siemensikkema/">Siemen</a>.</p>
+<h2 id='license' class='heading'>📄 License</h2>
+
+<p>This package is open-sourced software licensed under the <a href="http://opensource.org/licenses/MIT">MIT license</a></p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2019-08-01)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.10.0</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

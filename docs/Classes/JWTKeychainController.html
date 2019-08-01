@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JWTKeychainController Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/JWTKeychainController" class="dashAnchor"></a>
+    <a title="JWTKeychainController Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">JWTKeychain Docs</a> (52% documented)</p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">JWTKeychain Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        JWTKeychainController Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainController.html">JWTKeychainController</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainProvider.html">JWTKeychainProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainUser.html">JWTKeychainUser</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainUser/Create.html">– Create</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainUser/Login.html">– Login</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainUser.html#/s:11JWTKeychain0A4UserC6PublicV">– Public</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/JWTKeychainUser.html#/s:11JWTKeychain0A4UserC6UpdateV">– Update</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/JWTKeychainError.html">JWTKeychainError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Router.html">Router</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/JWTKeychainControllerType.html">JWTKeychainControllerType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/JWTKeychainUserType.html">JWTKeychainUserType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/JWTKeychainConfig.html">JWTKeychainConfig</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/JWTKeychainEndpoints.html">JWTKeychainEndpoints</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/JWTKeychainMiddlewares.html">JWTKeychainMiddlewares</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/UserResponse.html">UserResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/UserResponseOptions.html">UserResponseOptions</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>JWTKeychainController</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">class</span> <span class="kt">JWTKeychainController</span><span class="o">&lt;</span><span class="kt">U</span><span class="o">&gt;</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/JWTKeychainControllerType.html">JWTKeychainControllerType</a></span> <span class="k">where</span> <span class="kt">U</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/JWTKeychainUserType.html">JWTKeychainUserType</a></span></code></pre>
+
+                </div>
+              </div>
+            <p>Controller for JWTKeychain with default implementations. Can be subclassed in case some of the
+routes need custom behavior.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerCACyxGycfc"></a>
+                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerCACyxGycfc">init()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerC5logIn3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF"></a>
+                    <a name="//apple_ref/swift/Method/logIn(req:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerC5logIn3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF">logIn(req:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">func</span> <span class="nf">logIn</span><span class="p">(</span><span class="nv">req</span><span class="p">:</span> <span class="kt">Request</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt">Response</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerC2me3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF"></a>
+                    <a name="//apple_ref/swift/Method/me(req:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerC2me3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF">me(req:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">func</span> <span class="nf">me</span><span class="p">(</span><span class="nv">req</span><span class="p">:</span> <span class="kt">Request</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt">Response</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerC8register3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF"></a>
+                    <a name="//apple_ref/swift/Method/register(req:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerC8register3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF">register(req:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">func</span> <span class="nf">register</span><span class="p">(</span><span class="nv">req</span><span class="p">:</span> <span class="kt">Request</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt">Response</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerC5token3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF"></a>
+                    <a name="//apple_ref/swift/Method/token(req:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerC5token3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF">token(req:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">func</span> <span class="nf">token</span><span class="p">(</span><span class="nv">req</span><span class="p">:</span> <span class="kt">Request</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt">Response</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerC6update3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF"></a>
+                    <a name="//apple_ref/swift/Method/update(req:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerC6update3req3NIO15EventLoopFutureCy5Vapor8ResponseCGAI7RequestC_tKF">update(req:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">func</span> <span class="nf">update</span><span class="p">(</span><span class="nv">req</span><span class="p">:</span> <span class="kt">Request</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt">Response</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:11JWTKeychain0A10ControllerC16makeUserResponse3for11withOptions2on3NIO15EventLoopFutureCyAA0dE0VyxGGx_AA0deH0V5Vapor7RequestCtKF"></a>
+                    <a name="//apple_ref/swift/Method/makeUserResponse(for:withOptions:on:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11JWTKeychain0A10ControllerC16makeUserResponse3for11withOptions2on3NIO15EventLoopFutureCyAA0dE0VyxGGx_AA0deH0V5Vapor7RequestCtKF">makeUserResponse(for:withOptions:on:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Makes UserResponse value containing (all optional, depending on the <code>options</code> parameter):</p>
+
+<ul>
+<li>a publically safe representation of the user</li>
+<li>an access token</li>
+<li><p>a refresh token</p></li>
+<li><p>user: the user for which the generate the tokens</p></li>
+<li><p>options: determines which of the values to include in the response</p></li>
+<li><p>req: the current request</p></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">makeUserResponse</span><span class="p">(</span>
+    <span class="k">for</span> <span class="nv">user</span><span class="p">:</span> <span class="kt">U</span><span class="p">,</span>
+    <span class="n">withOptions</span> <span class="nv">options</span><span class="p">:</span> <span class="kt"><a href="../Structs/UserResponseOptions.html">UserResponseOptions</a></span><span class="p">,</span>
+    <span class="n">on</span> <span class="nv">req</span><span class="p">:</span> <span class="kt">Request</span>
+<span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/UserResponse.html">UserResponse</a></span><span class="o">&lt;</span><span class="kt">U</span><span class="o">&gt;&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>user</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>the user for which the generate the tokens</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>options</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>determines which of the values to include in the response</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>req</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>the current request</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>a future UserResponse value containing the requested values</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2019-08-01)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.10.0</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

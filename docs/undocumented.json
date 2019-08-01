@@ -1,0 +1,306 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Config/JWTKeychainEndpoints.swift",
+      "line": 5,
+      "symbol": "JWTKeychainEndpoints.login",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Config/JWTKeychainEndpoints.swift",
+      "line": 6,
+      "symbol": "JWTKeychainEndpoints.me",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Config/JWTKeychainEndpoints.swift",
+      "line": 7,
+      "symbol": "JWTKeychainEndpoints.register",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Config/JWTKeychainEndpoints.swift",
+      "line": 8,
+      "symbol": "JWTKeychainEndpoints.token",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Config/JWTKeychainEndpoints.swift",
+      "line": 9,
+      "symbol": "JWTKeychainEndpoints.update",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 6,
+      "symbol": "JWTKeychainControllerType.logIn(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 7,
+      "symbol": "JWTKeychainControllerType.me(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 8,
+      "symbol": "JWTKeychainControllerType.register(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 9,
+      "symbol": "JWTKeychainControllerType.token(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 10,
+      "symbol": "JWTKeychainControllerType.update(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 16,
+      "symbol": "JWTKeychainController.init()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 18,
+      "symbol": "JWTKeychainController.logIn(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 27,
+      "symbol": "JWTKeychainController.me(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 34,
+      "symbol": "JWTKeychainController.register(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 44,
+      "symbol": "JWTKeychainController.token(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Controller/JWTKeychainController.swift",
+      "line": 54,
+      "symbol": "JWTKeychainController.update(req:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Errors/JWTKeychainError.swift",
+      "line": 5,
+      "symbol": "JWTKeychainError.malformedPayload",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Extensions/Router.swift",
+      "line": 4,
+      "symbol": "Router.useJWTKeychainRoutes(_:on:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainMiddlewares.swift",
+      "line": 3,
+      "symbol": "JWTKeychainMiddlewares",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainMiddlewares.swift",
+      "line": 4,
+      "symbol": "JWTKeychainMiddlewares.accessMiddlewares",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainMiddlewares.swift",
+      "line": 5,
+      "symbol": "JWTKeychainMiddlewares.refreshMiddlewares",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/Extensions/JWTKeychainUser+PublicRepresentable.swift",
+      "line": 5,
+      "symbol": "JWTKeychainUser.Public",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/Extensions/JWTKeychainUser+PublicRepresentable.swift",
+      "line": 10,
+      "symbol": "JWTKeychainUser.convertToPublic(on:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/Extensions/JWTKeychainUser+Updatable.swift",
+      "line": 4,
+      "symbol": "JWTKeychainUser.Update",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/Extensions/JWTKeychainUser+Updatable.swift",
+      "line": 8,
+      "symbol": "JWTKeychainUser.update(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 8,
+      "symbol": "JWTKeychainUser.email",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 9,
+      "symbol": "JWTKeychainUser.name",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 10,
+      "symbol": "JWTKeychainUser.password",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 11,
+      "symbol": "JWTKeychainUser.passwordChangeCount",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 13,
+      "symbol": "JWTKeychainUser.createdAt",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 14,
+      "symbol": "JWTKeychainUser.updatedAt",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 15,
+      "symbol": "JWTKeychainUser.deletedAt",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/JWTKeychainUser/JWTKeychainUser.swift",
+      "line": 17,
+      "symbol": "JWTKeychainUser.init(id:email:name:password:passwordChangeCount:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 4,
+      "symbol": "UserResponse",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 9,
+      "symbol": "UserResponse.init(user:accessToken:refreshToken:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 16,
+      "symbol": "UserResponseOptions",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 23,
+      "symbol": "UserResponseOptions.user",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 24,
+      "symbol": "UserResponseOptions.accessToken",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 25,
+      "symbol": "UserResponseOptions.refreshToken",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Models/UserResponse.swift",
+      "line": 27,
+      "symbol": "UserResponseOptions.all",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Provider/JWTKeychainProvider.swift",
+      "line": 5,
+      "symbol": "JWTKeychainProvider",
+      "symbol_kind": "source.lang.swift.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Provider/JWTKeychainProvider.swift",
+      "line": 8,
+      "symbol": "JWTKeychainProvider.init(configFactory:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/emilmarashliev/Projects/jwt-keychain/Sources/JWTKeychain/Provider/JWTKeychainProvider.swift",
+      "line": 14,
+      "symbol": "JWTKeychainProvider",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/emilmarashliev/Projects/jwt-keychain"
+}
