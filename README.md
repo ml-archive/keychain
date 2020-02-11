@@ -19,7 +19,7 @@ https://github.com/nodes-vapor/jwt-keychain-demo
 Update your `Package.swift` file.
 
 ```swift
-.package(url: "https://github.com/nodes-vapor/jwt-keychain.git", upToMajorVersion: "2.0.0")
+.package(url: "https://github.com/nodes-vapor/jwt-keychain.git", from: "1.0.0")
 ```
 ```swift
 targets: [
@@ -108,7 +108,6 @@ TODO:
 ## 🏆 Credits
 
 This package is developed and maintained by the Vapor team at [Nodes](https://www.nodesagency.com).
-The package owner for this project is [Siemen](https://github.com/siemensikkema/).
 
 ## 📄 License
 
