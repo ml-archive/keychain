@@ -33,6 +33,7 @@ extension JWTKeychainUser: Content {}
 extension JWTKeychainUser: HasPassword {}
 extension JWTKeychainUser: Migration {}
 extension JWTKeychainUser: MySQLModel {
+    public typealias Database = MySQLDatabase
     public static let createdAtKey: TimestampKey? = \.createdAt
     public static let updatedAtKey: TimestampKey? = \.updatedAt
     public static let deletedAtKey: TimestampKey? = \.deletedAt
