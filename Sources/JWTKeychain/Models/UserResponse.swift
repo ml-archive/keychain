@@ -1,4 +1,3 @@
-import Sugar
 import Vapor
 
 public struct UserResponse<U: PublicRepresentable>: Content {

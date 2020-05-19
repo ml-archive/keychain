@@ -1,7 +1,7 @@
-import Sugar
+import Vapor
 
-extension JWTKeychainUser: Updatable {
-    public struct Update: Decodable {
+extension JWTKeychainUser {
+    public struct Update: Content {
         let name: String?
     }
 

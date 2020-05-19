@@ -1,5 +1,6 @@
 import Vapor
 
+/*
 public extension Router {
     func useJWTKeychainRoutes<U: JWTKeychainUserType>(
         _ type: U.Type,
@@ -33,3 +34,4 @@ public extension Router {
         }
     }
 }
+*/

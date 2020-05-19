@@ -1,7 +1,7 @@
-import Sugar
+import Vapor
 
-extension JWTKeychainUser: Loginable {
-    public struct Login: Decodable, HasReadablePassword, HasReadableUsername {
+extension JWTKeychainUser {
+    public struct Login: Content {
         public static let readablePasswordKey = \Login.password
         public static let readableUsernameKey = \Login.email
 

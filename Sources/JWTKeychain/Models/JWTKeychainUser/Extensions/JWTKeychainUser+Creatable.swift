@@ -1,7 +1,7 @@
-import Sugar
+import Vapor
 
-extension JWTKeychainUser: Creatable {
-    public struct Create: Decodable, HasReadablePassword, HasReadableUsername {
+extension JWTKeychainUser {
+    public struct Create: Content {
         public static let readablePasswordKey = \Create.password
         public static let readableUsernameKey = \Create.email
 
@@ -14,7 +14,7 @@ extension JWTKeychainUser: Creatable {
         try self.init(
             email: create.email,
             name: create.name,
-            password: JWTKeychainUser.hashPassword(create.password)
+            password: Bcrypt.hash(create.password, cost: 10)
         )
     }
 }

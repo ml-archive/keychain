@@ -24,7 +24,7 @@ extension JWTKeychainError: AbortError {
 }
 
 // MARK: - Debuggable
-extension JWTKeychainError: Debuggable {
+extension JWTKeychainError: DebuggableError {
 
     /// See `Debuggable`.
     public var identifier: String {

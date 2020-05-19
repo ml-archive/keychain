@@ -1,4 +1,4 @@
-import Routing
+import Foundation
 
 /// Endpoints to use by the JWTKeychainProvider when registering routes.
 public struct JWTKeychainEndpoints {

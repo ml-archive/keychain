@@ -1,4 +1,3 @@
-import Sugar
 import Vapor
 
 extension JWTKeychainUser: PublicRepresentable {
@@ -7,7 +6,7 @@ extension JWTKeychainUser: PublicRepresentable {
         let name: String
     }
 
-    public func convertToPublic(on req: Request) throws -> Future<Public> {
-        return req.future(.init(email: email, name: name))
+    public func convertToPublic(on req: Request) throws -> EventLoopFuture<Public> {
+        return req.eventLoop.future(.init(email: email, name: name))
     }
 }
