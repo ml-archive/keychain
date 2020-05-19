@@ -1,12 +1,8 @@
 import Vapor
-import JWT
-
-fileprivate struct JWTKeychainKey: StorageKey {
-    typealias Value = Application.JWTKeychain
-}
+import JWTKit
 
 extension Application {
-    struct JWTKeychain {
+    public struct JWTKeychain {
         /// Signer and expiration period for access tokens.
         public let accessTokenSigner: JWTSigner
         
@@ -15,9 +11,12 @@ extension Application {
         public let refreshTokenSigner: JWTSigner? = nil
     }
     
-    var jtwKeychain: JWTKeychain? {
-        get { storage[JWTKeychainKey.self] }
-        
-        set { storage[JWTKeychainKey.self] = newValue }
+    fileprivate struct Key: StorageKey {
+        typealias Value = JWTKeychain
+    }
+    
+    public var jwtKeychain: JWTKeychain? {
+        get { storage[Key.self] }
+        set { storage[Key.self] = newValue }
     }
 }
