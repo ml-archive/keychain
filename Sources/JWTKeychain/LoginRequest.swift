@@ -13,7 +13,7 @@ public protocol LoginRequest: AuthenticationRequest, ValidatableRequest {
 public extension LoginRequest {
     static func logIn(
         on request: Request,
-        errorOnWrongPassword: Error,
+        errorOnWrongPassword: @escaping @autoclosure () -> Error,
         currentDate: Date = Date()
     ) -> EventLoopFuture<AuthenticationResponse<Model>> {
         validated(on: request).flatMap { loginRequest in
@@ -23,7 +23,7 @@ public extension LoginRequest {
                     request.password.async
                         .verify(loginRequest.password, created: user[keyPath: hashedPasswordKey])
                         .flatMapThrowing { passwordsMatch in
-                            guard passwordsMatch else { throw errorOnWrongPassword }
+                            guard passwordsMatch else { throw errorOnWrongPassword() }
 
                             return try authenticationResponse(
                                 for: user,
