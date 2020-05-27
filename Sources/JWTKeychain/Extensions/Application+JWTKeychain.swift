@@ -7,7 +7,7 @@ public extension Application {
             typealias Value = Keychain
         }
 
-        let application: Application
+        fileprivate let application: Application
 
         public func config<T: KeychainConfig>(for jwkIdentifiableType: T.Type) -> T {
             application.storage[JWKStorageKey<T>.self]!
