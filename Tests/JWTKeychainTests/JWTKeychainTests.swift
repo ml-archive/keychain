@@ -62,6 +62,16 @@ final class JWTKeychainTests: XCTestCase {
         }
     }
 
+    func test_login_includesValidation() throws {
+        try app.test(.POST, "login?fail", beforeRequest: { request in
+            try request.content.encode(["password": "secret"], as: .json)
+        }) { response in
+            XCTAssertEqual(response.status, .badRequest)
+            let errorReason: String = try response.content.get(at: "reason")
+            XCTAssertEqual(errorReason, "validation has failed")
+        }
+    }
+
     func test_register() throws {
         try app.test(.POST, "register", beforeRequest: { request in
             try request.content.encode(["name": "Ida", "password": "secret"], as: .json)
@@ -93,6 +103,16 @@ final class JWTKeychainTests: XCTestCase {
         XCTAssertNoThrow(try app.password.verify("secret", created: user.hashedPassword))
     }
 
+    func test_register_includesValidation() throws {
+        try app.test(.POST, "register?fail", beforeRequest: { request in
+            try request.content.encode(["name": "Ida", "password": "secret"], as: .json)
+        }) { response in
+            XCTAssertEqual(response.status, .badRequest)
+            let errorReason: String = try response.content.get(at: "reason")
+            XCTAssertEqual(errorReason, "validation has failed")
+        }
+    }
+
     func test_forgotPassword_ignoresUserNotFound() throws {
         try app.test(.POST, "password/forgot", beforeRequest: { request in
             try request.content.encode(["name": "Ida"], as: .json)
@@ -120,6 +140,16 @@ final class JWTKeychainTests: XCTestCase {
         XCTAssertEqual(accessTokenPayload.exp.value.timeIntervalSince1970, 400)
     }
 
+    func test_forgotPassword_includesValidation() throws {
+        try app.test(.POST, "password/forgot?fail", beforeRequest: { request in
+            try request.content.encode(["name": "Ida"], as: .json)
+        }) { response in
+            XCTAssertEqual(response.status, .badRequest)
+            let errorReason: String = try response.content.get(at: "reason")
+            XCTAssertEqual(errorReason, "validation has failed")
+        }
+    }
+
     func test_resetPassword_requiresAuthentication() throws {
         try app.test(.POST, "password/reset") { response in
             XCTAssertEqual(response.status, .unauthorized)
@@ -137,11 +167,81 @@ final class JWTKeychainTests: XCTestCase {
             request.headers.bearerAuthorization = .init(token: token)
             try request.content.encode(["password": "secret2"], as: .json)
         }) { response in
+            XCTAssertEqual(response.status, .ok)
             XCTAssertTrue(try app.password.verify(
                 "secret2",
                 created: app.users.testUser?.hashedPassword ?? ""
             ))
+        }
+    }
+
+    func test_resetPassword_includesValidation() throws {
+        app.users.testUser = .test
+        try app.test(.POST, "password/reset?fail", beforeRequest: { request in
+            let token = try self.app.jwt.signers
+                .sign(
+                    UserJWTPayload(expirationDate: Date(), user: .test),
+                    kid: UserResetKeychainConfig.jwkIdentifier
+                )
+            request.headers.bearerAuthorization = .init(token: token)
+            try request.content.encode(["password": "secret2"], as: .json)
+        }) { response in
+            XCTAssertEqual(response.status, .badRequest)
+            let errorReason: String = try response.content.get(at: "reason")
+            XCTAssertEqual(errorReason, "validation has failed")
+        }
+    }
+
+    func test_refreshToken_requiresAuthentication() throws {
+        try app.test(.POST, "password/reset") { response in
+            XCTAssertEqual(response.status, .unauthorized)
+        }
+    }
+
+    func test_refreshToken() throws {
+        app.users.testUser = .test
+        try app.test(.POST, "token", beforeRequest: { request in
+            let token = try self.app.jwt.signers
+                .sign(
+                    UserJWTPayload(expirationDate: Date(), user: .test),
+                    kid: UserRefreshKeychainConfig.jwkIdentifier
+                )
+            request.headers.bearerAuthorization = .init(token: token)
+        }) { response in
             XCTAssertEqual(response.status, .ok)
+
+            let token = try response.content.decode(String.self)
+
+            // test refresh token
+            let refreshTokenPayload: UserJWTPayload = try app.jwt.signers
+                .require(kid: UserRefreshKeychainConfig.jwkIdentifier)
+                .verify(token)
+            XCTAssertEqual(refreshTokenPayload.sub, "userID")
+            XCTAssertEqual(refreshTokenPayload.exp.value.timeIntervalSince1970, 600)
+        }
+    }
+
+    func test_me_requiresAuthentication() throws {
+        try app.test(.GET, "me") { response in
+            XCTAssertEqual(response.status, .unauthorized)
+        }
+    }
+
+    func test_me() throws {
+        app.users.testUser = .test
+        try app.test(.GET, "me", beforeRequest: { request in
+            let token = try self.app.jwt.signers
+                .sign(
+                    UserJWTPayload(expirationDate: Date(), user: .test),
+                    kid: UserAccessKeychainConfig.jwkIdentifier
+                )
+            request.headers.bearerAuthorization = .init(token: token)
+        }) { response in
+            XCTAssertEqual(response.status, .ok)
+
+            // test user response
+            let userResponse = try response.content.decode(UserResponse.self)
+            XCTAssertEqual(userResponse, .init(name: "Ida"))
         }
     }
 }

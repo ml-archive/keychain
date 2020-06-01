@@ -10,17 +10,15 @@ public protocol ResetPasswordRequest: ValidatableRequest {
 
 public extension ResetPasswordRequest {
     static func updatePassword(for user: Model, on request: Request) -> EventLoopFuture<Model> {
-        do {
-            return request
-                .password
-                .async
-                .hash(try Self(request: request).password)
-                .map {
-                    user[keyPath: Self.hashedPasswordKey] = $0
-                    return user
-                }
-        } catch {
-            return request.eventLoop.makeFailedFuture(error)
+        validated(on: request).flatMap { resetPasswordRequest in
+            request
+            .password
+            .async
+            .hash(resetPasswordRequest.password)
+            .map {
+                user[keyPath: Self.hashedPasswordKey] = $0
+                return user
+            }
         }
     }
 }

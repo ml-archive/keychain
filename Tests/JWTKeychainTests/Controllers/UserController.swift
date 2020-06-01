@@ -36,6 +36,20 @@ struct UserController {
             .map { request.testUser = $0}
             .transform(to: .ok)
     }
+
+    func refreshToken(request: Request) throws -> Response {
+        let token = try UserRefreshKeychainConfig.makeToken(on: request, currentDate: currentDate())
+
+        // here we encode the token string as JSON but you might include your token in a struct
+        // conforming to `Content`
+        let response = Response()
+        try response.content.encode(token, as: .json)
+        return response
+    }
+
+    func me(request: Request) throws -> UserResponse {
+        try .init(user: request.auth.require(User.self))
+    }
 }
 
 extension UserController: RouteCollection {
@@ -48,5 +62,12 @@ extension UserController: RouteCollection {
         password
             .grouped(UserResetKeychainConfig.authenticator)
             .post("reset", use: resetPassword)
+
+        routes
+            .grouped(UserRefreshKeychainConfig.authenticator)
+            .post("token", use: refreshToken)
+        routes
+            .grouped(UserAccessKeychainConfig.authenticator)
+            .get("me", use: me)
     }
 }

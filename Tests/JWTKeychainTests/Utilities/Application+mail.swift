@@ -1,3 +1,4 @@
+import JWTKeychain
 import Vapor
 
 extension Application {
