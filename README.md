@@ -1,4 +1,4 @@
-# JWT Keychain ⛓
+# Keychain ⛓
 [![Swift Version](https://img.shields.io/badge/Swift-4.1-brightgreen.svg)](http://swift.org)
 [![Vapor Version](https://img.shields.io/badge/Vapor-3-30B6FC.svg)](http://vapor.codes)
 [![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
@@ -27,7 +27,7 @@ targets: [
         name: "App",
         dependencies: [
             ...
-            "JWTKeychain"
+            "Keychain"
         ]
     ),
     ...
@@ -42,14 +42,14 @@ TODO
 
 Copy package resources:
 
-Move the content of `JWTKeychain/Resources/Views` into the `Resources/Views` folder of your project. Unfortunately there's no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you're not overwriting any files in your project.
+Move the content of `Keychain/Resources/Views` into the `Resources/Views` folder of your project. Unfortunately there's no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you're not overwriting any files in your project.
 
 See `https://github.com/vapor/jwt` to learn more about signing.
 
 ### Usage
 
 ```swift
-import JWTKeychain
+import Keychain
 ```
 
 ### Token Generator Command
@@ -58,7 +58,7 @@ In order to generate password reset tokens for users add the following to `dropl
 > `drop --run keychain:generate_token user@email.com`
 
 ## Tokens
-There are three types of tokens used by JWTKeychain: refresh tokens, API access tokens, and password reset tokens.
+There are three types of tokens used by Keychain: refresh tokens, API access tokens, and password reset tokens.
 
 Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string).
 

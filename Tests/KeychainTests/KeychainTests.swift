@@ -1,9 +1,9 @@
-@testable import JWTKeychain
+@testable import Keychain
 import Vapor
 import JWT
 import XCTVapor
 
-final class JWTKeychainTests: XCTestCase {
+final class KeychainTests: XCTestCase {
     var app: Application!
 
     override func setUp() {

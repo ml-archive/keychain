@@ -3,12 +3,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "jwt-keychain",
+    name: "keychain",
     platforms: [
          .macOS(.v10_15)
       ],
     products: [
-        .library(name: "JWTKeychain", targets: ["JWTKeychain"])
+        .library(name: "Keychain", targets: ["Keychain"])
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
@@ -18,7 +18,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "JWTKeychain", 
+            name: "Keychain",
             dependencies: [
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "JWT", package: "jwt"),
@@ -26,8 +26,8 @@ let package = Package(
                 .product(name: "Submissions", package: "submissions"),
             ]
         ),
-        .testTarget(name: "JWTKeychainTests", dependencies: [
-            .target(name:"JWTKeychain"),
+        .testTarget(name: "KeychainTests", dependencies: [
+            .target(name:"Keychain"),
             .product(name: "XCTVapor", package: "vapor"),
         ])
     ]

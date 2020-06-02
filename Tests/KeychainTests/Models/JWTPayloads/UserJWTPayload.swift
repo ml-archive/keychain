@@ -1,6 +1,6 @@
 import Foundation
 import JWT
-import JWTKeychain
+import Keychain
 import Vapor
 
 struct UserJWTPayload: KeychainPayload {

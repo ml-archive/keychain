@@ -1,6 +1,6 @@
 import Foundation
 import JWT
-import JWTKeychain
+import Keychain
 
 struct UserRefreshKeychainConfig: KeychainConfig, Equatable {
     typealias JWTPayload = UserJWTPayload

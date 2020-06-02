@@ -1,4 +1,4 @@
-import JWTKeychain
+import Keychain
 import Vapor
 
 struct UserRegisterRequest: Decodable, RegisterRequest {
