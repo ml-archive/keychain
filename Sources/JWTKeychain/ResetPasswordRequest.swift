@@ -1,4 +1,5 @@
 import Vapor
+import Submissions
 
 public protocol ResetPasswordRequest: ValidatableRequest {
     associatedtype Model

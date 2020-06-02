@@ -13,7 +13,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0-rc"),
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0")
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/nodes-vapor/submissions.git", from: "3.0.0-rc")
     ],
     targets: [
         .target(
@@ -22,6 +23,7 @@ let package = Package(
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "JWT", package: "jwt"),
                 .product(name: "Vapor", package: "vapor"),
+                .product(name: "Submissions", package: "submissions"),
             ]
         ),
         .testTarget(name: "JWTKeychainTests", dependencies: [

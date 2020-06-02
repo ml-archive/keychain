@@ -1,4 +1,5 @@
 import Vapor
+import Submissions
 
 public protocol LoginRequest: AuthenticationRequest, ValidatableRequest {
     typealias Model = User
