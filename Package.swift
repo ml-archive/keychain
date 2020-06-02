@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "jwt-keychain ",
+    name: "jwt-keychain",
     platforms: [
          .macOS(.v10_15)
       ],
