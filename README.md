@@ -24,8 +24,6 @@ targets: [
         dependencies: [
             ...
             .product(name: "Keychain", package: "keychain"),
-
-            "Keychain"
         ]
     ),
     ...
