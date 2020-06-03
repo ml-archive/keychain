@@ -79,7 +79,6 @@ struct UserJWTPayload: KeychainPayload {
 #### KeychainConfigs
 There are three types of tokens used by Keychain: refresh tokens, API access tokens, and password reset tokens.
 
-Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string).
 ```swift
 import JWT
 import Keychain
