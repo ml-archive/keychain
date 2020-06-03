@@ -1,30 +1,34 @@
-// swift-tools-version:4.0
+// swift-tools-version:5.2
 
 import PackageDescription
 
 let package = Package(
-    name: "JWTKeychain",
+    name: "keychain",
+    platforms: [
+         .macOS(.v10_15)
+      ],
     products: [
-        .library(name: "JWTKeychain", targets: ["JWTKeychain"])
+        .library(name: "Keychain", targets: ["Keychain"])
     ],
     dependencies: [
-        .package(url: "https://github.com/nodes-vapor/sugar.git", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/auth.git", from: "2.0.0"),
-        .package(url: "https://github.com/vapor/fluent-mysql.git", from: "3.0.0"),
-        .package(url: "https://github.com/vapor/jwt.git", from: "3.0.0"),
-        .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0")
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
+        .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0-rc"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/nodes-vapor/submissions.git", from: "3.0.0-rc")
     ],
     targets: [
         .target(
-            name: "JWTKeychain", 
+            name: "Keychain",
             dependencies: [
-                "Authentication",
-                "FluentMySQL",
-                "JWT",
-                "Sugar",
-                "Vapor"
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "JWT", package: "jwt"),
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Submissions", package: "submissions"),
             ]
         ),
-        .testTarget(name: "JWTKeychainTests", dependencies: ["JWTKeychain"])
+        .testTarget(name: "KeychainTests", dependencies: [
+            .target(name:"Keychain"),
+            .product(name: "XCTVapor", package: "vapor"),
+        ])
     ]
 )

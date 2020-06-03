@@ -1,25 +1,21 @@
-# JWT Keychain ⛓
-[![Swift Version](https://img.shields.io/badge/Swift-4.1-brightgreen.svg)](http://swift.org)
+# Keychain ⛓
+[![Swift Version](https://img.shields.io/badge/Swift-5.2-brightgreen.svg)](http://swift.org)
+[![Vapor Version](https://img.shields.io/badge/Vapor-4-30B6FC.svg)](http://vapor.codes)
 [![Vapor Version](https://img.shields.io/badge/Vapor-3-30B6FC.svg)](http://vapor.codes)
 [![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
-[![Circle CI](https://circleci.com/gh/nodes-vapor/jwt-keychain/tree/master.svg?style=shield)](https://circleci.com/gh/nodes-vapor/jwt-keychain)
 [![codebeat badge](https://codebeat.co/badges/04ee1891-95e9-483e-99c1-44a9191d1d8a)](https://codebeat.co/projects/github-com-nodes-vapor-jwt-keychain-master)
-[![codecov](https://codecov.io/gh/nodes-vapor/jwt-keychain/branch/master/graph/badge.svg)](https://codecov.io/gh/nodes-vapor/jwt-keychain)
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/nodes-vapor/jwt-keychain)](http://clayallsopp.github.io/readme-score?url=https://github.com/nodes-vapor/jwt-keychain)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nodes-vapor/jwt-keychain/master/LICENSE)
 
 Add a complete and customizable user authentication system for your API project.
 
-## Demo project
-
-https://github.com/nodes-vapor/jwt-keychain-demo
 
 ## 📦 Installation
 
 Update your `Package.swift` file.
 
 ```swift
-.package(url: "https://github.com/nodes-vapor/jwt-keychain.git", from: "1.0.0")
+.package(url: "https://github.com/nodes-vapor/keychain.git", from: "1.0.1")
 ```
 ```swift
 targets: [
@@ -27,83 +23,149 @@ targets: [
         name: "App",
         dependencies: [
             ...
-            "JWTKeychain"
+            .product(name: "Keychain", package: "keychain"),
+
+            "Keychain"
         ]
     ),
     ...
 ]
 ```
-
-## Getting started 🚀
-
-TODO
-
-### Resources
-
-Copy package resources:
-
-Move the content of `JWTKeychain/Resources/Views` into the `Resources/Views` folder of your project. Unfortunately there's no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you're not overwriting any files in your project.
-
-See `https://github.com/vapor/jwt` to learn more about signing.
-
-### Usage
-
+## Usage
+### Setup 
 ```swift
-import JWTKeychain
+app.keychain.configure(
+    signer: JWTSigner(
+        algorithm: TestJWTAlgorithm(name: UserAccessKeychainConfig.jwkIdentifier.string)
+    ),
+    config: UserAccessKeychainConfig()
+)
+app.keychain.configure(
+    signer: JWTSigner(
+        algorithm: TestJWTAlgorithm(name: UserRefreshKeychainConfig.jwkIdentifier.string)
+    ),
+    config: UserRefreshKeychainConfig()
+)
+app.keychain.configure(
+    signer: JWTSigner(
+        algorithm: TestJWTAlgorithm(name: UserResetKeychainConfig.jwkIdentifier.string)
+    ),
+    config: UserResetKeychainConfig()
+)
 ```
 
-### Token Generator Command
-In order to generate password reset tokens for users add the following to `droplet.json`'s `commands`: `"keychain:generate_token"`. Then you can create a token like so:
+#### JWTPayload
+```swift
+import JWT
+import Keychain
+import Vapor
 
-> `drop --run keychain:generate_token user@email.com`
+struct UserJWTPayload: KeychainPayload {
+    let exp: ExpirationClaim
+    let sub: SubjectClaim
 
-## Tokens
-There are three types of tokens used by JWTKeychain: refresh tokens, API access tokens, and password reset tokens.
+    init(expirationDate: Date, user: User) {
+        self.exp = .init(value: expirationDate)
+        self.sub = .init(value: user.id)
+    }
+
+    func findUser(request: Request) -> EventLoopFuture<User> {
+        request.eventLoop.future(request.testUser).unwrap(or: TestError.userNotFound)
+    }
+
+    func verify(using signer: JWTSigner) throws {
+        // don't verify anything since we're not testing the JWT package itself
+    }
+}
+```
+#### KeychainConfigs
+There are three types of tokens used by Keychain: refresh tokens, API access tokens, and password reset tokens.
 
 Both refresh and access tokens should be included in the `Authorization` header for each request they are needed for, as follows: `Authorization: Bearer TOKEN` (where `TOKEN` is replaced with the actual token string).
+```swift
+import JWT
+import Keychain
 
-### Refresh Tokens
+struct UserAccessKeychainConfig: KeychainConfig, Equatable {
+    typealias JWTPayload = UserJWTPayload
 
-> Usage of this type of token is optional but recommended for extra security. You can opt-out of using refresh tokens by omitting the value for `refreshToken` in `jwt-keychain.json`.
+    static var jwkIdentifier: JWKIdentifier = "access"
 
-Refresh tokens are tokens with a long expiration time that can be used to generate the more short-lived access tokens that are needed for API access.
+    let expirationTimeInterval: TimeInterval = 300
+}
 
-Refresh tokens are returned when logging in and when signing up* as a string under the key: `refreshToken`. They can only be used to create new access tokens at the `/users/regenerate` endpoint.
+struct UserRefreshKeychainConfig: KeychainConfig, Equatable {
+    typealias JWTPayload = UserJWTPayload
 
-When a refresh token expires a new one can be generated by logging in using the user's credentials.
+    static var jwkIdentifier: JWKIdentifier = "refresh"
 
-\* Besides the refresh token, an access token and the user object are also returned as a convenience to the client developer.
+    let expirationTimeInterval: TimeInterval = 600
+}
 
-### API Access Tokens
+struct UserResetKeychainConfig: KeychainConfig, Equatable {
+    typealias JWTPayload = UserJWTPayload
 
-API Access tokens give access to the following endpoints:
-* GET `/users/me`
-* GET `/users/logout`
-* PATCH `/users/update`
+    static var jwkIdentifier: JWKIdentifier = "reset"
 
-TODO: add other routes
+    let expirationTimeInterval: TimeInterval = 400
+}
+```
 
-Whenever an access token is expired a new one can be generated using a request to `/users/regenerate`.
+#### UserController
+```swift
+import Keychain
 
-### Password Reset Tokens
+struct UserController {
+    let currentDate: () -> Date
 
-TODO: explain
+    func login(request: Request) -> EventLoopFuture<AuthenticationResponse<UserResponse>> {
+        UserLoginRequest
+            .logIn(
+                on: request,
+                errorOnWrongPassword: TestError.incorrectCredentials,
+                currentDate: currentDate()
+            ).map { $0.map(UserResponse.init) }
+    }
 
-## Customization
+    func register(request: Request) -> EventLoopFuture<AuthenticationResponse<UserResponse>> {
+        UserRegisterRequest
+            .register(
+                on: request,
+                currentDate: currentDate()
+            ).map {
+                request.testUser = $0.user
+                return $0.map(UserResponse.init)
+            }
+    }
 
-TODO:
+    func forgotPassword(request: Request) -> EventLoopFuture<HTTPStatus> {
+        UserForgotPasswordRequest
+            .sendToken(on: request, currentDate: currentDate())
+            .transform(to: .accepted)
+    }
 
-### API Requests
+    func resetPassword(request: Request) -> EventLoopFuture<HTTPStatus> {
+        UserResetPasswordRequest
+            .updatePassword(on: request)
+            .map { request.testUser = $0}
+            .transform(to: .ok)
+    }
 
-TODO:
+    func refreshToken(request: Request) throws -> Response {
+        let token = try UserRefreshKeychainConfig.makeToken(on: request, currentDate: currentDate())
 
-### Frontend Requests
+        // here we encode the token string as JSON but you might include your token in a struct
+        // conforming to `Content`
+        let response = Response()
+        try response.content.encode(token, as: .json)
+        return response
+    }
 
-TODO:
-
-### Supply Additional Middleware
-
-TODO:
+    func me(request: Request) throws -> UserResponse {
+        try .init(user: request.auth.require(User.self))
+    }
+}
+```
 
 ## 🏆 Credits
 
