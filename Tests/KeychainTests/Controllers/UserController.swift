@@ -37,14 +37,8 @@ struct UserController {
             .transform(to: .ok)
     }
 
-    func refreshToken(request: Request) throws -> Response {
-        let token = try UserRefreshKeychainConfig.makeToken(on: request, currentDate: currentDate())
-
-        // here we encode the token string as JSON but you might include your token in a struct
-        // conforming to `Content`
-        let response = Response()
-        try response.content.encode(token, as: .json)
-        return response
+    func refreshToken(request: Request) throws -> RefreshTokenResponse {
+        .init(refreshToken: try UserRefreshKeychainConfig.makeToken(on: request, currentDate: currentDate()))
     }
 
     func me(request: Request) throws -> UserResponse {

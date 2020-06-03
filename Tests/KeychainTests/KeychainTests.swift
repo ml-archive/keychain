@@ -210,7 +210,7 @@ final class KeychainTests: XCTestCase {
         }) { response in
             XCTAssertEqual(response.status, .ok)
 
-            let token = try response.content.decode(String.self)
+            let token = try response.content.get(String.self, at: "refreshToken")
 
             // test refresh token
             let refreshTokenPayload: UserJWTPayload = try app.jwt.signers
