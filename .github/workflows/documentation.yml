@@ -1,6 +1,8 @@
 name: Documentation
 
-on: [release]
+on:
+  release:
+    types: [published]
 
 jobs:
   build:
