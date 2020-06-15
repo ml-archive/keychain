@@ -26,10 +26,8 @@ public extension ResetPasswordRequest {
 
 public extension ResetPasswordRequest where Model: Authenticatable {
     static func updatePassword(on request: Request) -> EventLoopFuture<Model> {
-        do {
-            return updatePassword(for: try request.auth.require(), on: request)
-        } catch {
-            return request.eventLoop.makeFailedFuture(error)
-        }
+        request.eventLoop
+            .future(result: .init { try request.auth.require() })
+            .flatMap { updatePassword(for: $0, on: request)}
     }
 }
