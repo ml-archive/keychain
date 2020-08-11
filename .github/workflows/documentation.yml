@@ -13,7 +13,7 @@ jobs:
       - name: Generate Documentation
         uses: SwiftDocOrg/swift-doc@master
         with:
-          inputs: "Sources/Keychain"
+          inputs: "Sources"
           module-name: Keychain
           output: "Documentation"
       - name: Upload Documentation to Wiki
@@ -21,4 +21,4 @@ jobs:
         with:
           path: "Documentation"
         env:
-          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.WIKI_ACCESS_TOKEN }}
+          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.WIKI_ACCESS_TOKEN }}
