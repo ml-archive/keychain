@@ -10,26 +10,26 @@ public extension Router {
         let access = self.grouped(middlewares.accessMiddlewares)
 
         if let registerPath = config.endpoints.register {
-            self.post(registerPath) { req in config.controller.register(req) }
+            self.post(registerPath) { req in config.controller.register(req: req) }
         }
 
         if let loginPath = config.endpoints.login {
-            self.post(loginPath) { req in config.controller.logIn(req) }
+            self.post(loginPath) { req in config.controller.logIn(req: req) }
         }
 
         if let mePath = config.endpoints.me {
-            access.get(mePath) { req in config.controller.me(req) }
+            access.get(mePath) { req in config.controller.me(req: req) }
         }
 
         if let updatePath = config.endpoints.update {
-            access.patch(updatePath) { req in config.controller.update }
+            access.patch(updatePath) { req in config.controller.update(req: req) }
         }
 
         if
             let refreshMiddlewares = middlewares.refreshMiddlewares,
             let tokenPath = config.endpoints.token
         {
-            self.grouped(refreshMiddlewares).post(tokenPath) { req in config.controller.token }
+            self.grouped(refreshMiddlewares).post(tokenPath) { req in config.controller.token(req: req) }
         }
     }
 }
