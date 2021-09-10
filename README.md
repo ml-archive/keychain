@@ -137,15 +137,11 @@ app.keychain.configure(
 )
 ```
 
-Note the `signer` parameter. 
-
-Here you can use one of the built in signers as in the first example where we use the `.hs256` signer with a key 
-
-Or you can provide your own signer as it is done in the last two examples.
+Note the `signer` parameter. You can use one of the built in signers as in the first example where we use the `.hs256` signer with a key. or you can provide your own signer as it is done in the last two examples.
 
 ### Actually start using your `Keychain`
 
-With all the setup out of the way, it is time to kick back and take advantage of `Keychain`. You can now use the `UserAccessKeychainConfig`, `UserRefreshKeychainConfig` and `UserResetKeychainConfig` object that you created previously to generate JWT tokens by calling the `makeToken(on:, currentDate:)`
+With all the setup out of the way, it is time to kick back and take advantage of `Keychain`. You can now use the `UserAccessKeychainConfig`, `UserRefreshKeychainConfig` and `UserResetKeychainConfig` objects that you created previously to generate JWT tokens by calling the `makeToken(on:, currentDate:)`
 
 Here is an example on how to generate a new refreshToken.
 
