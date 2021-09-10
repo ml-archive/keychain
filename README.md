@@ -167,7 +167,7 @@ struct UserController {
 
 ## 🏆 Credits
 
-This package is developed and maintained by the Vapor team at [Nodes](https://www.nodesagency.com).
+This package is developed and maintained by the Vapor team at [Monstarlab](https://monstar-lab.com/global/).
 
 ## 📄 License
 
