@@ -143,7 +143,7 @@ Note the `signer` parameter. You can use one of the built in signers as in the f
 
 With all the setup out of the way, it is time to kick back and take advantage of `Keychain`. You can now use the `UserAccessKeychainConfig`, `UserRefreshKeychainConfig` and `UserResetKeychainConfig` objects that you created previously to generate JWT tokens by calling the `makeToken(on:, currentDate:)`
 
-Here is an example on how to generate a new refreshToken.
+Here is an example on how to generate a new `refreshToken`.
 
 ```swift
 import Keychain
