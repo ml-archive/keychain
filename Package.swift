@@ -11,8 +11,8 @@ let package = Package(
         .library(name: "Keychain", targets: ["Keychain"])
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0-rc"),
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.50.0"),
         .package(url: "https://github.com/nodes-vapor/submissions.git", from: "3.0.0-rc")
     ],
     targets: [
