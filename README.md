@@ -13,7 +13,7 @@ Keychain adds a complete and customizable user authentication system to your API
 Update your `Package.swift` file.
 
 ```swift
-.package(url: "https://github.com/nodes-vapor/keychain.git", from: "1.0.1")
+.package(url: "https://github.com/nodes-vapor/keychain.git", from: "2.0.0")
 ```
 ```swift
 targets: [
