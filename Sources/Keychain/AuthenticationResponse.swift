@@ -29,8 +29,5 @@ public struct AuthenticationResponse<User> {
 }
 
 extension AuthenticationResponse: Codable where User: Codable {}
-extension AuthenticationResponse: Content, RequestDecodable, ResponseEncodable where User: Content {}
-
-#if compiler(>=5.5) && canImport(_Concurrency)
-extension AuthenticationResponse: AsyncRequestDecodable, AsyncResponseEncodable where User: Content {}
-#endif
+extension AuthenticationResponse:
+    Content, RequestDecodable, ResponseEncodable, AsyncRequestDecodable, AsyncResponseEncodable where User: Content {}
