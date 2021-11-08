@@ -2,9 +2,9 @@
 [![Swift Version](https://img.shields.io/badge/Swift-5.2-brightgreen.svg)](http://swift.org)
 [![Vapor Version](https://img.shields.io/badge/Vapor-4-30B6FC.svg)](http://vapor.codes)
 ![tests](https://github.com/nodes-vapor/keychain/workflows/test/badge.svg)
-[![codebeat badge](https://codebeat.co/badges/04ee1891-95e9-483e-99c1-44a9191d1d8a)](https://codebeat.co/projects/github-com-nodes-vapor-keychain-master)
+[![codebeat badge](https://codebeat.co/badges/04ee1891-95e9-483e-99c1-44a9191d1d8a)](https://codebeat.co/projects/github-com-nodes-vapor-jwt-keychain-master)
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/nodes-vapor/keychain)](http://clayallsopp.github.io/readme-score?url=https://github.com/nodes-vapor/keychain)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nodes-vapor/keychain/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nodes-vapor/keychain/main/LICENSE)
 
 Keychain adds a complete and customizable user authentication system to your API project.
 
