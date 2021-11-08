@@ -30,12 +30,12 @@ targets: [
 
 ## Usage
 These are the steps required to use Keychain in your project.
-1. Define a Payload which must conform to the `KeychainPayload` protocol
+1. Define a Payload that conforms to the `KeychainPayload` protocol
 2. Create `KeychainConfig` objects for the key types you would like to use
 3. Configure your `Keychain` using a `Signer` and the `KeychainConfig` objects defined in step 2
 4. Actually start using your `Keychain`
 
-Time to look at each step in detail
+Time to look at each step in detail.
 
 ### Define a Payload
 
@@ -44,9 +44,9 @@ Your payload must conform to the  `KeychainPayload` protocol, meaning that it mu
 - `func findUser(request: Request) -> EventLoopFuture<User>` which is where you do a search for the user you were presented in the `init` method
 - `func verify(using signer: JWTSigner) throws` which will verify that your token is still valid
 
-Furthermore you need to tell your `KeychainPayload` what its `associatedtype` for User translates to.
+Furthermore you need to tell your `KeychainPayload` what its `associatedtype` for `User` translates to.
 
-Here is an example that uses elements from a JWT token and verifies that the `ext` part is not expired. Note that `findUser` in this case only returns a test user. In real life you probably want to do a lookup somewhere where users are stored.
+Here is an example that uses elements from a JWT token and verifies that the expiration (`exp`) claim is not expired. Note that `findUser` in this case only returns a test user. In real life you probably want to do a lookup somewhere where users are stored.
 
 ```swift
 import JWT
@@ -75,15 +75,15 @@ struct UserJWTPayload: KeychainPayload {
 ### Create `KeychainConfig` Objects
 
 Your `KeychainConfig` objects must contain:
-- an identifier (eg: access, refresh or reset)
-- an expirationTimeInterval
+- an identifier (eg: access, refresh or reset): `jwkIdentifier`
+- an `expirationTimeInterval`
 
 And you need to connect your `KeychainConfig` with the `KeychainPayload` you defined in step 1 (the `KeychainConfig` has a `typealias` for a `KeychainPayload`).
 
 Here is an example creating three `KeychainConfig` objects:
-- A `UserAccessKeychainConfig` with the identifier "access" and a expirationTimeInterval of 300 seconds
-- A `UserRefreshKeychainConfig` with the identifier "refresh" and a expirationTimeInterval of 600 seconds
-- A `UserResetKeychainConfig` with the identifier "reset" and a expirationTimeInterval of 400 seconds
+- A `UserAccessKeychainConfig` with the identifier "access" and an `expirationTimeInterval` of 300 seconds
+- A `UserRefreshKeychainConfig` with the identifier "refresh" and an `expirationTimeInterval` of 600 seconds
+- A `UserResetKeychainConfig` with the identifier "reset" and an `expirationTimeInterval` of 400 seconds
 
 ```swift
 import JWT
@@ -137,7 +137,7 @@ app.keychain.configure(
 )
 ```
 
-Note the `signer` parameter. You can use one of the built in signers as in the first example where we use the `.hs256` signer with a key. or you can provide your own signer as it is done in the last two examples.
+Note the `signer` parameter. You can use one of the built-in signers as in the first example where we use the `.hs256` signer with a key. Alternatively, you can provide your own signer as it is done in the last two examples.
 
 ### Actually start using your `Keychain`
 
